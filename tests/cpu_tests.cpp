@@ -38,19 +38,48 @@ TEST_CASE("CPU 8-bit Arithmetic Unit Tests - ADD", "[cpu][8-bit][add]") {
         REQUIRE(c1.registers.f.half_carry == false);
     }
 
-    // SECTION ("ADD w/ Overflow") {
-    //     CPU c2;
+    SECTION ("ADD w/ Overflow") {
+        CPU c2;
 
+        c2.registers.a = 200;
+        c2.registers.b = 100;
 
-    // }
+        c2.execute(instruct);
 
-    // SECTION ("ADD w/ Zeroes") {
-    //     CPU c3;
+        REQUIRE(c2.registers.a == 44);
+        REQUIRE(c2.registers.f.zero == false);
+        REQUIRE(c2.registers.f.subtract == false);
+        REQUIRE(c2.registers.f.carry == true);
+        REQUIRE(c2.registers.f.half_carry == false);
+    }
 
+    SECTION ("ADD w/ Zeroes") {
+        CPU c3;
 
-    // }
+        c3.registers.a = 0;
+        c3.registers.b = 0;
 
-    // SECTION ("ADD w/ Half Carry") {
-    //     CPU c4;
-    // }
+        c3.execute(instruct);
+
+        REQUIRE(c3.registers.a == 0);
+        REQUIRE(c3.registers.f.zero == true);
+        REQUIRE(c3.registers.f.subtract == false);
+        REQUIRE(c3.registers.f.carry == false);
+        REQUIRE(c3.registers.f.half_carry == false);
+    }
+
+    SECTION ("ADD w/ Half Carry") {
+        CPU c4;
+
+        c4.registers.a = 15;
+        c4.registers.b = 1;
+
+        c4.execute(instruct);
+
+        REQUIRE(c4.registers.a == 16);
+        REQUIRE(c4.registers.f.zero == false);
+        REQUIRE(c4.registers.f.subtract == false);
+        REQUIRE(c4.registers.f.carry == false);
+        REQUIRE(c4.registers.f.half_carry == true);
+    }
 }
