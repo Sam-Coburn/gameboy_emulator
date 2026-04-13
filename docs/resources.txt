@@ -1,0 +1,5 @@
+Game Boy CPU Manual:
+http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
+
+Game Boy Pan Docs:
+https://gbdev.io/pandocs/About.html
