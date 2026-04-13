@@ -24,73 +24,72 @@ class CPU {
                 /* 8-bit Arithmetic Operations */
 
                 // ADD Instruction adds specified register contents to register A
-                case InstructionType::ADD:
+                case InstructionType::ADD: {
+                    uint8_t value = 0;
+
                     switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
                         case ArithmeticTarget::B:
-                            uint8_t value = registers.b;
-                            uint8_t new_value = add(value);
-
-                            registers.a = new_value;
+                            value = registers.b;
+                            break;
                         case ArithmeticTarget::C:
-                            uint8_t value = registers.c;
-                            uint8_t new_value = add(value);
-
-                            registers.a = new_value;
+                            value = registers.c;
+                            break;
                         case ArithmeticTarget::D:
-                            uint8_t value = registers.d;
-                            uint8_t new_value = add(value);
-
-                            registers.a = new_value;
+                            value = registers.d;
+                            break;
                         case ArithmeticTarget::E:
-                            uint8_t value = registers.e;
-                            uint8_t new_value = add(value);
-
-                            registers.a = new_value;
+                            value = registers.e;
+                            break;
                         case ArithmeticTarget::H:
-                            uint8_t value = registers.h;
-                            uint8_t new_value = add(value);
-
-                            registers.a = new_value;
+                            value = registers.h;
+                            break;
                         case ArithmeticTarget::L:
-                            uint8_t value = registers.l;
-                            uint8_t new_value = add(value);
-
-                            registers.a = new_value;
+                            value = registers.l;
+                            break;
+                        default:
+                            break;
                     }
 
-                case InstructionType::ADC:
+                    uint8_t new_value = add(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+                case InstructionType::ADC: {
+                    uint8_t value = 0;
+
                     switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
                         case ArithmeticTarget::B:
-                            uint8_t value = registers.b;
-                            uint8_t new_value = adc(value);
-
-                            registers.a = new_value;
+                            value = registers.b;
+                            break;
                         case ArithmeticTarget::C:
-                            uint8_t value = registers.c;
-                            uint8_t new_value = adc(value);
-
-                            registers.a = new_value;
+                            value = registers.c;
+                            break;
                         case ArithmeticTarget::D:
-                            uint8_t value = registers.d;
-                            uint8_t new_value = adc(value);
-
-                            registers.a = new_value;
+                            value = registers.d;
+                            break;
                         case ArithmeticTarget::E:
-                            uint8_t value = registers.e;
-                            uint8_t new_value = adc(value);
-
-                            registers.a = new_value;
+                            value = registers.e;
+                            break;
                         case ArithmeticTarget::H:
-                            uint8_t value = registers.h;
-                            uint8_t new_value = adc(value);
-
-                            registers.a = new_value;
+                            value = registers.h;
+                            break;
                         case ArithmeticTarget::L:
-                            uint8_t value = registers.l;
-                            uint8_t new_value = adc(value);
-
-                            registers.a = new_value;
+                            value = registers.l;
+                            break;
                     }
+
+                    uint8_t new_value = adc(value);
+                    registers.a = new_value;
+
+                    break;
+                }
 
                 default:
                     // TODO: support more instructions
