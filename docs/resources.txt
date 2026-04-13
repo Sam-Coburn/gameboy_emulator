@@ -3,3 +3,6 @@ http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 
 Game Boy Pan Docs:
 https://gbdev.io/pandocs/About.html
+
+Rylev DMG-01 Learning Guide:
+https://rylev.github.io/DMG-01/public/book/introduction.html
