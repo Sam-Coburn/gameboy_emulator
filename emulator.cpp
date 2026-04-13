@@ -1,3 +1,5 @@
+// Following the tutorial: https://rylev.github.io/DMG-01/public/book/introduction.html
+
 #include <iostream>
 #include <stdint.h>
 
