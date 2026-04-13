@@ -15,6 +15,7 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(tests
   tests/flags_register_tests.cpp
+  tests/register_tests.cpp
 )
 
 target_include_directories(tests PRIVATE

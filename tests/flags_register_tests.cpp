@@ -1,13 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <flagsregister.hpp>
 
-// Test for Unit Test Suite Implementation
-TEST_CASE("basic math works") {
-    REQUIRE(1 + 1 == 2);
-}
-
-// FlagsRegister Tests
-
 TEST_CASE("Default constructor initializes all flags to false", "[flags]") {
     FlagsRegister f;
 

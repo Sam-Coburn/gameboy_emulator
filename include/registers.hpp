@@ -5,14 +5,14 @@
 class Registers {
     public:
         // 8 registers representing 8-bit system
-        uint8_t a;
-        uint8_t b;
-        uint8_t c;
-        uint8_t d;
-        uint8_t e;
+        uint8_t a = 0;
+        uint8_t b = 0;
+        uint8_t c = 0;
+        uint8_t d = 0;
+        uint8_t e = 0;
         FlagsRegister f;
-        uint8_t h;
-        uint8_t l;
+        uint8_t h = 0;
+        uint8_t l = 0;
 
     // get and set virtual register functions for physical register pairs
     uint16_t get_af() {
