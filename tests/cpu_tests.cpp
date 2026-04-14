@@ -203,3 +203,41 @@ TEST_CASE("SUB Unit Tests", "[cpu][8-bit][sub]") {
         REQUIRE(c3.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("SBC Unit Tests", "[cpu][8-bit][sbc]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SBC;
+    instruct.target = ArithmeticTarget::B;
+
+    SECTION ("SBC w/o Overflow - No Carry") {
+        CPU c1;
+
+        c1.registers.a = 2;
+        c1.registers.b = 1;
+        c1.registers.f.carry = 0;
+
+        c1.execute(instruct);
+
+        REQUIRE(c1.registers.a == 1);
+        REQUIRE(c1.registers.f.zero == false);
+        REQUIRE(c1.registers.f.subtract == true);
+        REQUIRE(c1.registers.f.carry == false);
+        REQUIRE(c1.registers.f.half_carry == false);
+    }
+
+    SECTION ("SBC w/o Overflow - w/ Carry") {
+        CPU c2;
+
+        c2.registers.a = 2;
+        c2.registers.b = 1;
+        c2.registers.f.carry = 1;
+
+        c2.execute(instruct);
+
+        REQUIRE(c2.registers.a == 0);
+        REQUIRE(c2.registers.f.zero == true);
+        REQUIRE(c2.registers.f.subtract == true);
+        REQUIRE(c2.registers.f.carry == false);
+        REQUIRE(c2.registers.f.half_carry == false);
+    }
+}

@@ -7,7 +7,7 @@ enum class ArithmeticTarget {
 };
 
 enum class InstructionType {
-    ADD, ADC, SUB
+    ADD, ADC, SUB, SBC
 };
 
 struct Instruction {
@@ -127,6 +127,40 @@ class CPU {
                     break;
                 }
 
+                // SBC Instruction substracts specified register contents + carry flag from register A
+                case InstructionType::SBC: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = sbc(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -169,6 +203,18 @@ class CPU {
             registers.f.subtract = true;
             registers.f.carry = underflowed;
             registers.f.half_carry = (value & 0xF) > (registers.a & 0xF);
+
+            return result;
+        }
+
+        uint8_t sbc(uint8_t value) {
+            uint8_t result = registers.a - (value + registers.f.carry);
+            bool underflowed = (value + registers.f.carry) > registers.a;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = true;
+            registers.f.carry = underflowed;
+            registers.f.half_carry = ((value + registers.f.carry) & 0xF) > (registers.a & 0xF);
 
             return result;
         }
