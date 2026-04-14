@@ -153,3 +153,53 @@ TEST_CASE("ADC Unit Tests", "[cpu][8-bit][adc]") {
         REQUIRE(c4.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("SUB Unit Tests", "[cpu][8-bit][sub]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SUB;
+    instruct.target = ArithmeticTarget::B;
+
+    SECTION ("SUB w/o Overflow") {
+        CPU c1;
+
+        c1.registers.a = 2;
+        c1.registers.b = 1;
+
+        c1.execute(instruct);
+
+        REQUIRE(c1.registers.a == 1);
+        REQUIRE(c1.registers.f.zero == false);
+        REQUIRE(c1.registers.f.subtract == true);
+        REQUIRE(c1.registers.f.carry == false);
+        REQUIRE(c1.registers.f.half_carry == false);
+    }
+
+    SECTION ("SUB w Underflow") {
+        CPU c2;
+
+        c2.registers.a = 1;
+        c2.registers.b = 2;
+
+        c2.execute(instruct);
+
+        REQUIRE(c2.registers.a == 255);
+        REQUIRE(c2.registers.f.zero == false);
+        REQUIRE(c2.registers.f.subtract == true);
+        REQUIRE(c2.registers.f.carry == true);
+        REQUIRE(c2.registers.f.half_carry == true);
+    }
+
+    SECTION ("SUB to 0") {
+        CPU c3;
+        c3.registers.a = 1;
+        c3.registers.b = 1;
+
+        c3.execute(instruct);
+
+        REQUIRE(c3.registers.a == 0);
+        REQUIRE(c3.registers.f.zero == true);
+        REQUIRE(c3.registers.f.subtract == true);
+        REQUIRE(c3.registers.f.carry == false);
+        REQUIRE(c3.registers.f.half_carry == false);
+    }
+}

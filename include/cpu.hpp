@@ -7,7 +7,7 @@ enum class ArithmeticTarget {
 };
 
 enum class InstructionType {
-    ADD, ADC
+    ADD, ADC, SUB
 };
 
 struct Instruction {
@@ -58,6 +58,8 @@ class CPU {
 
                     break;
                 }
+
+                // ADC Instruction adds specified register contents + current carry flag value to register A
                 case InstructionType::ADC: {
                     uint8_t value = 0;
 
@@ -86,6 +88,40 @@ class CPU {
                     }
 
                     uint8_t new_value = adc(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+
+                // SUB Instruction subtracts specfified register contents from register A
+                case InstructionType::SUB: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = sub(value);
                     registers.a = new_value;
 
                     break;
@@ -121,6 +157,18 @@ class CPU {
             registers.f.subtract = false;
             registers.f.carry = overflowed;
             registers.f.half_carry = (registers.a & 0xF) + (value & 0xF) > 0xF; // Same logic as for add()
+
+            return result;
+        }
+
+        uint8_t sub(uint8_t value) {
+            uint8_t result = registers.a - value;
+            bool underflowed = value > registers.a;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = true;
+            registers.f.carry = underflowed;
+            registers.f.half_carry = (value & 0xF) > (registers.a & 0xF);
 
             return result;
         }
