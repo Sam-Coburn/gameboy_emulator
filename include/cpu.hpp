@@ -11,7 +11,8 @@ enum class ArithmeticTarget {
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
-    SWAP, SCF, CCF, CPL, BIT
+    SWAP, SCF, CCF, CPL, BIT,
+    SET
 };
 
 struct Instruction {
@@ -462,6 +463,37 @@ class CPU {
                     registers.f.subtract = false;
                     registers.f.carry = registers.f.carry; // BIT instruction leaves carry flag unaffected
                     registers.f.half_carry = true;
+
+                    break;
+                }
+
+                // SET Instruction sets the bit value for the given register at the given bit index to 1
+                case InstructionType::SET: {
+                    uint8_t bit_index = instruction.bit_index;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            registers.a = registers.a | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::B:
+                            registers.b = registers.b | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::C:
+                            registers.c = registers.c | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::D:
+                            registers.d = registers.d | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::E:
+                            registers.e = registers.e | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::H:
+                            registers.h = registers.h | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::L:
+                            registers.l = registers.l | (1 << bit_index);
+                            break;
+                    }
 
                     break;
                 }

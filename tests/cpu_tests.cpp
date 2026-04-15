@@ -1163,3 +1163,116 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
         REQUIRE(c.registers.f.half_carry == true);
     }
 }
+
+TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SET;
+
+    SECTION ("SET 1") {
+        CPU c;
+        instruct.target = ArithmeticTarget::A;
+        instruct.bit_index = 3;
+
+        c.registers.a = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00001000);
+    }
+
+    SECTION ("SET 2") {
+        CPU c;
+        instruct.target = ArithmeticTarget::A;
+        instruct.bit_index = 7;
+
+        c.registers.a = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b10000000);
+    }
+
+    SECTION ("SET 3") {
+        CPU c;
+        instruct.target = ArithmeticTarget::A;
+        instruct.bit_index = 0;
+
+        c.registers.a = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00000001);
+    }
+
+    SECTION ("SET 4") {
+        CPU c;
+        instruct.target = ArithmeticTarget::B;
+        instruct.bit_index = 3;
+
+        c.registers.b = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.b == 0b00001000);
+    }
+
+    SECTION ("SET 5") {
+        CPU c;
+        instruct.target = ArithmeticTarget::C;
+        instruct.bit_index = 3;
+
+        c.registers.c = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.c == 0b00001000);
+    }
+
+    SECTION ("SET 6") {
+        CPU c;
+        instruct.target = ArithmeticTarget::D;
+        instruct.bit_index = 3;
+
+        c.registers.d = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.d == 0b00001000);
+    }
+
+    SECTION ("SET 7") {
+        CPU c;
+        instruct.target = ArithmeticTarget::E;
+        instruct.bit_index = 3;
+
+        c.registers.e = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.e == 0b00001000);
+    }
+
+    SECTION ("SET 8") {
+        CPU c;
+        instruct.target = ArithmeticTarget::H;
+        instruct.bit_index = 3;
+
+        c.registers.h = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.h == 0b00001000);
+    }
+
+    SECTION ("SET 9") {
+        CPU c;
+        instruct.target = ArithmeticTarget::L;
+        instruct.bit_index = 3;
+
+        c.registers.l = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.l == 0b00001000);
+    }
+}
