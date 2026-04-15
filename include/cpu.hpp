@@ -8,7 +8,7 @@ enum class ArithmeticTarget {
 
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
-    OR, XOR, CP
+    OR, XOR, CP, INC
 };
 
 struct Instruction {
@@ -297,6 +297,35 @@ class CPU {
                     break;
                 }
 
+                // INC Instruction increments value of target register
+                case InstructionType::INC: {
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            registers.a = inc(registers.a);
+                            break;
+                        case ArithmeticTarget::B:
+                            registers.b = inc(registers.b);
+                            break;
+                        case ArithmeticTarget::C:
+                            registers.c = inc(registers.c);
+                            break;
+                        case ArithmeticTarget::D:
+                            registers.d = inc(registers.d);
+                            break;
+                        case ArithmeticTarget::E:
+                            registers.e = inc(registers.e);
+                            break;
+                        case ArithmeticTarget::H:
+                            registers.h = inc(registers.h);
+                            break;
+                        case ArithmeticTarget::L:
+                            registers.l = inc(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -384,6 +413,17 @@ class CPU {
             registers.f.subtract = false;
             registers.f.carry = false;
             registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t inc(uint8_t value) {
+            uint8_t result = value + 1;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = registers.f.carry; // INC doesnt affect the carry flag, it's left alone
+            registers.f.half_carry = (value & 0xF) + (1 & 0xF) > 0xF;
 
             return result;
         }

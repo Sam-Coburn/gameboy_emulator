@@ -363,6 +363,7 @@ TEST_CASE("CP Unit Tests", "[cpu][8-bit][cp]") {
 
         c1.execute(instruct);
 
+        REQUIRE(c1.registers.a == 2);
         REQUIRE(c1.registers.f.zero == false);
         REQUIRE(c1.registers.f.subtract == true);
         REQUIRE(c1.registers.f.carry == false);
@@ -377,6 +378,7 @@ TEST_CASE("CP Unit Tests", "[cpu][8-bit][cp]") {
 
         c2.execute(instruct);
 
+        REQUIRE(c2.registers.a == 1);
         REQUIRE(c2.registers.f.zero == false);
         REQUIRE(c2.registers.f.subtract == true);
         REQUIRE(c2.registers.f.carry == true);
@@ -390,9 +392,177 @@ TEST_CASE("CP Unit Tests", "[cpu][8-bit][cp]") {
 
         c3.execute(instruct);
 
+        REQUIRE(c3.registers.a == 1);
         REQUIRE(c3.registers.f.zero == true);
         REQUIRE(c3.registers.f.subtract == true);
         REQUIRE(c3.registers.f.carry == false);
         REQUIRE(c3.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
+    Instruction instruct;
+    instruct.type = InstructionType::INC;
+
+    SECTION ("INC Register A") {
+        instruct.target = ArithmeticTarget::A;
+
+        CPU c;
+
+        c.registers.a = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("INC Register B") {
+        instruct.target = ArithmeticTarget::B;
+
+        CPU c;
+
+        c.registers.b = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.b == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("INC Register C") {
+        instruct.target = ArithmeticTarget::C;
+
+        CPU c;
+
+        c.registers.c = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.c == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("INC Register D") {
+        instruct.target = ArithmeticTarget::D;
+
+        CPU c;
+
+        c.registers.d = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.d == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("INC Register E") {
+        instruct.target = ArithmeticTarget::E;
+
+        CPU c;
+
+        c.registers.e = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.e == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("INC Register H") {
+        instruct.target = ArithmeticTarget::H;
+
+        CPU c;
+
+        c.registers.h = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.h == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("INC Register L") {
+        instruct.target = ArithmeticTarget::L;
+
+        CPU c;
+
+        c.registers.l = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.l == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("INC - Overflow - Carry Set to False") {
+        instruct.target = ArithmeticTarget::B;
+
+        CPU c;
+
+        c.registers.b = 255;
+        c.registers.f.carry = false;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.b == 0);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("INC - Overflow - Carry Set to True") {
+        instruct.target = ArithmeticTarget::B;
+
+        CPU c;
+
+        c.registers.b = 255;
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.b == 0);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("INC - Half Carry") {
+        instruct.target = ArithmeticTarget::B;
+
+        CPU c;
+
+        c.registers.b = 15;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.b == 16);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
     }
 }
