@@ -8,7 +8,7 @@ enum class ArithmeticTarget {
 
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
-    OR, XOR, CP, INC
+    OR, XOR, CP, INC, DEC
 };
 
 struct Instruction {
@@ -326,6 +326,35 @@ class CPU {
                     break;
                 }
 
+                // DEC Instruction increments value of target register
+                case InstructionType::DEC: {
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            registers.a = dec(registers.a);
+                            break;
+                        case ArithmeticTarget::B:
+                            registers.b = dec(registers.b);
+                            break;
+                        case ArithmeticTarget::C:
+                            registers.c = dec(registers.c);
+                            break;
+                        case ArithmeticTarget::D:
+                            registers.d = dec(registers.d);
+                            break;
+                        case ArithmeticTarget::E:
+                            registers.e = dec(registers.e);
+                            break;
+                        case ArithmeticTarget::H:
+                            registers.h = dec(registers.h);
+                            break;
+                        case ArithmeticTarget::L:
+                            registers.l = dec(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -424,6 +453,17 @@ class CPU {
             registers.f.subtract = false;
             registers.f.carry = registers.f.carry; // INC doesnt affect the carry flag, it's left alone
             registers.f.half_carry = (value & 0xF) + (1 & 0xF) > 0xF;
+
+            return result;
+        }
+
+        uint8_t dec(uint8_t value) {
+            uint8_t result = value - 1;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = true;
+            registers.f.carry = registers.f.carry; // DEC doesnt affect the carry flag, it's left alone
+            registers.f.half_carry = (1 & 0xF) > (value & 0xF);
 
             return result;
         }
