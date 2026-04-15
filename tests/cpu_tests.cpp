@@ -928,3 +928,82 @@ TEST_CASE("CCF Unit Tests", "[cpu][misc][ccf]") {
         REQUIRE(c.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("CPL Unit Tests", "[cpu][misc][cpl]") {
+    Instruction instruct;
+    instruct.type = InstructionType::CPL;
+
+    SECTION ("CPL 1") {
+        CPU c;
+
+        c.registers.a = 0b11111111;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00000000);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("CPL 2") {
+        CPU c;
+
+        c.registers.a = 0b01010101;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b10101010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("CPL 3 - Zero Flag Set") {
+        CPU c;
+
+        c.registers.a = 0;
+        c.registers.f.zero = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 255);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("CPL 4 - Carry Flag Set") {
+        CPU c;
+
+        c.registers.a = 0;
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 255);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("CPL 5 - Zero and Carry Flag Set") {
+        CPU c;
+
+        c.registers.a = 0;
+        c.registers.f.zero = true;
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 255);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+}

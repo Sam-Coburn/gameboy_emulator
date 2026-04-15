@@ -11,7 +11,7 @@ enum class ArithmeticTarget {
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
-    SWAP, SCF, CCF
+    SWAP, SCF, CCF, CPL
 };
 
 struct Instruction {
@@ -391,7 +391,7 @@ class CPU {
                 case InstructionType::SCF: {
                     registers.f.carry = true;
 
-                    registers.f.zero = registers.f.zero; // SCF flag leaves zero flag unaffected
+                    registers.f.zero = registers.f.zero; // SCF instruction leaves zero flag unaffected
                     registers.f.subtract = false;
                     registers.f.half_carry = false;
 
@@ -407,9 +407,21 @@ class CPU {
                         registers.f.carry = true;
                     }
 
-                    registers.f.zero = registers.f.zero; // CCF flag leaves zero flag unaffected
+                    registers.f.zero = registers.f.zero; // CCF instruction leaves zero flag unaffected
                     registers.f.subtract = false;
                     registers.f.half_carry = false;
+
+                    break;
+                }
+
+                // CPL Instruction toggles every bit of register A
+                case InstructionType::CPL: {
+                    registers.a = ~registers.a;
+
+                    registers.f.zero = registers.f.zero; // CPL instruction leaves zero flag unaffected
+                    registers.f.subtract = true;
+                    registers.f.carry = registers.f.carry; // CPL instruction leaves carry flag unaffected
+                    registers.f.half_carry = true;
 
                     break;
                 }
