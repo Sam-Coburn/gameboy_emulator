@@ -4,7 +4,7 @@
 #include <iostream>
 #include <bitset>
 
-enum class ArithmeticTarget {
+enum class ArithmeticTarget8Bit {
     A, B, C, D, E, H, L
 };
 
@@ -17,7 +17,7 @@ enum class InstructionType {
 
 struct Instruction {
     InstructionType type;
-    ArithmeticTarget target;
+    ArithmeticTarget8Bit target;
     uint8_t bit_index;
 };
 
@@ -34,25 +34,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                         default:
@@ -70,25 +70,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                     }
@@ -104,25 +104,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                     }
@@ -138,25 +138,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                     }
@@ -172,25 +172,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                     }
@@ -206,25 +206,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                     }
@@ -240,25 +240,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                     }
@@ -274,25 +274,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                     }
@@ -305,25 +305,25 @@ class CPU {
                 // INC Instruction increments value of target register
                 case InstructionType::INC: {
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             registers.a = inc(registers.a);
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             registers.b = inc(registers.b);
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             registers.c = inc(registers.c);
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             registers.d = inc(registers.d);
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             registers.e = inc(registers.e);
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             registers.h = inc(registers.h);
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             registers.l = inc(registers.l);
                             break;
                     }
@@ -334,25 +334,25 @@ class CPU {
                 // DEC Instruction increments value of target register
                 case InstructionType::DEC: {
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             registers.a = dec(registers.a);
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             registers.b = dec(registers.b);
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             registers.c = dec(registers.c);
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             registers.d = dec(registers.d);
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             registers.e = dec(registers.e);
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             registers.h = dec(registers.h);
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             registers.l = dec(registers.l);
                             break;
                     }
@@ -363,25 +363,25 @@ class CPU {
                 // SWAP Instruction swaps the values of the upper and lower nibbles of the target register
                 case InstructionType::SWAP: {
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             registers.a = swap(registers.a);
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             registers.b = swap(registers.b);
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             registers.c = swap(registers.c);
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             registers.d = swap(registers.d);
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             registers.e = swap(registers.e);
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             registers.h = swap(registers.h);
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             registers.l = swap(registers.l);
                             break;
                     }
@@ -434,25 +434,25 @@ class CPU {
                     uint8_t value = 0;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             value = registers.a;
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             value = registers.b;
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             value = registers.c;
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             value = registers.d;
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             value = registers.e;
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             value = registers.h;
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
                     }
@@ -472,25 +472,25 @@ class CPU {
                     uint8_t bit_index = instruction.bit_index;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             registers.a = registers.a | (1 << bit_index);
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             registers.b = registers.b | (1 << bit_index);
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             registers.c = registers.c | (1 << bit_index);
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             registers.d = registers.d | (1 << bit_index);
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             registers.e = registers.e | (1 << bit_index);
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             registers.h = registers.h | (1 << bit_index);
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             registers.l = registers.l | (1 << bit_index);
                             break;
                     }
@@ -503,25 +503,25 @@ class CPU {
                     uint8_t bit_index = instruction.bit_index;
 
                     switch (instruction.target) {
-                        case ArithmeticTarget::A:
+                        case ArithmeticTarget8Bit::A:
                             registers.a = registers.a & ~(1 << bit_index);
                             break;
-                        case ArithmeticTarget::B:
+                        case ArithmeticTarget8Bit::B:
                             registers.b = registers.b & ~(1 << bit_index);
                             break;
-                        case ArithmeticTarget::C:
+                        case ArithmeticTarget8Bit::C:
                             registers.c = registers.c & ~(1 << bit_index);
                             break;
-                        case ArithmeticTarget::D:
+                        case ArithmeticTarget8Bit::D:
                             registers.d = registers.d & ~(1 << bit_index);
                             break;
-                        case ArithmeticTarget::E:
+                        case ArithmeticTarget8Bit::E:
                             registers.e = registers.e & ~(1 << bit_index);
                             break;
-                        case ArithmeticTarget::H:
+                        case ArithmeticTarget8Bit::H:
                             registers.h = registers.h & ~(1 << bit_index);
                             break;
-                        case ArithmeticTarget::L:
+                        case ArithmeticTarget8Bit::L:
                             registers.l = registers.l & ~(1 << bit_index);
                             break;
                     }
