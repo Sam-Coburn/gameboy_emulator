@@ -11,7 +11,7 @@ enum class ArithmeticTarget {
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
-    SWAP
+    SWAP, SCF, CCF
 };
 
 struct Instruction {
@@ -383,6 +383,33 @@ class CPU {
                             registers.l = swap(registers.l);
                             break;
                     }
+
+                    break;
+                }
+
+                // SCF Instruction sets the carry flag, i.e. changes its value to True
+                case InstructionType::SCF: {
+                    registers.f.carry = true;
+
+                    registers.f.zero = registers.f.zero; // SCF flag leaves zero flag unaffected
+                    registers.f.subtract = false;
+                    registers.f.half_carry = false;
+
+                    break;
+                }
+
+                // CCF Instruction toggles the carry flag, e.g. C = True --> False, C = False --> True
+                case InstructionType::CCF: {
+                    if (registers.f.carry) {
+                        registers.f.carry = false;
+                    }
+                    else {
+                        registers.f.carry = true;
+                    }
+
+                    registers.f.zero = registers.f.zero; // CCF flag leaves zero flag unaffected
+                    registers.f.subtract = false;
+                    registers.f.half_carry = false;
 
                     break;
                 }

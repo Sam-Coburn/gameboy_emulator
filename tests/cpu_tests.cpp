@@ -716,7 +716,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     }
 }
 
-TEST_CASE("SWAP Unit Tests", "[cpu][8-bit][swap]") {
+TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     Instruction instruct;
     instruct.type = InstructionType::SWAP;
 
@@ -829,6 +829,102 @@ TEST_CASE("SWAP Unit Tests", "[cpu][8-bit][swap]") {
         REQUIRE(c.registers.f.zero == false);
         REQUIRE(c.registers.f.subtract == false);
         REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("SCF Unit Tests", "[cpu][misc][scf]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SCF;
+
+    SECTION ("Carry Flag is False") {
+        CPU c;
+
+        c.registers.f.carry = false;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == true);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("Carry Flag is True") {
+        CPU c;
+
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == true);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("Zero Flag is True") {
+        CPU c;
+
+        c.registers.f.carry = false;
+        c.registers.f.zero = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == true);
+
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("CCF Unit Tests", "[cpu][misc][ccf]") {
+    Instruction instruct;
+    instruct.type = InstructionType::CCF;
+
+    SECTION ("Carry Flag is False") {
+        CPU c;
+
+        c.registers.f.carry = false;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == true);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("Carry Flag is True") {
+        CPU c;
+
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == false);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("Zero Flag is True") {
+        CPU c;
+
+        c.registers.f.carry = true;
+        c.registers.f.zero = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == false);
+
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
         REQUIRE(c.registers.f.half_carry == false);
     }
 }
