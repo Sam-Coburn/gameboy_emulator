@@ -11,12 +11,14 @@ enum class ArithmeticTarget {
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
-    SWAP, SCF, CCF, CPL
+    SWAP, SCF, CCF, CPL, BIT,
+    SET, RESET
 };
 
 struct Instruction {
     InstructionType type;
     ArithmeticTarget target;
+    uint8_t bit_index;
 };
 
 class CPU {
@@ -422,6 +424,107 @@ class CPU {
                     registers.f.subtract = true;
                     registers.f.carry = registers.f.carry; // CPL instruction leaves carry flag unaffected
                     registers.f.half_carry = true;
+
+                    break;
+                }
+
+                // BIT Instruction tests the bit value for the given register at the given bit index
+                case InstructionType::BIT: {
+                    uint8_t bit_index = instruction.bit_index;
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t bit_value = (value >> bit_index) & (0b00000001);
+
+                    registers.f.zero = bit_value == 0;
+                    registers.f.subtract = false;
+                    registers.f.carry = registers.f.carry; // BIT instruction leaves carry flag unaffected
+                    registers.f.half_carry = true;
+
+                    break;
+                }
+
+                // SET Instruction sets the bit value for the given register at the given bit index to 1
+                case InstructionType::SET: {
+                    uint8_t bit_index = instruction.bit_index;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            registers.a = registers.a | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::B:
+                            registers.b = registers.b | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::C:
+                            registers.c = registers.c | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::D:
+                            registers.d = registers.d | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::E:
+                            registers.e = registers.e | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::H:
+                            registers.h = registers.h | (1 << bit_index);
+                            break;
+                        case ArithmeticTarget::L:
+                            registers.l = registers.l | (1 << bit_index);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // RESET Instruction sets the bit value for the given register at the given bit index to 0
+                case InstructionType::RESET: {
+                    uint8_t bit_index = instruction.bit_index;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            registers.a = registers.a & ~(1 << bit_index);
+                            break;
+                        case ArithmeticTarget::B:
+                            registers.b = registers.b & ~(1 << bit_index);
+                            break;
+                        case ArithmeticTarget::C:
+                            registers.c = registers.c & ~(1 << bit_index);
+                            break;
+                        case ArithmeticTarget::D:
+                            registers.d = registers.d & ~(1 << bit_index);
+                            break;
+                        case ArithmeticTarget::E:
+                            registers.e = registers.e & ~(1 << bit_index);
+                            break;
+                        case ArithmeticTarget::H:
+                            registers.h = registers.h & ~(1 << bit_index);
+                            break;
+                        case ArithmeticTarget::L:
+                            registers.l = registers.l & ~(1 << bit_index);
+                            break;
+                    }
 
                     break;
                 }
