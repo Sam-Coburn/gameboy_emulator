@@ -8,7 +8,7 @@ enum class ArithmeticTarget {
 
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
-    OR, XOR
+    OR, XOR, CP
 };
 
 struct Instruction {
@@ -260,6 +260,39 @@ class CPU {
 
                     uint8_t new_value = bitwise_xor(value);
                     registers.a = new_value;
+
+                    break;
+                }
+
+                // CP Instruction subtracts specfified register contents from register A but doesnt store the result
+                case InstructionType::CP: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = sub(value);
 
                     break;
                 }

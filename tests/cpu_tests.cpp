@@ -349,3 +349,50 @@ TEST_CASE("XOR Unit Tests", "[cpu][8-bit][xor]") {
         REQUIRE(c2.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("CP Unit Tests", "[cpu][8-bit][cp]") {
+    Instruction instruct;
+    instruct.type = InstructionType::CP;
+    instruct.target = ArithmeticTarget::B;
+
+    SECTION ("CP w/o Overflow") {
+        CPU c1;
+
+        c1.registers.a = 2;
+        c1.registers.b = 1;
+
+        c1.execute(instruct);
+
+        REQUIRE(c1.registers.f.zero == false);
+        REQUIRE(c1.registers.f.subtract == true);
+        REQUIRE(c1.registers.f.carry == false);
+        REQUIRE(c1.registers.f.half_carry == false);
+    }
+
+    SECTION ("CP w Underflow") {
+        CPU c2;
+
+        c2.registers.a = 1;
+        c2.registers.b = 2;
+
+        c2.execute(instruct);
+
+        REQUIRE(c2.registers.f.zero == false);
+        REQUIRE(c2.registers.f.subtract == true);
+        REQUIRE(c2.registers.f.carry == true);
+        REQUIRE(c2.registers.f.half_carry == true);
+    }
+
+    SECTION ("CP to 0") {
+        CPU c3;
+        c3.registers.a = 1;
+        c3.registers.b = 1;
+
+        c3.execute(instruct);
+
+        REQUIRE(c3.registers.f.zero == true);
+        REQUIRE(c3.registers.f.subtract == true);
+        REQUIRE(c3.registers.f.carry == false);
+        REQUIRE(c3.registers.f.half_carry == false);
+    }
+}
