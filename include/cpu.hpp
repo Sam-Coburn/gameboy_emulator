@@ -1,6 +1,8 @@
 #include <registers.hpp>
 
 #include <stdint.h>
+#include <iostream>
+#include <bitset>
 
 enum class ArithmeticTarget {
     A, B, C, D, E, H, L
@@ -8,7 +10,8 @@ enum class ArithmeticTarget {
 
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
-    OR, XOR, CP, INC, DEC
+    OR, XOR, CP, INC, DEC,
+    SWAP, SCF, CCF, CPL
 };
 
 struct Instruction {
@@ -355,6 +358,74 @@ class CPU {
                     break;
                 }
 
+                // SWAP Instruction swaps the values of the upper and lower nibbles of the target register
+                case InstructionType::SWAP: {
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            registers.a = swap(registers.a);
+                            break;
+                        case ArithmeticTarget::B:
+                            registers.b = swap(registers.b);
+                            break;
+                        case ArithmeticTarget::C:
+                            registers.c = swap(registers.c);
+                            break;
+                        case ArithmeticTarget::D:
+                            registers.d = swap(registers.d);
+                            break;
+                        case ArithmeticTarget::E:
+                            registers.e = swap(registers.e);
+                            break;
+                        case ArithmeticTarget::H:
+                            registers.h = swap(registers.h);
+                            break;
+                        case ArithmeticTarget::L:
+                            registers.l = swap(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // SCF Instruction sets the carry flag, i.e. changes its value to True
+                case InstructionType::SCF: {
+                    registers.f.carry = true;
+
+                    registers.f.zero = registers.f.zero; // SCF instruction leaves zero flag unaffected
+                    registers.f.subtract = false;
+                    registers.f.half_carry = false;
+
+                    break;
+                }
+
+                // CCF Instruction toggles the carry flag, e.g. C = True --> False, C = False --> True
+                case InstructionType::CCF: {
+                    if (registers.f.carry) {
+                        registers.f.carry = false;
+                    }
+                    else {
+                        registers.f.carry = true;
+                    }
+
+                    registers.f.zero = registers.f.zero; // CCF instruction leaves zero flag unaffected
+                    registers.f.subtract = false;
+                    registers.f.half_carry = false;
+
+                    break;
+                }
+
+                // CPL Instruction toggles every bit of register A
+                case InstructionType::CPL: {
+                    registers.a = ~registers.a;
+
+                    registers.f.zero = registers.f.zero; // CPL instruction leaves zero flag unaffected
+                    registers.f.subtract = true;
+                    registers.f.carry = registers.f.carry; // CPL instruction leaves carry flag unaffected
+                    registers.f.half_carry = true;
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -464,6 +535,19 @@ class CPU {
             registers.f.subtract = true;
             registers.f.carry = registers.f.carry; // DEC doesnt affect the carry flag, it's left alone
             registers.f.half_carry = (1 & 0xF) > (value & 0xF);
+
+            return result;
+        }
+
+        uint8_t swap(uint8_t value) {
+            uint8_t upper_nibble = value & 0b11110000;
+            uint8_t lower_nibble = value & 0b00001111;
+            uint8_t result = (lower_nibble << 4) | (upper_nibble >> 4);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = false;
+            registers.f.half_carry = false;
 
             return result;
         }

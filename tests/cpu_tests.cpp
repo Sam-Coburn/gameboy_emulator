@@ -715,3 +715,295 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
         REQUIRE(c.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SWAP;
+
+    SECTION ("SWAP Register A") {
+        instruct.target = ArithmeticTarget::A;
+
+        CPU c;
+
+        c.registers.a = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register B") {
+        instruct.target = ArithmeticTarget::B;
+
+        CPU c;
+
+        c.registers.b = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.b == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register C") {
+        instruct.target = ArithmeticTarget::C;
+
+        CPU c;
+
+        c.registers.c = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.c == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register D") {
+        instruct.target = ArithmeticTarget::D;
+
+        CPU c;
+
+        c.registers.d = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.d == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register E") {
+        instruct.target = ArithmeticTarget::E;
+
+        CPU c;
+
+        c.registers.e = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.e == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register H") {
+        instruct.target = ArithmeticTarget::H;
+
+        CPU c;
+
+        c.registers.h = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.h == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register L") {
+        instruct.target = ArithmeticTarget::L;
+
+        CPU c;
+
+        c.registers.l = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.l == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("SCF Unit Tests", "[cpu][misc][scf]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SCF;
+
+    SECTION ("Carry Flag is False") {
+        CPU c;
+
+        c.registers.f.carry = false;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == true);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("Carry Flag is True") {
+        CPU c;
+
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == true);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("Zero Flag is True") {
+        CPU c;
+
+        c.registers.f.carry = false;
+        c.registers.f.zero = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == true);
+
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("CCF Unit Tests", "[cpu][misc][ccf]") {
+    Instruction instruct;
+    instruct.type = InstructionType::CCF;
+
+    SECTION ("Carry Flag is False") {
+        CPU c;
+
+        c.registers.f.carry = false;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == true);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("Carry Flag is True") {
+        CPU c;
+
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == false);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("Zero Flag is True") {
+        CPU c;
+
+        c.registers.f.carry = true;
+        c.registers.f.zero = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.carry == false);
+
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("CPL Unit Tests", "[cpu][misc][cpl]") {
+    Instruction instruct;
+    instruct.type = InstructionType::CPL;
+
+    SECTION ("CPL 1") {
+        CPU c;
+
+        c.registers.a = 0b11111111;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00000000);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("CPL 2") {
+        CPU c;
+
+        c.registers.a = 0b01010101;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b10101010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("CPL 3 - Zero Flag Set") {
+        CPU c;
+
+        c.registers.a = 0;
+        c.registers.f.zero = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 255);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("CPL 4 - Carry Flag Set") {
+        CPU c;
+
+        c.registers.a = 0;
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 255);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("CPL 5 - Zero and Carry Flag Set") {
+        CPU c;
+
+        c.registers.a = 0;
+        c.registers.f.zero = true;
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 255);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+}
