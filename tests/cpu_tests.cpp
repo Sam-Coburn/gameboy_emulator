@@ -1007,3 +1007,159 @@ TEST_CASE("CPL Unit Tests", "[cpu][misc][cpl]") {
         REQUIRE(c.registers.f.half_carry == true);
     }
 }
+
+TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
+    Instruction instruct;
+    instruct.type = InstructionType::BIT;
+
+    SECTION ("BIT 1") {
+        CPU c;
+        instruct.target = ArithmeticTarget::A;
+        instruct.bit_index = 3;
+
+        c.registers.a = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 2") {
+        CPU c;
+        instruct.target = ArithmeticTarget::A;
+        instruct.bit_index = 2;
+
+        c.registers.a = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 3") {
+        CPU c;
+        instruct.target = ArithmeticTarget::A;
+        instruct.bit_index = 4;
+
+        c.registers.a = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 4") {
+        CPU c;
+        instruct.target = ArithmeticTarget::B;
+        instruct.bit_index = 3;
+
+        c.registers.b = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 5") {
+        CPU c;
+        instruct.target = ArithmeticTarget::C;
+        instruct.bit_index = 3;
+
+        c.registers.c = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 6") {
+        CPU c;
+        instruct.target = ArithmeticTarget::D;
+        instruct.bit_index = 3;
+
+        c.registers.d = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 7") {
+        CPU c;
+        instruct.target = ArithmeticTarget::E;
+        instruct.bit_index = 3;
+
+        c.registers.e = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 8") {
+        CPU c;
+        instruct.target = ArithmeticTarget::H;
+        instruct.bit_index = 3;
+
+        c.registers.h = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 9") {
+        CPU c;
+        instruct.target = ArithmeticTarget::L;
+        instruct.bit_index = 3;
+
+        c.registers.l = 0b00001000;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION ("BIT 10 - Carry set to True") {
+        CPU c;
+        instruct.target = ArithmeticTarget::A;
+        instruct.bit_index = 3;
+
+        c.registers.a = 0b00001000;
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+}

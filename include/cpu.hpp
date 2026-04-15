@@ -11,12 +11,13 @@ enum class ArithmeticTarget {
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
-    SWAP, SCF, CCF, CPL
+    SWAP, SCF, CCF, CPL, BIT
 };
 
 struct Instruction {
     InstructionType type;
     ArithmeticTarget target;
+    uint8_t bit_index;
 };
 
 class CPU {
@@ -421,6 +422,45 @@ class CPU {
                     registers.f.zero = registers.f.zero; // CPL instruction leaves zero flag unaffected
                     registers.f.subtract = true;
                     registers.f.carry = registers.f.carry; // CPL instruction leaves carry flag unaffected
+                    registers.f.half_carry = true;
+
+                    break;
+                }
+
+                // BIT Instruction tests the bit value for the given register at the given bit index
+                case InstructionType::BIT: {
+                    uint8_t bit_index = instruction.bit_index;
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t bit_value = (value >> bit_index) & (0b00000001);
+
+                    registers.f.zero = bit_value == 0;
+                    registers.f.subtract = false;
+                    registers.f.carry = registers.f.carry; // BIT instruction leaves carry flag unaffected
                     registers.f.half_carry = true;
 
                     break;
