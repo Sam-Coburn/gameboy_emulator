@@ -8,7 +8,7 @@ enum class ArithmeticTarget {
 
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
-    OR
+    OR, XOR
 };
 
 struct Instruction {
@@ -196,7 +196,7 @@ class CPU {
                     break;
                 }
 
-                // AND Instruction performs bitwise OR operation using specified register contents with register A
+                // OR Instruction performs bitwise OR operation using specified register contents with register A
                 case InstructionType::OR: {
                     uint8_t value = 0;
 
@@ -225,6 +225,40 @@ class CPU {
                     }
 
                     uint8_t new_value = bitwise_or(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+
+                // XOR Instruction performs bitwise XOR operation using specified register contents with register A
+                case InstructionType::XOR: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = bitwise_xor(value);
                     registers.a = new_value;
 
                     break;
@@ -301,6 +335,17 @@ class CPU {
 
         uint8_t bitwise_or(uint8_t value) {
             uint8_t result = registers.a & value;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = false;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t bitwise_xor(uint8_t value) {
+            uint8_t result = registers.a ^ value;
 
             registers.f.zero = result == 0;
             registers.f.subtract = false;

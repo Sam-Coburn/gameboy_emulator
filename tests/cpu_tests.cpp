@@ -313,3 +313,39 @@ TEST_CASE("OR Unit Tests", "[cpu][8-bit][or]") {
         REQUIRE(c2.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("XOR Unit Tests", "[cpu][8-bit][xor]") {
+    Instruction instruct;
+    instruct.type = InstructionType::XOR;
+    instruct.target = ArithmeticTarget::B;
+
+    SECTION ("XOR 1") {
+        CPU c1;
+
+        c1.registers.a = 1;
+        c1.registers.b = 2;
+
+        c1.execute(instruct);
+
+        REQUIRE(c1.registers.a == 3);
+        REQUIRE(c1.registers.f.zero == false);
+        REQUIRE(c1.registers.f.subtract == false);
+        REQUIRE(c1.registers.f.carry == false);
+        REQUIRE(c1.registers.f.half_carry == false);
+    }
+
+    SECTION ("XOR 2") {
+        CPU c2;
+
+        c2.registers.a = 0;
+        c2.registers.b = 0;
+
+        c2.execute(instruct);
+
+        REQUIRE(c2.registers.a == 0);
+        REQUIRE(c2.registers.f.zero == true);
+        REQUIRE(c2.registers.f.subtract == false);
+        REQUIRE(c2.registers.f.carry == false);
+        REQUIRE(c2.registers.f.half_carry == false);
+    }
+}
