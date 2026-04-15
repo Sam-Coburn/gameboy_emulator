@@ -715,3 +715,120 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
         REQUIRE(c.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("SWAP Unit Tests", "[cpu][8-bit][swap]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SWAP;
+
+    SECTION ("SWAP Register A") {
+        instruct.target = ArithmeticTarget::A;
+
+        CPU c;
+
+        c.registers.a = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register B") {
+        instruct.target = ArithmeticTarget::B;
+
+        CPU c;
+
+        c.registers.b = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.b == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register C") {
+        instruct.target = ArithmeticTarget::C;
+
+        CPU c;
+
+        c.registers.c = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.c == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register D") {
+        instruct.target = ArithmeticTarget::D;
+
+        CPU c;
+
+        c.registers.d = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.d == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register E") {
+        instruct.target = ArithmeticTarget::E;
+
+        CPU c;
+
+        c.registers.e = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.e == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register H") {
+        instruct.target = ArithmeticTarget::H;
+
+        CPU c;
+
+        c.registers.h = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.h == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SWAP Register L") {
+        instruct.target = ArithmeticTarget::L;
+
+        CPU c;
+
+        c.registers.l = 0b10100001;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.l == 0b00011010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
