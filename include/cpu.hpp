@@ -7,7 +7,8 @@ enum class ArithmeticTarget {
 };
 
 enum class InstructionType {
-    ADD, ADC
+    ADD, ADC, SUB, SBC, AND,
+    OR, XOR, CP, INC, DEC
 };
 
 struct Instruction {
@@ -58,6 +59,8 @@ class CPU {
 
                     break;
                 }
+
+                // ADC Instruction adds specified register contents + current carry flag value to register A
                 case InstructionType::ADC: {
                     uint8_t value = 0;
 
@@ -87,6 +90,267 @@ class CPU {
 
                     uint8_t new_value = adc(value);
                     registers.a = new_value;
+
+                    break;
+                }
+
+                // SUB Instruction subtracts specfified register contents from register A
+                case InstructionType::SUB: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = sub(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+
+                // SBC Instruction substracts specified register contents + carry flag from register A
+                case InstructionType::SBC: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = sbc(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+
+                // AND Instruction performs bitwise AND operation using specified register contents with register A
+                case InstructionType::AND: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = bitwise_and(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+
+                // OR Instruction performs bitwise OR operation using specified register contents with register A
+                case InstructionType::OR: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = bitwise_or(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+
+                // XOR Instruction performs bitwise XOR operation using specified register contents with register A
+                case InstructionType::XOR: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = bitwise_xor(value);
+                    registers.a = new_value;
+
+                    break;
+                }
+
+                // CP Instruction subtracts specfified register contents from register A but doesnt store the result
+                case InstructionType::CP: {
+                    uint8_t value = 0;
+
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            value = registers.a;
+                            break;
+                        case ArithmeticTarget::B:
+                            value = registers.b;
+                            break;
+                        case ArithmeticTarget::C:
+                            value = registers.c;
+                            break;
+                        case ArithmeticTarget::D:
+                            value = registers.d;
+                            break;
+                        case ArithmeticTarget::E:
+                            value = registers.e;
+                            break;
+                        case ArithmeticTarget::H:
+                            value = registers.h;
+                            break;
+                        case ArithmeticTarget::L:
+                            value = registers.l;
+                            break;
+                    }
+
+                    uint8_t new_value = sub(value);
+
+                    break;
+                }
+
+                // INC Instruction increments value of target register
+                case InstructionType::INC: {
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            registers.a = inc(registers.a);
+                            break;
+                        case ArithmeticTarget::B:
+                            registers.b = inc(registers.b);
+                            break;
+                        case ArithmeticTarget::C:
+                            registers.c = inc(registers.c);
+                            break;
+                        case ArithmeticTarget::D:
+                            registers.d = inc(registers.d);
+                            break;
+                        case ArithmeticTarget::E:
+                            registers.e = inc(registers.e);
+                            break;
+                        case ArithmeticTarget::H:
+                            registers.h = inc(registers.h);
+                            break;
+                        case ArithmeticTarget::L:
+                            registers.l = inc(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // DEC Instruction increments value of target register
+                case InstructionType::DEC: {
+                    switch (instruction.target) {
+                        case ArithmeticTarget::A:
+                            registers.a = dec(registers.a);
+                            break;
+                        case ArithmeticTarget::B:
+                            registers.b = dec(registers.b);
+                            break;
+                        case ArithmeticTarget::C:
+                            registers.c = dec(registers.c);
+                            break;
+                        case ArithmeticTarget::D:
+                            registers.d = dec(registers.d);
+                            break;
+                        case ArithmeticTarget::E:
+                            registers.e = dec(registers.e);
+                            break;
+                        case ArithmeticTarget::H:
+                            registers.h = dec(registers.h);
+                            break;
+                        case ArithmeticTarget::L:
+                            registers.l = dec(registers.l);
+                            break;
+                    }
 
                     break;
                 }
@@ -121,6 +385,85 @@ class CPU {
             registers.f.subtract = false;
             registers.f.carry = overflowed;
             registers.f.half_carry = (registers.a & 0xF) + (value & 0xF) > 0xF; // Same logic as for add()
+
+            return result;
+        }
+
+        uint8_t sub(uint8_t value) {
+            uint8_t result = registers.a - value;
+            bool underflowed = value > registers.a;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = true;
+            registers.f.carry = underflowed;
+            registers.f.half_carry = (value & 0xF) > (registers.a & 0xF);
+
+            return result;
+        }
+
+        uint8_t sbc(uint8_t value) {
+            uint8_t result = registers.a - (value + registers.f.carry);
+            bool underflowed = (value + registers.f.carry) > registers.a;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = true;
+            registers.f.carry = underflowed;
+            registers.f.half_carry = ((value + registers.f.carry) & 0xF) > (registers.a & 0xF);
+
+            return result;
+        }
+
+        uint8_t bitwise_and(uint8_t value) {
+            uint8_t result = registers.a & value;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = false;
+            registers.f.half_carry = true;
+
+            return result;
+        }
+
+        uint8_t bitwise_or(uint8_t value) {
+            uint8_t result = registers.a & value;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = false;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t bitwise_xor(uint8_t value) {
+            uint8_t result = registers.a ^ value;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = false;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t inc(uint8_t value) {
+            uint8_t result = value + 1;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = registers.f.carry; // INC doesnt affect the carry flag, it's left alone
+            registers.f.half_carry = (value & 0xF) + (1 & 0xF) > 0xF;
+
+            return result;
+        }
+
+        uint8_t dec(uint8_t value) {
+            uint8_t result = value - 1;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = true;
+            registers.f.carry = registers.f.carry; // DEC doesnt affect the carry flag, it's left alone
+            registers.f.half_carry = (1 & 0xF) > (value & 0xF);
 
             return result;
         }
