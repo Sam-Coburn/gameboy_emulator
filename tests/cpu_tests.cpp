@@ -277,3 +277,39 @@ TEST_CASE("AND Unit Tests", "[cpu][8-bit][and]") {
         REQUIRE(c2.registers.f.half_carry == true);
     }
 }
+
+TEST_CASE("OR Unit Tests", "[cpu][8-bit][or]") {
+    Instruction instruct;
+    instruct.type = InstructionType::OR;
+    instruct.target = ArithmeticTarget::B;
+
+    SECTION ("OR - No Zero") {
+        CPU c1;
+
+        c1.registers.a = 1;
+        c1.registers.b = 1;
+
+        c1.execute(instruct);
+
+        REQUIRE(c1.registers.a == 1);
+        REQUIRE(c1.registers.f.zero == false);
+        REQUIRE(c1.registers.f.subtract == false);
+        REQUIRE(c1.registers.f.carry == false);
+        REQUIRE(c1.registers.f.half_carry == false);
+    }
+
+    SECTION ("OR - Zero") {
+        CPU c2;
+
+        c2.registers.a = 0;
+        c2.registers.b = 0;
+
+        c2.execute(instruct);
+
+        REQUIRE(c2.registers.a == 0);
+        REQUIRE(c2.registers.f.zero == true);
+        REQUIRE(c2.registers.f.subtract == false);
+        REQUIRE(c2.registers.f.carry == false);
+        REQUIRE(c2.registers.f.half_carry == false);
+    }
+}
