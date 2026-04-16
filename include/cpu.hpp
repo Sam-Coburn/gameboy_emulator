@@ -1,8 +1,9 @@
 #include <registers.hpp>
 
-#include <stdint.h>
-#include <iostream>
+#include <bit>
 #include <bitset>
+#include <iostream>
+#include <stdint.h>
 
 enum class ArithmeticTarget8Bit {
     A, B, C, D, E, H, L
@@ -16,7 +17,7 @@ enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
     SWAP, SCF, CCF, CPL, BIT,
-    SET, RESET, ADDHL
+    SET, RESET, ADDHL, RRA
 };
 
 struct Instruction {
@@ -557,6 +558,24 @@ class CPU {
 
                     uint16_t new_value = add_hl(value);
                     registers.set_hl(new_value);
+
+                    break;
+                }
+
+                // RRA Instruction rotates the contents of register A 1 bit to the right, the carry flag is rotated in for bit 7 (leftmost bit) and bit 0 is rotated out to the carry flag value
+                case InstructionType::RRA: {
+                    uint8_t value = registers.a;
+                    uint8_t old_carry = registers.f.carry;
+                    bool new_carry = value & 1;
+
+                    value = (value >> 1) | (old_carry << 7);
+
+                    registers.a = value;
+
+                    registers.f.zero = registers.a == 0;
+                    registers.f.subtract = false;
+                    registers.f.carry = new_carry;
+                    registers.f.half_carry = false;
 
                     break;
                 }

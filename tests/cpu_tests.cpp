@@ -1489,3 +1489,24 @@ TEST_CASE("ADDHL Unit Tests", "[cpu][16-bit][addhl]") {
         REQUIRE(c.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("RRA Unit Tests", "[cpu][rotate][rra]") {
+    Instruction instruct;
+    instruct.type = InstructionType::RRA;
+
+
+    SECTION ("RRA") {
+        CPU c;
+
+        c.registers.a = 0b00001001;
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b10000100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
