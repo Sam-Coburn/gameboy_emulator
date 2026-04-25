@@ -18,7 +18,7 @@ enum class InstructionType {
     OR, XOR, CP, INC, DEC,
     SWAP, SCF, CCF, CPL, BIT,
     SET, RESET, ADDHL, RLCA, RLA,
-    RRCA, RRA, RLC
+    RRCA, RRA, RLC, RL
 };
 
 struct Instruction {
@@ -633,7 +633,7 @@ class CPU {
                     break;
                 }
 
-                // RLCA Instruction rotates the contents of the proviced register 1 bit to the left, the carry flag is set to old bit 7
+                // RLC Instruction rotates the contents of the proviced register 1 bit to the left, the carry flag is set to old bit 7
                 case InstructionType::RLC: {
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -656,6 +656,35 @@ class CPU {
                             break;
                         case ArithmeticTarget8Bit::L:
                             registers.l = rlc(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // RL Instruction rotates the contents of the provided register 1 bit to the left, the carry flag is set to old bit 7, bit 0 is set to old carry flag value
+                case InstructionType::RL: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = rla(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = rla(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = rla(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = rla(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = rla(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = rla(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = rla(registers.l);
                             break;
                     }
 
@@ -804,6 +833,20 @@ class CPU {
             bool new_carry = (value & 0b10000000) >> 7;
 
             uint8_t result = (value << 1) | (new_carry);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t rla(uint8_t value) {
+            bool old_carry = registers.f.carry;
+            bool new_carry = (value & 0b10000000) >> 7;
+
+            uint8_t result = (value << 1) | (old_carry);
 
             registers.f.zero = result == 0;
             registers.f.subtract = false;
