@@ -2237,3 +2237,137 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
         REQUIRE(c.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SRA;
+
+
+    SECTION ("SRA 1") {
+        instruct.target_8bit = ArithmeticTarget8Bit::A;
+        CPU c;
+
+        c.registers.a = 0b00001001;
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00000100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == 1);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SRA 2") {
+        instruct.target_8bit = ArithmeticTarget8Bit::A;
+        CPU c;
+
+        c.registers.a = 0b10000000;
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b11000000);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == 0);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SRA 3") {
+        instruct.target_8bit = ArithmeticTarget8Bit::B;
+        CPU c;
+
+        c.registers.b = 0b00001001;
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.b == 0b00000100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == 1);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SRA 4") {
+        instruct.target_8bit = ArithmeticTarget8Bit::C;
+        CPU c;
+
+        c.registers.c = 0b00001001;
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.c == 0b00000100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == 1);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SRA 5") {
+        instruct.target_8bit = ArithmeticTarget8Bit::D;
+        CPU c;
+
+        c.registers.d = 0b00001001;
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.d == 0b00000100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == 1);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SRA 6") {
+        instruct.target_8bit = ArithmeticTarget8Bit::E;
+        CPU c;
+
+        c.registers.e = 0b00001001;
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.e == 0b00000100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == 1);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SRA 7") {
+        instruct.target_8bit = ArithmeticTarget8Bit::H;
+        CPU c;
+
+        c.registers.h = 0b00001001;
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.h == 0b00000100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == 1);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("SRA 8") {
+        instruct.target_8bit = ArithmeticTarget8Bit::L;
+        CPU c;
+
+        c.registers.l = 0b00001001;
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.l == 0b00000100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == 1);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
