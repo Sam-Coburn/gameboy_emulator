@@ -1490,6 +1490,42 @@ TEST_CASE("ADDHL Unit Tests", "[cpu][16-bit][addhl]") {
     }
 }
 
+TEST_CASE("RLCA Unit Tests", "[cpu][rotate][rlca]") {
+    Instruction instruct;
+    instruct.type = InstructionType::RLCA;
+
+
+    SECTION ("RLCA 1") {
+        CPU c;
+
+        c.registers.a = 0b00001001;
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00010010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION ("RLCA 2") {
+        CPU c;
+
+        c.registers.a = 0b10001001;
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00010011);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
 TEST_CASE("RRCA Unit Tests", "[cpu][rotate][rrca]") {
     Instruction instruct;
     instruct.type = InstructionType::RRCA;
@@ -1503,7 +1539,7 @@ TEST_CASE("RRCA Unit Tests", "[cpu][rotate][rrca]") {
 
         c.execute(instruct);
 
-        REQUIRE(c.registers.a == 0b00000100);
+        REQUIRE(c.registers.a == 0b10000100);
         REQUIRE(c.registers.f.zero == false);
         REQUIRE(c.registers.f.subtract == false);
         REQUIRE(c.registers.f.carry == true);
@@ -1518,7 +1554,7 @@ TEST_CASE("RRCA Unit Tests", "[cpu][rotate][rrca]") {
 
         c.execute(instruct);
 
-        REQUIRE(c.registers.a == 0b00000100);
+        REQUIRE(c.registers.a == 0b10000100);
         REQUIRE(c.registers.f.zero == false);
         REQUIRE(c.registers.f.subtract == false);
         REQUIRE(c.registers.f.carry == true);
