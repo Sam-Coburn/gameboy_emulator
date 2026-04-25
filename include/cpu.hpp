@@ -19,7 +19,7 @@ enum class InstructionType {
     SWAP, SCF, CCF, CPL, BIT,
     SET, RESET, ADDHL, RLCA, RLA,
     RRCA, RRA, RLC, RL, RRC,
-    RR, SLA, SRA
+    RR, SLA, SRA, SRL
 };
 
 struct Instruction {
@@ -808,6 +808,35 @@ class CPU {
                     break;
                 }
 
+                // SRL Instruction shifts the value of the provided register to the right by 1 bit and stores old bit 0 in carry
+                case InstructionType::SRL: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = srl(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = srl(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = srl(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = srl(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = srl(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = srl(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = srl(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -1017,6 +1046,19 @@ class CPU {
             bool msb = (value & 0b10000000) >> 7;
 
             uint8_t result = (value >> 1) | (msb << 7);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t srl(uint8_t value) {
+            bool new_carry = value & 1;
+
+            uint8_t result = value >> 1;
 
             registers.f.zero = result == 0;
             registers.f.subtract = false;
