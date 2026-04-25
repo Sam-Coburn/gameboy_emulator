@@ -17,7 +17,7 @@ enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
     SWAP, SCF, CCF, CPL, BIT,
-    SET, RESET, ADDHL, RRA
+    SET, RESET, ADDHL, RRCA, RRA
 };
 
 struct Instruction {
@@ -558,6 +558,22 @@ class CPU {
 
                     uint16_t new_value = add_hl(value);
                     registers.set_hl(new_value);
+
+                    break;
+                }
+
+                // RRCA Instruction rotates the contents of register A 1 bit to the right, the carry flag is set to old bit 0
+                case InstructionType::RRCA: {
+                    uint8_t value = registers.a;
+                    bool new_carry = value & 1;
+                    value = value >> 1;
+
+                    registers.a = value;
+
+                    registers.f.zero = registers.a == 0;
+                    registers.f.subtract = false;
+                    registers.f.carry = new_carry;
+                    registers.f.half_carry = false;
 
                     break;
                 }
