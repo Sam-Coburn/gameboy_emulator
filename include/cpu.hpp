@@ -1,8 +1,9 @@
 #include <registers.hpp>
 
-#include <stdint.h>
-#include <iostream>
+#include <bit>
 #include <bitset>
+#include <iostream>
+#include <stdint.h>
 
 enum class ArithmeticTarget8Bit {
     A, B, C, D, E, H, L
@@ -16,7 +17,9 @@ enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
     SWAP, SCF, CCF, CPL, BIT,
-    SET, RESET, ADDHL
+    SET, RESET, ADDHL, RLCA, RLA,
+    RRCA, RRA, RLC, RL, RRC,
+    RR, SLA, SRA, SRL
 };
 
 struct Instruction {
@@ -561,6 +564,279 @@ class CPU {
                     break;
                 }
 
+                // RLCA Instruction rotates the contents of register A 1 bit to the left, the carry flag is set to old bit 7
+                case InstructionType::RLCA: {
+                    uint8_t value = registers.a;
+                    bool new_carry = (value & 0b10000000) >> 7;
+
+                    value = (value << 1) | (new_carry);
+
+                    registers.a = value;
+
+                    registers.f.zero = registers.a == 0;
+                    registers.f.subtract = false;
+                    registers.f.carry = new_carry;
+                    registers.f.half_carry = false;
+
+                    break;
+                }
+
+                // RLA Instruction rotates the contents of register A 1 bit to the left, the carry flag is set to old bit 7, bit 0 is set to old carry flag value
+                case InstructionType::RLA: {
+                    uint8_t value = registers.a;
+                    bool old_carry = registers.f.carry;
+                    bool new_carry = (value & 0b10000000) >> 7;
+
+                    value = (value << 1) | (old_carry);
+
+                    registers.a = value;
+
+                    registers.f.zero = registers.a == 0;
+                    registers.f.subtract = false;
+                    registers.f.carry = new_carry;
+                    registers.f.half_carry = false;
+
+                    break;
+                }
+
+                // RRCA Instruction rotates the contents of register A 1 bit to the right, the carry flag is set to old bit 0
+                case InstructionType::RRCA: {
+                    uint8_t value = registers.a;
+                    bool new_carry = value & 1;
+
+                    value = (value >> 1) | (new_carry << 7);
+
+                    registers.a = value;
+
+                    registers.f.zero = registers.a == 0;
+                    registers.f.subtract = false;
+                    registers.f.carry = new_carry;
+                    registers.f.half_carry = false;
+
+                    break;
+                }
+
+                // RRA Instruction rotates the contents of register A 1 bit to the right, the carry flag is rotated in for bit 7 (leftmost bit) and bit 0 is rotated out to the carry flag value
+                case InstructionType::RRA: {
+                    uint8_t value = registers.a;
+                    uint8_t old_carry = registers.f.carry;
+                    bool new_carry = value & 1;
+
+                    value = (value >> 1) | (old_carry << 7);
+
+                    registers.a = value;
+
+                    registers.f.zero = registers.a == 0;
+                    registers.f.subtract = false;
+                    registers.f.carry = new_carry;
+                    registers.f.half_carry = false;
+
+                    break;
+                }
+
+                // RLC Instruction rotates the contents of the proviced register 1 bit to the left, the carry flag is set to old bit 7
+                case InstructionType::RLC: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = rlc(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = rlc(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = rlc(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = rlc(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = rlc(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = rlc(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = rlc(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // RL Instruction rotates the contents of the provided register 1 bit to the left, the carry flag is set to old bit 7, bit 0 is set to old carry flag value
+                case InstructionType::RL: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = rla(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = rla(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = rla(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = rla(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = rla(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = rla(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = rla(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // RRC Instruction rotates the contents of the provided register 1 bit to the right, the carry flag is set to old bit 0
+                case InstructionType::RRC: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = rrc(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = rrc(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = rrc(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = rrc(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = rrc(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = rrc(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = rrc(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // RR Instruction rotates the contents of the provided register 1 bit to the right, the carry flag is rotated in for bit 7 (leftmost bit) and bit 0 is rotated out to the carry flag value
+                case InstructionType::RR: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = rr(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = rr(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = rr(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = rr(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = rr(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = rr(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = rr(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // SLA Instruction shifts the value of the provided register to the left by 1 bit and stores old bit 7 in carry
+                case InstructionType::SLA: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = sla(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = sla(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = sla(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = sla(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = sla(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = sla(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = sla(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // SRA Instruction shifts the value of the provided register to the right by 1 bit and stores old bit 0 in carry, the MSB remains the same (don't shift in 0 automatically)
+                case InstructionType::SRA: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = sra(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = sra(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = sra(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = sra(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = sra(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = sra(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = sra(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
+                // SRL Instruction shifts the value of the provided register to the right by 1 bit and stores old bit 0 in carry
+                case InstructionType::SRL: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = srl(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = srl(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = srl(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = srl(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = srl(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = srl(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = srl(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -695,6 +971,99 @@ class CPU {
             registers.f.subtract = false;
             registers.f.carry = overflowed;
             registers.f.half_carry = (registers.get_hl() & 0xFFF) + (value & 0xFFF) > 0xFFF;
+
+            return result;
+        }
+
+        uint8_t rlc(uint8_t value) {
+            bool new_carry = (value & 0b10000000) >> 7;
+
+            uint8_t result = (value << 1) | (new_carry);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t rla(uint8_t value) {
+            bool old_carry = registers.f.carry;
+            bool new_carry = (value & 0b10000000) >> 7;
+
+            uint8_t result = (value << 1) | (old_carry);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t rrc(uint8_t value) {
+            bool new_carry = value & 1;
+
+            uint8_t result = (value >> 1) | (new_carry << 7);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t rr(uint8_t value) {
+            uint8_t old_carry = registers.f.carry;
+            bool new_carry = value & 1;
+
+            uint8_t result = (value >> 1) | (old_carry << 7);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t sla(uint8_t value) {
+            bool new_carry = (value & 0b10000000) >> 7;
+            uint8_t result = value << 1;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t sra(uint8_t value) {
+            bool new_carry = value & 1;
+            bool msb = (value & 0b10000000) >> 7;
+
+            uint8_t result = (value >> 1) | (msb << 7);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t srl(uint8_t value) {
+            bool new_carry = value & 1;
+
+            uint8_t result = value >> 1;
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
 
             return result;
         }
