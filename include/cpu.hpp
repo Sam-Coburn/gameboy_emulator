@@ -4,7 +4,9 @@
 #include <bitset>
 #include <iostream>
 #include <optional>
+#include <stdexcept>
 #include <stdint.h>
+#include <string>
 
 enum class ArithmeticTarget8Bit {
     A, B, C, D, E, H, L
@@ -203,10 +205,25 @@ struct MemoryBus {
 class CPU {
     public:
         Registers registers;
-        uint16_t pc;
         MemoryBus bus;
 
+        uint16_t pc = 0x100;
         uint16_t sp = 0xFFFE;
+
+        void step() {
+            // Use program counter to read instruction byte from memory
+            uint8_t instruction_byte = bus.read_byte(pc);
+
+            // Decode instruction byte into an instruction
+            std::optional<Instruction> opt_instruct = from_byte(instruction_byte);
+            if (opt_instruct.has_value()) {
+                Instruction instruct = opt_instruct.value();
+                execute(instruct);
+            }
+            else {
+                throw std::runtime_error("Unkown instruction found for: 0x" + std::to_string(instruction_byte));
+            }
+        }
 
         void execute(const Instruction& instruction) {
             switch (instruction.type) {
@@ -246,6 +263,8 @@ class CPU {
                     uint8_t new_value = add(value);
                     registers.a = new_value;
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -279,6 +298,8 @@ class CPU {
 
                     uint8_t new_value = adc(value);
                     registers.a = new_value;
+
+                    pc = pc + 1;
 
                     break;
                 }
@@ -314,6 +335,8 @@ class CPU {
                     uint8_t new_value = sub(value);
                     registers.a = new_value;
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -347,6 +370,8 @@ class CPU {
 
                     uint8_t new_value = sbc(value);
                     registers.a = new_value;
+
+                    pc = pc + 1;
 
                     break;
                 }
@@ -382,6 +407,8 @@ class CPU {
                     uint8_t new_value = bitwise_and(value);
                     registers.a = new_value;
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -415,6 +442,8 @@ class CPU {
 
                     uint8_t new_value = bitwise_or(value);
                     registers.a = new_value;
+
+                    pc = pc + 1;
 
                     break;
                 }
@@ -450,6 +479,8 @@ class CPU {
                     uint8_t new_value = bitwise_xor(value);
                     registers.a = new_value;
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -483,6 +514,8 @@ class CPU {
 
                     uint8_t new_value = sub(value);
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -512,6 +545,8 @@ class CPU {
                             break;
                     }
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -540,6 +575,8 @@ class CPU {
                             registers.l = dec(registers.l);
                             break;
                     }
+
+                    pc = pc + 1;
 
                     break;
                 }
@@ -572,6 +609,8 @@ class CPU {
                             break;
                     }
 
+                    pc = pc + 2;
+
                     break;
                 }
 
@@ -582,6 +621,8 @@ class CPU {
                     registers.f.zero = registers.f.zero; // SCF instruction leaves zero flag unaffected
                     registers.f.subtract = false;
                     registers.f.half_carry = false;
+
+                    pc = pc + 1;
 
                     break;
                 }
@@ -599,6 +640,8 @@ class CPU {
                     registers.f.subtract = false;
                     registers.f.half_carry = false;
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -610,6 +653,8 @@ class CPU {
                     registers.f.subtract = true;
                     registers.f.carry = registers.f.carry; // CPL instruction leaves carry flag unaffected
                     registers.f.half_carry = true;
+
+                    pc = pc + 1;
 
                     break;
                 }
@@ -652,6 +697,8 @@ class CPU {
                     registers.f.carry = registers.f.carry; // BIT instruction leaves carry flag unaffected
                     registers.f.half_carry = true;
 
+                    pc = pc + 2;
+
                     break;
                 }
 
@@ -682,6 +729,8 @@ class CPU {
                             registers.l = registers.l | (1 << bit_index);
                             break;
                     }
+
+                    pc = pc + 2;
 
                     break;
                 }
@@ -714,6 +763,8 @@ class CPU {
                             break;
                     }
 
+                    pc = pc + 2;
+
                     break;
                 }
 
@@ -741,6 +792,8 @@ class CPU {
                     uint16_t new_value = add_hl(value);
                     registers.set_hl(new_value);
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -760,6 +813,8 @@ class CPU {
                     registers.f.carry = new_carry;
                     registers.f.half_carry = false;
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -778,6 +833,8 @@ class CPU {
                     registers.f.carry = new_carry;
                     registers.f.half_carry = false;
 
+                    pc = pc + 1;
+
                     break;
                 }
 
@@ -794,6 +851,8 @@ class CPU {
                     registers.f.subtract = false;
                     registers.f.carry = new_carry;
                     registers.f.half_carry = false;
+
+                    pc = pc + 1;
 
                     break;
                 }
@@ -812,6 +871,8 @@ class CPU {
                     registers.f.subtract = false;
                     registers.f.carry = new_carry;
                     registers.f.half_carry = false;
+
+                    pc = pc + 1;
 
                     break;
                 }
@@ -842,6 +903,8 @@ class CPU {
                             break;
                     }
 
+                    pc = pc + 2;
+
                     break;
                 }
 
@@ -870,6 +933,8 @@ class CPU {
                             registers.l = rla(registers.l);
                             break;
                     }
+
+                    pc = pc + 2;
 
                     break;
                 }
@@ -900,6 +965,8 @@ class CPU {
                             break;
                     }
 
+                    pc = pc + 2;
+
                     break;
                 }
 
@@ -928,6 +995,8 @@ class CPU {
                             registers.l = rr(registers.l);
                             break;
                     }
+
+                    pc = pc + 2;
 
                     break;
                 }
@@ -958,6 +1027,8 @@ class CPU {
                             break;
                     }
 
+                    pc = pc + 2;
+
                     break;
                 }
 
@@ -987,6 +1058,8 @@ class CPU {
                             break;
                     }
 
+                    pc = pc + 2;
+
                     break;
                 }
 
@@ -1015,6 +1088,8 @@ class CPU {
                             registers.l = srl(registers.l);
                             break;
                     }
+
+                    pc = pc + 2;
 
                     break;
                 }
