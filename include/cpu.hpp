@@ -18,7 +18,7 @@ enum class InstructionType {
     OR, XOR, CP, INC, DEC,
     SWAP, SCF, CCF, CPL, BIT,
     SET, RESET, ADDHL, RLCA, RLA,
-    RRCA, RRA, RLC, RL
+    RRCA, RRA, RLC, RL, RRC
 };
 
 struct Instruction {
@@ -691,6 +691,35 @@ class CPU {
                     break;
                 }
 
+                // RRC Instruction rotates the contents of the provided register 1 bit to the right, the carry flag is set to old bit 0
+                case InstructionType::RRC: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = rrc(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = rrc(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = rrc(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = rrc(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = rrc(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = rrc(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = rrc(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -847,6 +876,19 @@ class CPU {
             bool new_carry = (value & 0b10000000) >> 7;
 
             uint8_t result = (value << 1) | (old_carry);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
+
+            return result;
+        }
+
+        uint8_t rrc(uint8_t value) {
+            bool new_carry = value & 1;
+
+            uint8_t result = (value >> 1) | (new_carry << 7);
 
             registers.f.zero = result == 0;
             registers.f.subtract = false;
