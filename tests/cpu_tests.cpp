@@ -2507,3 +2507,13 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
         REQUIRE(c.registers.f.half_carry == false);
     }
 }
+
+TEST_CASE("Instruction from_byte() Unit Tests", "[instruction][from_byte]") {
+    SECTION ("ADD A") {
+        std::optional<Instruction> opt_instruct = from_byte(0x87);
+        Instruction instruct = opt_instruct.value(); 
+
+        REQUIRE(instruct.type == InstructionType::ADD);
+        REQUIRE(instruct.target_8bit == ArithmeticTarget8Bit::A);
+    }
+}

@@ -32,10 +32,163 @@ struct Instruction {
 
 static std::optional<Instruction> from_byte(uint8_t byte) {
     switch (byte) {
-        case 0x87:
-            return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::A};
-        default:
-            return std::nullopt;
+        // --------------------
+        // ADD A, r
+        // --------------------
+        case 0x87: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::A};
+        case 0x80: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::B};
+        case 0x81: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::C};
+        case 0x82: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::D};
+        case 0x83: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::E};
+        case 0x84: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::H};
+        case 0x85: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // ADC A, r
+        // --------------------
+        case 0x8F: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::A};
+        case 0x88: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::B};
+        case 0x89: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::C};
+        case 0x8A: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::D};
+        case 0x8B: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::E};
+        case 0x8C: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::H};
+        case 0x8D: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // SUB r
+        // --------------------
+        case 0x97: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::A};
+        case 0x90: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::B};
+        case 0x91: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::C};
+        case 0x92: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::D};
+        case 0x93: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::E};
+        case 0x94: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::H};
+        case 0x95: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // SBC r
+        // --------------------
+        case 0x9F: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::A};
+        case 0x98: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::B};
+        case 0x99: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::C};
+        case 0x9A: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::D};
+        case 0x9B: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::E};
+        case 0x9C: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::H};
+        case 0x9D: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // AND r
+        // --------------------
+        case 0xA7: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::A};
+        case 0xA0: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::B};
+        case 0xA1: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::C};
+        case 0xA2: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::D};
+        case 0xA3: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::E};
+        case 0xA4: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::H};
+        case 0xA5: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // OR r
+        // --------------------
+        case 0xB7: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::A};
+        case 0xB0: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::B};
+        case 0xB1: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::C};
+        case 0xB2: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::D};
+        case 0xB3: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::E};
+        case 0xB4: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::H};
+        case 0xB5: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // XOR r
+        // --------------------
+        case 0xAF: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::A};
+        case 0xA8: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::B};
+        case 0xA9: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::C};
+        case 0xAA: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::D};
+        case 0xAB: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::E};
+        case 0xAC: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::H};
+        case 0xAD: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // CP r (compare)
+        // --------------------
+        case 0xBF: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::A};
+        case 0xB8: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::B};
+        case 0xB9: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::C};
+        case 0xBA: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::D};
+        case 0xBB: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::E};
+        case 0xBC: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::H};
+        case 0xBD: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::L};
+
+
+        // --------------------
+        // INC r
+        // --------------------
+        case 0x3C: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::A};
+        case 0x04: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::B};
+        case 0x0C: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::C};
+        case 0x14: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::D};
+        case 0x1C: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::E};
+        case 0x24: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::H};
+        case 0x2C: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // DEC r
+        // --------------------
+        case 0x3D: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::A};
+        case 0x05: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::B};
+        case 0x0D: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::C};
+        case 0x15: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::D};
+        case 0x1D: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::E};
+        case 0x25: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::H};
+        case 0x2D: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::L};
+
+        // --------------------
+        // CPL
+        // --------------------
+        case 0x2F: return Instruction{InstructionType::CPL};
+
+        // --------------------
+        // CCF
+        // --------------------
+        case 0x3F: return Instruction{InstructionType::CCF};
+
+        // --------------------
+        // SCF
+        // --------------------
+        case 0x37: return Instruction{InstructionType::SCF};
+
+        // --------------------
+        // ADDHL HL, r
+        // --------------------
+        case 0x09: return Instruction{InstructionType::ADDHL, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC};
+        case 0x19: return Instruction{InstructionType::ADDHL, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::DE};
+        case 0x29: return Instruction{InstructionType::ADDHL, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::HL};
+        case 0x39: return Instruction{InstructionType::ADDHL, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::SP};
+
+        // --------------------
+        // RLCA
+        // --------------------
+        case 0x07: return Instruction{InstructionType::RLCA};
+
+        // --------------------
+        // RLA
+        // --------------------
+        case 0x17: return Instruction{InstructionType::RLA};
+
+        // --------------------
+        // RRCA
+        // --------------------
+        case 0x0F: return Instruction{InstructionType::RRCA};
+
+        // --------------------
+        // RRA
+        // --------------------
+        case 0x1F: return Instruction{InstructionType::RRA};
+
+        // Remaining Instructions Are Prefixed Opcodes
+
+        default: return std::nullopt;
     }
 }
 
