@@ -17,7 +17,8 @@ enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
     SWAP, SCF, CCF, CPL, BIT,
-    SET, RESET, ADDHL, RLCA, RLA, RRCA, RRA
+    SET, RESET, ADDHL, RLCA, RLA,
+    RRCA, RRA, RLC
 };
 
 struct Instruction {
@@ -632,6 +633,35 @@ class CPU {
                     break;
                 }
 
+                // RLCA Instruction rotates the contents of the proviced register 1 bit to the left, the carry flag is set to old bit 7
+                case InstructionType::RLC: {
+                    switch (instruction.target_8bit) {
+                        case ArithmeticTarget8Bit::A:
+                            registers.a = rlc(registers.a);
+                            break;
+                        case ArithmeticTarget8Bit::B:
+                            registers.b = rlc(registers.b);
+                            break;
+                        case ArithmeticTarget8Bit::C:
+                            registers.c = rlc(registers.c);
+                            break;
+                        case ArithmeticTarget8Bit::D:
+                            registers.d = rlc(registers.d);
+                            break;
+                        case ArithmeticTarget8Bit::E:
+                            registers.e = rlc(registers.e);
+                            break;
+                        case ArithmeticTarget8Bit::H:
+                            registers.h = rlc(registers.h);
+                            break;
+                        case ArithmeticTarget8Bit::L:
+                            registers.l = rlc(registers.l);
+                            break;
+                    }
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -766,6 +796,19 @@ class CPU {
             registers.f.subtract = false;
             registers.f.carry = overflowed;
             registers.f.half_carry = (registers.get_hl() & 0xFFF) + (value & 0xFFF) > 0xFFF;
+
+            return result;
+        }
+
+        uint8_t rlc(uint8_t value) {
+            bool new_carry = (value & 0b10000000) >> 7;
+
+            uint8_t result = (value << 1) | (new_carry);
+
+            registers.f.zero = result == 0;
+            registers.f.subtract = false;
+            registers.f.carry = new_carry;
+            registers.f.half_carry = false;
 
             return result;
         }
