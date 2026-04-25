@@ -17,7 +17,7 @@ enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
     SWAP, SCF, CCF, CPL, BIT,
-    SET, RESET, ADDHL, RLCA, RLA,
+    SET, RES, ADDHL, RLCA, RLA,
     RRCA, RRA, RLC, RL, RRC,
     RR, SLA, SRA, SRL
 };
@@ -382,6 +382,8 @@ class CPU {
                     break;
                 }
 
+                /* Misc CPU Instructions */
+
                 // SWAP Instruction swaps the values of the upper and lower nibbles of the target register
                 case InstructionType::SWAP: {
                     switch (instruction.target_8bit) {
@@ -449,6 +451,8 @@ class CPU {
 
                     break;
                 }
+
+                /* Bitwise CPU Instructions */
 
                 // BIT Instruction tests the bit value for the given register at the given bit index
                 case InstructionType::BIT: {
@@ -520,8 +524,8 @@ class CPU {
                     break;
                 }
 
-                // RESET Instruction sets the bit value for the given register at the given bit index to 0
-                case InstructionType::RESET: {
+                // RES Instruction sets the bit value for the given register at the given bit index to 0
+                case InstructionType::RES: {
                     uint8_t bit_index = instruction.bit_index;
 
                     switch (instruction.target_8bit) {
@@ -551,6 +555,8 @@ class CPU {
                     break;
                 }
 
+                /* 16-bit Arithmetic Operations */
+
                 // ADDHL Instruction adds the contents of the given 16-bit register to the HL register
                 case InstructionType::ADDHL: {
                     uint16_t value = 0;
@@ -575,6 +581,8 @@ class CPU {
 
                     break;
                 }
+
+                /* Rotate & Shift CPU Instructions */
 
                 // RLCA Instruction rotates the contents of register A 1 bit to the left, the carry flag is set to old bit 7
                 case InstructionType::RLCA: {

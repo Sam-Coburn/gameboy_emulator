@@ -1277,11 +1277,11 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 }
 
-TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
+TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     Instruction instruct;
-    instruct.type = InstructionType::RESET;
+    instruct.type = InstructionType::RES;
 
-    SECTION ("RESET 1") {
+    SECTION ("RES 1") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::A;
         instruct.bit_index = 3;
@@ -1293,7 +1293,7 @@ TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
         REQUIRE(c.registers.a == 0b11110111);
     }
 
-    SECTION ("RESET 2") {
+    SECTION ("RES 2") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::A;
         instruct.bit_index = 7;
@@ -1305,7 +1305,7 @@ TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
         REQUIRE(c.registers.a == 0b01111111);
     }
 
-    SECTION ("RESET 3") {
+    SECTION ("RES 3") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::A;
         instruct.bit_index = 0;
@@ -1317,7 +1317,7 @@ TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
         REQUIRE(c.registers.a == 0b11111110);
     }
 
-    SECTION ("RESET 4") {
+    SECTION ("RES 4") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::B;
         instruct.bit_index = 0;
@@ -1329,7 +1329,7 @@ TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
         REQUIRE(c.registers.b == 0b11111110);
     }
 
-    SECTION ("RESET 5") {
+    SECTION ("RES 5") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::C;
         instruct.bit_index = 0;
@@ -1341,7 +1341,7 @@ TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
         REQUIRE(c.registers.c == 0b11111110);
     }
 
-    SECTION ("RESET 6") {
+    SECTION ("RES 6") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::D;
         instruct.bit_index = 0;
@@ -1353,7 +1353,7 @@ TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
         REQUIRE(c.registers.d == 0b11111110);
     }
 
-    SECTION ("RESET 7") {
+    SECTION ("RES 7") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::E;
         instruct.bit_index = 0;
@@ -1365,7 +1365,7 @@ TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
         REQUIRE(c.registers.e == 0b11111110);
     }
 
-    SECTION ("RESET 8") {
+    SECTION ("RES 8") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::H;
         instruct.bit_index = 0;
@@ -1377,7 +1377,7 @@ TEST_CASE("RESET Unit Tests", "[cpu][bit_opcode][reset]") {
         REQUIRE(c.registers.h == 0b11111110);
     }
 
-    SECTION ("RESET 9") {
+    SECTION ("RES 9") {
         CPU c;
         instruct.target_8bit = ArithmeticTarget8Bit::L;
         instruct.bit_index = 0;
