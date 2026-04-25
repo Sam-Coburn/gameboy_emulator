@@ -29,9 +29,21 @@ struct Instruction {
     uint8_t bit_index;
 };
 
+class MemoryBus {
+    public:
+        uint8_t memory[0xFFFF];
+
+        uint8_t read_byte(uint16_t addr) {
+            return memory[addr];
+        }
+};
+
 class CPU {
     public:
         Registers registers;
+        uint16_t pc;
+        MemoryBus bus;
+
         uint16_t sp = 0xFFFE;
 
         void execute(const Instruction& instruction) {
