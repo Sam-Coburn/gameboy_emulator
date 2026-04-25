@@ -1526,6 +1526,26 @@ TEST_CASE("RLCA Unit Tests", "[cpu][rotate][rlca]") {
     }
 }
 
+TEST_CASE("RLA Unit Tests", "[cpu][rotate][rla]") {
+    Instruction instruct;
+    instruct.type = InstructionType::RLA;
+
+    SECTION ("RLA 1") {
+        CPU c;
+
+        c.registers.a = 0b00001001;
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0b00010011);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
 TEST_CASE("RRCA Unit Tests", "[cpu][rotate][rrca]") {
     Instruction instruct;
     instruct.type = InstructionType::RRCA;
