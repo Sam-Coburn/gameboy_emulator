@@ -3,6 +3,7 @@
 #include <bit>
 #include <bitset>
 #include <iostream>
+#include <optional>
 #include <stdint.h>
 
 enum class ArithmeticTarget8Bit {
@@ -29,13 +30,21 @@ struct Instruction {
     uint8_t bit_index;
 };
 
-class MemoryBus {
-    public:
-        uint8_t memory[0xFFFF];
+static std::optional<Instruction> from_byte(uint8_t byte) {
+    switch (byte) {
+        case 0x87:
+            return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::A};
+        default:
+            return std::nullopt;
+    }
+}
 
-        uint8_t read_byte(uint16_t addr) {
-            return memory[addr];
-        }
+struct MemoryBus {
+    uint8_t memory[0xFFFF];
+
+    uint8_t read_byte(uint16_t addr) {
+        return memory[addr];
+    }
 };
 
 class CPU {
