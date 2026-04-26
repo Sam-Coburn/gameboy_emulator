@@ -516,6 +516,31 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         // --------------------
         case 0x1F: return Instruction{InstructionType::RRA};
 
+        // --------------------
+        // JP
+        // --------------------
+        return Instruction{InstructionType::JP, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::Always};
+
+        case 0xC3: return Instruction{InstructionType::JP, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::Always};
+        case 0xC2: return Instruction{InstructionType::JP, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::NotZero};
+        case 0xCA: return Instruction{InstructionType::JP, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::Zero};
+        case 0xD2: return Instruction{InstructionType::JP, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::NotCarry};
+        case 0xDA: return Instruction{InstructionType::JP, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::Carry};
+
+        // --------------------
+        // JR
+        // --------------------
+        case 0x18: return Instruction{InstructionType::JR, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::Always};
+        case 0x20: return Instruction{InstructionType::JR, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::NotZero};
+        case 0x28: return Instruction{InstructionType::JR, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::Zero};
+        case 0x30: return Instruction{InstructionType::JR, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::NotCarry};
+        case 0x38: return Instruction{InstructionType::JR, ArithmeticTarget8Bit::A, ArithmeticTarget16Bit::BC, 0, JumpTest::Carry};
+
+        // --------------------
+        // JP_HL
+        // --------------------
+        case 0xE9: return Instruction{InstructionType::JP_HL};
+
         default: return std::nullopt;
     }
 }
