@@ -2510,10 +2510,18 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
 TEST_CASE("Instruction from_byte() Unit Tests", "[instruction][from_byte]") {
     SECTION ("ADD A") {
-        std::optional<Instruction> opt_instruct = from_byte(0x87);
+        std::optional<Instruction> opt_instruct = from_byte(0x87, false);
         Instruction instruct = opt_instruct.value(); 
 
         REQUIRE(instruct.type == InstructionType::ADD);
+        REQUIRE(instruct.target_8bit == ArithmeticTarget8Bit::A);
+    }
+
+    SECTION ("SWAP A") {
+        std::optional<Instruction> opt_instruct = from_byte(0x37, true);
+        Instruction instruct = opt_instruct.value(); 
+
+        REQUIRE(instruct.type == InstructionType::SWAP);
         REQUIRE(instruct.target_8bit == ArithmeticTarget8Bit::A);
     }
 }
