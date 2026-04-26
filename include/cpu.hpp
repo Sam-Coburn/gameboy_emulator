@@ -1759,8 +1759,9 @@ class CPU {
         }
 
         uint16_t jump_relative(bool should_jump) {
-            int8_t offset = static_cast<int8_t>(bus.read_byte(pc + 1));
+            int8_t offset = static_cast<int8_t>(bus.read_byte(pc + 1)); // Offset stored 1 byte after JR instruction
 
+            // Always jump 2 after the instruction
             if (should_jump) {
                 return static_cast<uint16_t>(pc + 2 + offset);
             } else {
