@@ -9,7 +9,7 @@
 #include <string>
 
 enum class ArithmeticTarget8Bit {
-    A, B, C, D, E, H, L
+    A, B, C, D, E, H, L, HL_PTR, NUM
 };
 
 enum class ArithmeticTarget16Bit {
@@ -21,13 +21,24 @@ enum class JumpTest {
 };
 
 enum class InstructionType {
+    // 8-bit ALU operations
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
-    SWAP, SCF, CCF, CPL, BIT,
-    SET, RES, ADDHL, RLCA, RLA,
-    RRCA, RRA, RLC, RL, RRC,
-    RR, SLA, SRA, SRL, JP,
-    JR, JP_HL
+
+    // 16-bit ALU operations
+    ADDHL,
+
+    // Miscelleaneous instructions
+    SWAP, CPL, CCF, SCF,
+
+    // Bit operations
+    BIT, SET, RES,
+
+    // Rotate and shift operations
+    RLCA, RLA, RRCA, RRA, RLC, RL, RRC, RR, SLA, SRA, SRL,
+
+    // Jump instructions
+    JP, JR, JP_HL
 };
 
 struct Instruction {
@@ -607,6 +618,7 @@ class CPU {
                 // ADD Instruction adds specified register contents to register A
                 case InstructionType::ADD: {
                     uint8_t value = 0;
+                    bool inc_pc_by_two = false;
 
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -630,6 +642,14 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
+                        case ArithmeticTarget8Bit::HL_PTR:
+                            uint16_t addr = registers.get_hl();
+                            value = bus.read_byte(addr);
+                            break;
+                        case ArithmeticTarget8Bit::NUM:
+                            value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
                         default:
                             break;
                     }
@@ -637,7 +657,9 @@ class CPU {
                     uint8_t new_value = add(value);
                     registers.a = new_value;
 
-                    pc = pc + 1;
+                    if (inc_pc_by_two) {
+                        pc = pc + 1;
+                    }
 
                     break;
                 }
