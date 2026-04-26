@@ -376,13 +376,15 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         // --------------------
         // ADD A, r
         // --------------------
-        case 0x87: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::A};
         case 0x80: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::B};
         case 0x81: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::C};
         case 0x82: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::D};
         case 0x83: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::E};
         case 0x84: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::H};
         case 0x85: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::L};
+        case 0x86: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::HL_PTR};
+        case 0x87: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::A};
+        case 0xC6: return Instruction{InstructionType::ADD, ArithmeticTarget8Bit::NUM};
 
         // --------------------
         // ADC A, r
