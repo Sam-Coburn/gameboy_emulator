@@ -13,6 +13,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_executable(tests
   tests/flags_register_tests.cpp
   tests/register_tests.cpp
