@@ -27,7 +27,7 @@ enum class InstructionType {
     SET, RES, ADDHL, RLCA, RLA,
     RRCA, RRA, RLC, RL, RRC,
     RR, SLA, SRA, SRL, JP,
-    JR
+    JR, JP_HL
 };
 
 struct Instruction {
@@ -1501,6 +1501,12 @@ class CPU {
                     }
 
                     pc = jump_relative(jump_condition);
+
+                    break;
+                }
+
+                case InstructionType::JP_HL: {
+                    pc = registers.get_hl();
 
                     break;
                 }
