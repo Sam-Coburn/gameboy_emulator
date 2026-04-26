@@ -698,13 +698,16 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
                             break;
+                        }
                         case ArithmeticTarget8Bit::NUM:
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
+                            break;
+                        default:
                             break;
                     }
 
@@ -748,13 +751,16 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
                             break;
+                        }
                         case ArithmeticTarget8Bit::NUM:
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
+                            break;
+                        default:
                             break;
                     }
 
@@ -798,13 +804,16 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
                             break;
+                        }
                         case ArithmeticTarget8Bit::NUM:
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
+                            break;
+                        default:
                             break;
                     }
 
@@ -848,13 +857,16 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
                             break;
+                        }
                         case ArithmeticTarget8Bit::NUM:
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
+                            break;
+                        default:
                             break;
                     }
 
@@ -898,13 +910,16 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
                             break;
+                        }
                         case ArithmeticTarget8Bit::NUM:
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
+                            break;
+                        default:
                             break;
                     }
 
@@ -948,13 +963,16 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
                             break;
+                        }
                         case ArithmeticTarget8Bit::NUM:
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
+                            break;
+                        default:
                             break;
                     }
 
@@ -998,13 +1016,16 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
                             break;
+                        }
                         case ArithmeticTarget8Bit::NUM:
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
+                            break;
+                        default:
                             break;
                     }
 
@@ -1048,13 +1069,16 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
                             break;
+                        }
                         case ArithmeticTarget8Bit::NUM:
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
+                            break;
+                        default:
                             break;
                     }
 
@@ -1094,13 +1118,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = inc(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = inc(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1133,13 +1162,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = dec(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = dec(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1174,13 +1208,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = swap(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = swap(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1263,9 +1302,14 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             value = bus.read_byte(addr);
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1307,7 +1351,7 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = registers.l | (1 << bit_index);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
 
@@ -1315,6 +1359,11 @@ class CPU {
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1349,7 +1398,7 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = registers.l & ~(1 << bit_index);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
 
@@ -1357,6 +1406,11 @@ class CPU {
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1498,13 +1552,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = rlc(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = rlc(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1537,13 +1596,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = rl(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = rl(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1576,13 +1640,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = rrc(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = rrc(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1615,13 +1684,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = rr(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = rr(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1654,13 +1728,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = sla(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = sla(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1693,13 +1772,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = sra(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = sra(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
@@ -1732,13 +1816,18 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             registers.l = srl(registers.l);
                             break;
-                        case ArithmeticTarget8Bit::HL_PTR:
+                        case ArithmeticTarget8Bit::HL_PTR: {
                             uint16_t addr = registers.get_hl();
                             uint8_t value = bus.read_byte(addr);
                             uint8_t result = srl(value);
 
                             bus.write_byte(addr, result);
 
+                            break;
+                        }
+                        case ArithmeticTarget8Bit::NUM:
+                            break;
+                        default:
                             break;
                     }
 
