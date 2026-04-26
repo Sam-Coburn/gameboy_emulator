@@ -35,7 +35,9 @@ enum class InstructionType {
     BIT, SET, RES,
 
     // Rotate and shift operations
-    RLCA, RLA, RRCA, RRA, RLC, RL, RRC, RR, SLA, SRA, SRL,
+    RLCA, RLA, RRCA, RRA, RLC,
+    RL, RRC, RR, SLA, SRA,
+    SRL,
 
     // Jump instructions
     JP, JR, JP_HL
@@ -389,79 +391,93 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         // --------------------
         // ADC A, r
         // --------------------
-        case 0x8F: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::A};
         case 0x88: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::B};
         case 0x89: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::C};
         case 0x8A: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::D};
         case 0x8B: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::E};
         case 0x8C: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::H};
         case 0x8D: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::L};
+        case 0x8E: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::HL_PTR};
+        case 0x8F: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::A};
+        case 0xCE: return Instruction{InstructionType::ADC, ArithmeticTarget8Bit::NUM};
 
         // --------------------
         // SUB r
         // --------------------
-        case 0x97: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::A};
         case 0x90: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::B};
         case 0x91: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::C};
         case 0x92: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::D};
         case 0x93: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::E};
         case 0x94: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::H};
         case 0x95: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::L};
+        case 0x96: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::HL_PTR};
+        case 0x97: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::A};
+        case 0xD6: return Instruction{InstructionType::SUB, ArithmeticTarget8Bit::NUM};
 
         // --------------------
         // SBC r
         // --------------------
-        case 0x9F: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::A};
         case 0x98: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::B};
         case 0x99: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::C};
         case 0x9A: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::D};
         case 0x9B: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::E};
         case 0x9C: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::H};
         case 0x9D: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::L};
+        case 0x9E: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::HL_PTR};
+        case 0x9F: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::A};
+        case 0xDE: return Instruction{InstructionType::SBC, ArithmeticTarget8Bit::NUM};
 
         // --------------------
         // AND r
         // --------------------
-        case 0xA7: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::A};
         case 0xA0: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::B};
         case 0xA1: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::C};
         case 0xA2: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::D};
         case 0xA3: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::E};
         case 0xA4: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::H};
         case 0xA5: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::L};
+        case 0xA6: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::HL_PTR};
+        case 0xA7: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::A};
+        case 0xE6: return Instruction{InstructionType::AND, ArithmeticTarget8Bit::NUM};
 
         // --------------------
         // OR r
         // --------------------
-        case 0xB7: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::A};
         case 0xB0: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::B};
         case 0xB1: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::C};
         case 0xB2: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::D};
         case 0xB3: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::E};
         case 0xB4: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::H};
         case 0xB5: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::L};
+        case 0xB6: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::HL_PTR};
+        case 0xB7: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::A};
+        case 0xF6: return Instruction{InstructionType::OR, ArithmeticTarget8Bit::NUM};
 
         // --------------------
         // XOR r
         // --------------------
-        case 0xAF: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::A};
         case 0xA8: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::B};
         case 0xA9: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::C};
         case 0xAA: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::D};
         case 0xAB: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::E};
         case 0xAC: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::H};
         case 0xAD: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::L};
+        case 0xAE: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::HL_PTR};
+        case 0xAF: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::A};
+        case 0xEE: return Instruction{InstructionType::XOR, ArithmeticTarget8Bit::NUM};
 
         // --------------------
         // CP r (compare)
         // --------------------
-        case 0xBF: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::A};
         case 0xB8: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::B};
         case 0xB9: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::C};
         case 0xBA: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::D};
         case 0xBB: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::E};
         case 0xBC: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::H};
         case 0xBD: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::L};
+        case 0xBE: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::HL_PTR};
+        case 0xBF: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::A};
+        case 0xFE: return Instruction{InstructionType::CP, ArithmeticTarget8Bit::NUM};
 
 
         // --------------------
@@ -474,6 +490,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x1C: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::E};
         case 0x24: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::H};
         case 0x2C: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::L};
+        case 0x34: return Instruction{InstructionType::INC, ArithmeticTarget8Bit::HL_PTR};
 
         // --------------------
         // DEC r
@@ -485,6 +502,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x1D: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::E};
         case 0x25: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::H};
         case 0x2D: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::L};
+        case 0x35: return Instruction{InstructionType::DEC, ArithmeticTarget8Bit::HL_PTR};
 
         // --------------------
         // CPL
@@ -652,14 +670,15 @@ class CPU {
                             value = bus.read_byte(pc + 1);
                             inc_pc_by_two = true;
                             break;
-                        default:
-                            break;
                     }
 
                     uint8_t new_value = add(value);
                     registers.a = new_value;
 
                     if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
                         pc = pc + 1;
                     }
 
@@ -669,6 +688,7 @@ class CPU {
                 // ADC Instruction adds specified register contents + current carry flag value to register A
                 case InstructionType::ADC: {
                     uint8_t value = 0;
+                    bool inc_pc_by_two = false;
 
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -692,12 +712,25 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
+                        case ArithmeticTarget8Bit::HL_PTR:
+                            uint16_t addr = registers.get_hl();
+                            value = bus.read_byte(addr);
+                            break;
+                        case ArithmeticTarget8Bit::NUM:
+                            value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
                     }
 
                     uint8_t new_value = adc(value);
                     registers.a = new_value;
 
-                    pc = pc + 1;
+                    if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
 
                     break;
                 }
@@ -705,6 +738,7 @@ class CPU {
                 // SUB Instruction subtracts specfified register contents from register A
                 case InstructionType::SUB: {
                     uint8_t value = 0;
+                    bool inc_pc_by_two = false;
 
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -728,12 +762,25 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
+                        case ArithmeticTarget8Bit::HL_PTR:
+                            uint16_t addr = registers.get_hl();
+                            value = bus.read_byte(addr);
+                            break;
+                        case ArithmeticTarget8Bit::NUM:
+                            value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
                     }
 
                     uint8_t new_value = sub(value);
                     registers.a = new_value;
 
-                    pc = pc + 1;
+                    if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
 
                     break;
                 }
@@ -741,6 +788,7 @@ class CPU {
                 // SBC Instruction substracts specified register contents + carry flag from register A
                 case InstructionType::SBC: {
                     uint8_t value = 0;
+                    bool inc_pc_by_two = false;
 
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -764,12 +812,25 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
+                        case ArithmeticTarget8Bit::HL_PTR:
+                            uint16_t addr = registers.get_hl();
+                            value = bus.read_byte(addr);
+                            break;
+                        case ArithmeticTarget8Bit::NUM:
+                            value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
                     }
 
                     uint8_t new_value = sbc(value);
                     registers.a = new_value;
 
-                    pc = pc + 1;
+                    if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
 
                     break;
                 }
@@ -777,6 +838,7 @@ class CPU {
                 // AND Instruction performs bitwise AND operation using specified register contents with register A
                 case InstructionType::AND: {
                     uint8_t value = 0;
+                    bool inc_pc_by_two = false;
 
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -800,12 +862,25 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
+                        case ArithmeticTarget8Bit::HL_PTR:
+                            uint16_t addr = registers.get_hl();
+                            value = bus.read_byte(addr);
+                            break;
+                        case ArithmeticTarget8Bit::NUM:
+                            value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
                     }
 
                     uint8_t new_value = bitwise_and(value);
                     registers.a = new_value;
 
-                    pc = pc + 1;
+                    if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
 
                     break;
                 }
@@ -813,6 +888,7 @@ class CPU {
                 // OR Instruction performs bitwise OR operation using specified register contents with register A
                 case InstructionType::OR: {
                     uint8_t value = 0;
+                    bool inc_pc_by_two = false;
 
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -836,12 +912,25 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
+                        case ArithmeticTarget8Bit::HL_PTR:
+                            uint16_t addr = registers.get_hl();
+                            value = bus.read_byte(addr);
+                            break;
+                        case ArithmeticTarget8Bit::NUM:
+                            value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
                     }
 
                     uint8_t new_value = bitwise_or(value);
                     registers.a = new_value;
 
-                    pc = pc + 1;
+                    if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
 
                     break;
                 }
@@ -849,6 +938,7 @@ class CPU {
                 // XOR Instruction performs bitwise XOR operation using specified register contents with register A
                 case InstructionType::XOR: {
                     uint8_t value = 0;
+                    bool inc_pc_by_two = false;
 
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -872,12 +962,25 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
+                        case ArithmeticTarget8Bit::HL_PTR:
+                            uint16_t addr = registers.get_hl();
+                            value = bus.read_byte(addr);
+                            break;
+                        case ArithmeticTarget8Bit::NUM:
+                            value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
                     }
 
                     uint8_t new_value = bitwise_xor(value);
                     registers.a = new_value;
 
-                    pc = pc + 1;
+                    if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
 
                     break;
                 }
@@ -885,6 +988,7 @@ class CPU {
                 // CP Instruction subtracts specfified register contents from register A but doesnt store the result
                 case InstructionType::CP: {
                     uint8_t value = 0;
+                    bool inc_pc_by_two = false;
 
                     switch (instruction.target_8bit) {
                         case ArithmeticTarget8Bit::A:
@@ -908,11 +1012,24 @@ class CPU {
                         case ArithmeticTarget8Bit::L:
                             value = registers.l;
                             break;
+                        case ArithmeticTarget8Bit::HL_PTR:
+                            uint16_t addr = registers.get_hl();
+                            value = bus.read_byte(addr);
+                            break;
+                        case ArithmeticTarget8Bit::NUM:
+                            value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
                     }
 
                     uint8_t new_value = sub(value);
 
-                    pc = pc + 1;
+                    if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
 
                     break;
                 }
