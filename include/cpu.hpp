@@ -16,13 +16,17 @@ enum class ArithmeticTarget16Bit {
     BC, DE, HL, SP
 };
 
+enum class JumpTest {
+    NotZero, Zero, NotCarry, Carry, Always
+};
+
 enum class InstructionType {
     ADD, ADC, SUB, SBC, AND,
     OR, XOR, CP, INC, DEC,
     SWAP, SCF, CCF, CPL, BIT,
     SET, RES, ADDHL, RLCA, RLA,
     RRCA, RRA, RLC, RL, RRC,
-    RR, SLA, SRA, SRL
+    RR, SLA, SRA, SRL, JP
 };
 
 struct Instruction {
@@ -30,6 +34,7 @@ struct Instruction {
     ArithmeticTarget8Bit target_8bit;
     ArithmeticTarget16Bit target_16bit;
     uint8_t bit_index;
+    JumpTest jump_test;
 };
 
 static std::optional<Instruction> from_byte_prefixed(uint8_t byte) {
@@ -1437,6 +1442,38 @@ class CPU {
                     break;
                 }
 
+                /* Jump Instructions */
+
+                case InstructionType::JP: {
+                    bool jump_condition = false;
+
+                    switch (instruction.jump_test) {
+                        case JumpTest::NotZero:
+                            jump_condition = !registers.f.zero;
+                            break;
+
+                        case JumpTest::NotCarry:
+                            jump_condition = !registers.f.carry;
+                            break;
+
+                        case JumpTest::Zero:
+                            jump_condition = registers.f.zero;
+                            break;
+
+                        case JumpTest::Carry:
+                            jump_condition = registers.f.carry;
+                            break;
+
+                        case JumpTest::Always:
+                            jump_condition = true;
+                            break;
+                    }
+
+                    pc = jump(jump_condition);
+
+                    break;
+                }
+
                 default:
                     // TODO: support more instructions
                     break;
@@ -1666,5 +1703,25 @@ class CPU {
             registers.f.half_carry = false;
 
             return result;
+        }
+
+        uint16_t jump(bool should_jump) {
+            uint16_t new_pc;
+
+            if (should_jump) {
+                // Gameboy is little endian so read pc + 2 as most significant bit
+                // and pc + 1 as least significant bit
+                uint16_t least_significant_byte = bus.read_byte(pc + 1);
+                uint16_t most_significant_byte = bus.read_byte(pc + 2);
+                new_pc = (most_significant_byte << 8) | least_significant_byte;
+            }
+            else {
+                // If we don't jump we need to still move the program
+                // counter forward by 3 since the jump instruction is
+                // 3 bytes wide (1 byte for tag and 2 bytes for jump address)
+                new_pc = pc + 3;
+            }
+
+            return new_pc;
         }
 };
