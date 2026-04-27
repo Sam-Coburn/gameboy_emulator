@@ -18,6 +18,7 @@ TEST_CASE("Default constructor initializes CPU successfully", "[cpu]") {
     REQUIRE(c.registers.f.carry == false);
 }
 
+
 TEST_CASE("ADD Unit Tests", "[cpu][8-bit][add]") {
     Instruction instruct;
     instruct.type = InstructionType::ADD;
@@ -3092,5 +3093,132 @@ TEST_CASE("Instruction from_byte() Unit Tests", "[instruction][from_byte]") {
 
         REQUIRE(instruct.type == InstructionType::SWAP);
         REQUIRE(instruct.target_8bit == ArithmeticTarget8Bit::A);
+    }
+
+    SECTION ("from_byte_prefixed SWAP HL_PTR") {
+        std::optional<Instruction> opt_instruct = from_byte_prefixed(0x36);
+        Instruction instruct = opt_instruct.value();
+
+        REQUIRE(instruct.type == InstructionType::SWAP);
+        REQUIRE(instruct.target_8bit == ArithmeticTarget8Bit::HL_PTR);
+    }
+
+    SECTION ("from_byte_not_prefixed JP Always") {
+        std::optional<Instruction> opt_instruct = from_byte_not_prefixed(0xC3);
+        Instruction instruct = opt_instruct.value();
+
+        REQUIRE(instruct.type == InstructionType::JP);
+        REQUIRE(instruct.jump_test == JumpTest::Always);
+    }
+}
+
+TEST_CASE("JP Unit Tests", "[cpu][jump][jp]") {
+    Instruction instruct;
+    instruct.type = InstructionType::JP;
+
+    SECTION("JP Always jumps to absolute address") {
+        CPU c;
+        uint16_t target = 0xC000;
+        c.bus.write_byte(c.pc + 1, (uint8_t)(target & 0xFF));
+        c.bus.write_byte(c.pc + 2, (uint8_t)(target >> 8));
+
+        instruct.jump_test = JumpTest::Always;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == target);
+    }
+
+    SECTION("JP NotZero taken / not taken") {
+        // Taken when Z flag is false
+        {
+            CPU c;
+            uint16_t target = 0xC100;
+            c.bus.write_byte(c.pc + 1, (uint8_t)(target & 0xFF));
+            c.bus.write_byte(c.pc + 2, (uint8_t)(target >> 8));
+            c.registers.f.zero = false;
+
+            instruct.jump_test = JumpTest::NotZero;
+
+            c.execute(instruct);
+
+            REQUIRE(c.pc == target);
+        }
+
+        // Not taken when Z flag is true
+        {
+            CPU c;
+            uint16_t target = 0xC200;
+            c.bus.write_byte(c.pc + 1, (uint8_t)(target & 0xFF));
+            c.bus.write_byte(c.pc + 2, (uint8_t)(target >> 8));
+            c.registers.f.zero = true;
+
+            instruct.jump_test = JumpTest::NotZero;
+            uint16_t start_pc = c.pc;
+
+            c.execute(instruct);
+
+            REQUIRE(c.pc == (uint16_t)(start_pc + 3));
+        }
+    }
+}
+
+TEST_CASE("JR Unit Tests", "[cpu][jump][jr]") {
+    Instruction instruct;
+    instruct.type = InstructionType::JR;
+
+    SECTION("JR Always forward offset") {
+        CPU c;
+        int8_t offset = 5;
+        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+
+        instruct.jump_test = JumpTest::Always;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == (uint16_t)(start_pc + 2 + offset));
+    }
+
+    SECTION("JR Always backward offset") {
+        CPU c;
+        int8_t offset = -2;
+        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+
+        instruct.jump_test = JumpTest::Always;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == (uint16_t)(start_pc + 2 + offset));
+    }
+
+    SECTION("JR NotZero not taken") {
+        CPU c;
+        int8_t offset = 3;
+        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+        c.registers.f.zero = true;
+
+        instruct.jump_test = JumpTest::NotZero;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == (uint16_t)(start_pc + 2));
+    }
+}
+
+TEST_CASE("JP_HL Unit Tests", "[cpu][jump][jp_hl]") {
+    Instruction instruct;
+    instruct.type = InstructionType::JP_HL;
+
+    SECTION("JP_HL sets pc to HL") {
+        CPU c;
+        uint16_t target = 0xC123;
+        c.registers.set_hl(target);
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == target);
     }
 }
