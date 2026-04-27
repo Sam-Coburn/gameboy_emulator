@@ -37,6 +37,19 @@ struct JumpData {
     JumpTest condition;
 };
 
+// enum class LoadSource {
+//     A, B, C, D, E, H, L, HL_PTR
+// };
+
+enum class LoadTarget {
+    A, B, C, D, E, H, L, BC, DE, HL, SP
+};
+
+struct Load8Data {
+    // LoadSource source;
+    LoadTarget target;
+};
+
 enum class InstructionType {
     // 8-bit ALU operations
     ADD, ADC, SUB, SBC, AND,
@@ -57,7 +70,10 @@ enum class InstructionType {
     SRL,
 
     // Jump instructions
-    JP, JR, JP_HL
+    JP, JR, JP_HL,
+
+    // Load instructions
+    LD_N
 };
 
 struct Instruction {
@@ -68,6 +84,7 @@ struct Instruction {
         ALU16Data alu16;
         BitOpData bitop;
         JumpData jump;
+        Load8Data load8;
     };
 };
 
@@ -474,6 +491,13 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         return inst;
     };
 
+    auto make_load8 = [](InstructionType t, LoadTarget target) -> std::optional<Instruction> {
+        Instruction inst{};
+        inst.type = t;
+        inst.load8.target = target;
+        return inst;
+    };
+
     switch (byte) {
         // --------------------
         // ADD A, r
@@ -669,6 +693,20 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         // JP_HL
         // --------------------
         case 0xE9: return make_simple(InstructionType::JP_HL);
+
+        // --------------------
+        // LD_N nn,n
+        // --------------------
+        case 0x06: return make_load8(InstructionType::LD_N, LoadTarget::B);
+        case 0x0E: return make_load8(InstructionType::LD_N, LoadTarget::C);
+        case 0x16: return make_load8(InstructionType::LD_N, LoadTarget::D);
+        case 0x1E: return make_load8(InstructionType::LD_N, LoadTarget::E);
+        case 0x26: return make_load8(InstructionType::LD_N, LoadTarget::H);
+        case 0x2E: return make_load8(InstructionType::LD_N, LoadTarget::L);
+        case 0x01: return make_load8(InstructionType::LD_N, LoadTarget::BC);
+        case 0x11: return make_load8(InstructionType::LD_N, LoadTarget::DE);
+        case 0x21: return make_load8(InstructionType::LD_N, LoadTarget::HL);
+        case 0x31: return make_load8(InstructionType::LD_N, LoadTarget::SP);
 
         default: return std::nullopt;
     }
@@ -1970,6 +2008,48 @@ class CPU {
                     pc = registers.get_hl();
 
                     break;
+                }
+
+                /* Load Instructions */
+                case InstructionType::LD_N: {
+                    uint8_t value = bus.read_byte(pc + 1);
+
+                    switch (instruction.load8.target) {
+                        case LoadTarget::A:
+                            break;
+                        case LoadTarget::B:
+                            registers.b = value;
+                            break;
+                        case LoadTarget::C:
+                            registers.c = value;
+                            break;
+                        case LoadTarget::D:
+                            registers.d = value;
+                            break;
+                        case LoadTarget::E:
+                            registers.e = value;
+                            break;
+                        case LoadTarget::H:
+                            registers.h = value;
+                            break;
+                        case LoadTarget::L:
+                            registers.l = value;
+                            break;
+                        case LoadTarget::BC:
+                            registers.set_bc(value);
+                            break;
+                        case LoadTarget::DE:
+                            registers.set_de(value);
+                            break;
+                        case LoadTarget::HL:
+                            registers.set_hl(value);
+                            break;
+                        case LoadTarget::SP:
+                            sp = value;
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
                 default:
