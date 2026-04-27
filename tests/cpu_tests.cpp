@@ -716,6 +716,575 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     }
 }
 
+TEST_CASE("ADD HL_PTR and NUM", "[cpu][8-bit][add][hl_ptr][num]") {
+    Instruction instruct;
+    instruct.type = InstructionType::ADD;
+
+    SECTION("ADD HL_PTR w/o Overflow") {
+        CPU c;
+
+        c.registers.a = 1;
+        c.registers.set_hl(0xC000);
+        c.bus.write_byte(c.registers.get_hl(), 1);
+
+        instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION("ADD NUM w/o Overflow") {
+        CPU c;
+
+        c.registers.a = 1;
+        instruct.target_8bit = ArithmeticTarget8Bit::NUM;
+        c.bus.write_byte(c.pc + 1, 1);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("ADC HL_PTR and NUM", "[cpu][8-bit][adc][hl_ptr][num]") {
+    Instruction instruct;
+    instruct.type = InstructionType::ADC;
+
+    SECTION("ADC HL_PTR - No Carry") {
+        CPU c;
+
+        c.registers.a = 1;
+        c.registers.f.carry = false;
+        c.registers.set_hl(0xC100);
+        c.bus.write_byte(c.registers.get_hl(), 1);
+
+        instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION("ADC NUM - No Carry") {
+        CPU c;
+
+        c.registers.a = 1;
+        c.registers.f.carry = false;
+        instruct.target_8bit = ArithmeticTarget8Bit::NUM;
+        c.bus.write_byte(c.pc + 1, 1);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("SUB HL_PTR and NUM", "[cpu][8-bit][sub][hl_ptr][num]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SUB;
+
+    SECTION("SUB HL_PTR w/o Underflow") {
+        CPU c;
+
+        c.registers.a = 2;
+        c.registers.set_hl(0xC200);
+        c.bus.write_byte(c.registers.get_hl(), 1);
+
+        instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 1);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION("SUB NUM w/o Underflow") {
+        CPU c;
+
+        c.registers.a = 2;
+        instruct.target_8bit = ArithmeticTarget8Bit::NUM;
+        c.bus.write_byte(c.pc + 1, 1);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 1);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("SBC HL_PTR and NUM", "[cpu][8-bit][sbc][hl_ptr][num]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SBC;
+
+    SECTION("SBC HL_PTR - No Carry") {
+        CPU c;
+
+        c.registers.a = 2;
+        c.registers.f.carry = false;
+        c.registers.set_hl(0xC300);
+        c.bus.write_byte(c.registers.get_hl(), 1);
+
+        instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 1);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION("SBC NUM - No Carry") {
+        CPU c;
+
+        c.registers.a = 2;
+        c.registers.f.carry = false;
+        instruct.target_8bit = ArithmeticTarget8Bit::NUM;
+        c.bus.write_byte(c.pc + 1, 1);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 1);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("AND HL_PTR and NUM", "[cpu][8-bit][and][hl_ptr][num]") {
+    Instruction instruct;
+    instruct.type = InstructionType::AND;
+
+    SECTION("AND HL_PTR - No Zero") {
+        CPU c;
+
+        c.registers.a = 1;
+        c.registers.set_hl(0xC400);
+        c.bus.write_byte(c.registers.get_hl(), 1);
+
+        instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 1);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    SECTION("AND NUM - Zero") {
+        CPU c;
+
+        c.registers.a = 100;
+        instruct.target_8bit = ArithmeticTarget8Bit::NUM;
+        c.bus.write_byte(c.pc + 1, 0);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+}
+
+TEST_CASE("OR HL_PTR and NUM", "[cpu][8-bit][or][hl_ptr][num]") {
+    Instruction instruct;
+    instruct.type = InstructionType::OR;
+
+    SECTION("OR HL_PTR - No Zero") {
+        CPU c;
+
+        c.registers.a = 1;
+        c.registers.set_hl(0xC500);
+        c.bus.write_byte(c.registers.get_hl(), 1);
+
+        instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 1);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION("OR NUM - Zero") {
+        CPU c;
+
+        c.registers.a = 0;
+        instruct.target_8bit = ArithmeticTarget8Bit::NUM;
+        c.bus.write_byte(c.pc + 1, 0);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("XOR HL_PTR and NUM", "[cpu][8-bit][xor][hl_ptr][num]") {
+    Instruction instruct;
+    instruct.type = InstructionType::XOR;
+
+    SECTION("XOR HL_PTR") {
+        CPU c;
+
+        c.registers.a = 1;
+        c.registers.set_hl(0xC600);
+        c.bus.write_byte(c.registers.get_hl(), 2);
+
+        instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 3);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION("XOR NUM") {
+        CPU c;
+
+        c.registers.a = 0;
+        instruct.target_8bit = ArithmeticTarget8Bit::NUM;
+        c.bus.write_byte(c.pc + 1, 0);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("CP HL_PTR and NUM", "[cpu][8-bit][cp][hl_ptr][num]") {
+    Instruction instruct;
+    instruct.type = InstructionType::CP;
+
+    SECTION("CP HL_PTR - w/o Overflow") {
+        CPU c;
+
+        c.registers.a = 2;
+        c.registers.set_hl(0xC700);
+        c.bus.write_byte(c.registers.get_hl(), 1);
+
+        instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION("CP NUM - w/o Overflow") {
+        CPU c;
+
+        c.registers.a = 2;
+        instruct.target_8bit = ArithmeticTarget8Bit::NUM;
+        c.bus.write_byte(c.pc + 1, 1);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+TEST_CASE("SWAP HL_PTR Unit Tests", "[cpu][misc][swap][hl_ptr]") {
+    Instruction instruct;
+    instruct.type = InstructionType::SWAP;
+    instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+
+    CPU c;
+    uint16_t addr = 0xC900;
+    c.registers.set_hl(addr);
+    c.bus.write_byte(addr, 0b10100001);
+
+    c.execute(instruct);
+
+    REQUIRE(c.bus.read_byte(addr) == 0b00011010);
+    REQUIRE(c.registers.f.zero == false);
+    REQUIRE(c.registers.f.subtract == false);
+    REQUIRE(c.registers.f.carry == false);
+    REQUIRE(c.registers.f.half_carry == false);
+}
+
+TEST_CASE("BIT/SET/RES HL_PTR Unit Tests", "[cpu][bit_opcode][hl_ptr]") {
+    Instruction instruct;
+
+    // BIT HL_PTR
+    instruct.type = InstructionType::BIT;
+    instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+    instruct.bit_index = 3;
+
+    {
+        CPU c;
+        uint16_t addr = 0xCA00;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0b00001000);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    // SET HL_PTR
+    instruct.type = InstructionType::SET;
+    instruct.bit_index = 3;
+
+    {
+        CPU c;
+        uint16_t addr = 0xCB00;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0x00);
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0b00001000);
+    }
+
+    // RES HL_PTR
+    instruct.type = InstructionType::RES;
+    instruct.bit_index = 3;
+
+    {
+        CPU c;
+        uint16_t addr = 0xCC00;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0xFF);
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == (uint8_t)(0xFF & ~(1 << 3)));
+    }
+}
+
+TEST_CASE("Rotate/Shift HL_PTR Unit Tests", "[cpu][rotate][hl_ptr]") {
+    Instruction instruct;
+
+    // RLC HL_PTR
+    instruct.type = InstructionType::RLC;
+    instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+    {
+        CPU c;
+        uint16_t addr = 0xCD00;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0b00001001);
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0b00010010);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    // RL HL_PTR
+    instruct.type = InstructionType::RL;
+    {
+        CPU c;
+        uint16_t addr = 0xCE00;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0b00001001);
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0b00010011);
+        REQUIRE(c.registers.f.carry == false);
+    }
+
+    // RRC HL_PTR
+    instruct.type = InstructionType::RRC;
+    {
+        CPU c;
+        uint16_t addr = 0xCF00;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0b00001001);
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0b10000100);
+        REQUIRE(c.registers.f.carry == true);
+    }
+
+    // RR HL_PTR
+    instruct.type = InstructionType::RR;
+    {
+        CPU c;
+        uint16_t addr = 0xD000;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0b00001001);
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0b10000100);
+        REQUIRE(c.registers.f.carry == true);
+    }
+
+    // SLA HL_PTR
+    instruct.type = InstructionType::SLA;
+    {
+        CPU c;
+        uint16_t addr = 0xD100;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0b10101010);
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0b01010100);
+        REQUIRE(c.registers.f.carry == true);
+    }
+
+    // SRA HL_PTR
+    instruct.type = InstructionType::SRA;
+    {
+        CPU c;
+        uint16_t addr = 0xD200;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0b00001001);
+        c.registers.f.carry = 0;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0b00000100);
+        REQUIRE(c.registers.f.carry == 1);
+    }
+
+    // SRL HL_PTR
+    instruct.type = InstructionType::SRL;
+    {
+        CPU c;
+        uint16_t addr = 0xD300;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0b10000000);
+        c.registers.f.carry = 1;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0b01000000);
+        REQUIRE(c.registers.f.carry == 0);
+    }
+}
+
+TEST_CASE("INC/DEC HL_PTR Unit Tests", "[cpu][8-bit][inc][dec][hl_ptr]") {
+    Instruction instruct;
+
+    // INC HL_PTR normal
+    instruct.type = InstructionType::INC;
+    instruct.target_8bit = ArithmeticTarget8Bit::HL_PTR;
+    {
+        CPU c;
+        uint16_t addr = 0xD400;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 1);
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 2);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+    }
+
+    // INC HL_PTR - Overflow preserves carry
+    {
+        CPU c;
+        uint16_t addr = 0xD500;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 255);
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    // DEC HL_PTR - underflow
+    instruct.type = InstructionType::DEC;
+    {
+        CPU c;
+        uint16_t addr = 0xD600;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 0);
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 255);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.half_carry == true);
+    }
+
+    // DEC HL_PTR - to zero
+    {
+        CPU c;
+        uint16_t addr = 0xD700;
+        c.registers.set_hl(addr);
+        c.bus.write_byte(addr, 1);
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(addr) == 0);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+}
+
+
 TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     Instruction instruct;
     instruct.type = InstructionType::SWAP;
