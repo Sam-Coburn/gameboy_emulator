@@ -30,16 +30,16 @@ struct JumpData {
     JumpTest condition;
 };
 
-// enum class LoadSource {
-//     A, B, C, D, E, H, L, HL_PTR
-// };
+enum class LoadSource {
+    A, B, C, D, E, H, L, HL_PTR, NUM
+};
 
 enum class LoadTarget {
-    A, B, C, D, E, H, L, BC, DE, HL, SP
+    A, B, C, D, E, H, L, BC, DE, HL, SP, HL_PTR
 };
 
 struct Load8Data {
-    // LoadSource source;
+    LoadSource source;
     LoadTarget target;
 };
 
@@ -66,7 +66,7 @@ enum class InstructionType {
     JP, JR, JP_HL,
 
     // Load instructions
-    LD_N
+    LD_8, LD_N
 };
 
 struct Instruction {
@@ -484,9 +484,10 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         return inst;
     };
 
-    auto make_load8 = [](InstructionType t, LoadTarget target) -> std::optional<Instruction> {
+    auto make_load8 = [](InstructionType t, LoadSource source, LoadTarget target) -> std::optional<Instruction> {
         Instruction inst{};
         inst.type = t;
+        inst.load8.source = source;
         inst.load8.target = target;
         return inst;
     };
@@ -690,16 +691,77 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         // --------------------
         // LD_N nn,n
         // --------------------
-        case 0x06: return make_load8(InstructionType::LD_N, LoadTarget::B);
-        case 0x0E: return make_load8(InstructionType::LD_N, LoadTarget::C);
-        case 0x16: return make_load8(InstructionType::LD_N, LoadTarget::D);
-        case 0x1E: return make_load8(InstructionType::LD_N, LoadTarget::E);
-        case 0x26: return make_load8(InstructionType::LD_N, LoadTarget::H);
-        case 0x2E: return make_load8(InstructionType::LD_N, LoadTarget::L);
-        case 0x01: return make_load8(InstructionType::LD_N, LoadTarget::BC);
-        case 0x11: return make_load8(InstructionType::LD_N, LoadTarget::DE);
-        case 0x21: return make_load8(InstructionType::LD_N, LoadTarget::HL);
-        case 0x31: return make_load8(InstructionType::LD_N, LoadTarget::SP);
+        case 0x06: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::B);
+        case 0x0E: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::C);
+        case 0x16: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::D);
+        case 0x1E: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::E);
+        case 0x26: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::H);
+        case 0x2E: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::L);
+        case 0x01: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::BC);
+        case 0x11: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::DE);
+        case 0x21: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::HL);
+        case 0x31: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::SP);
+
+        // --------------------
+        // LD_8 r1,r2
+        // --------------------
+        case 0x7F: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::A);
+        case 0x78: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::A);
+        case 0x79: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::A);
+        case 0x7A: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::A);
+        case 0x7B: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::A);
+        case 0x7C: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::A);
+        case 0x7D: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::A);
+        case 0x7E: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::A);
+        case 0x40: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::B);
+        case 0x41: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::B);
+        case 0x42: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::B);
+        case 0x43: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::B);
+        case 0x44: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::B);
+        case 0x45: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::B);
+        case 0x46: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::B);
+        case 0x48: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::C);
+        case 0x49: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::C);
+        case 0x4A: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::C);
+        case 0x4B: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::C);
+        case 0x4C: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::C);
+        case 0x4D: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::C);
+        case 0x4E: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::C);
+        case 0x50: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::D);
+        case 0x51: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::D);
+        case 0x52: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::D);
+        case 0x53: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::D);
+        case 0x54: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::D);
+        case 0x55: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::D);
+        case 0x56: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::D);
+        case 0x58: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::E);
+        case 0x59: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::E);
+        case 0x5A: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::E);
+        case 0x5B: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::E);
+        case 0x5C: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::E);
+        case 0x5D: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::E);
+        case 0x5E: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::E);
+        case 0x60: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::H);
+        case 0x61: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::H);
+        case 0x62: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::H);
+        case 0x63: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::H);
+        case 0x64: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::H);
+        case 0x65: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::H);
+        case 0x66: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::H);
+        case 0x68: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::L);
+        case 0x69: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::L);
+        case 0x6A: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::L);
+        case 0x6B: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::L);
+        case 0x6C: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::L);
+        case 0x6D: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::L);
+        case 0x6E: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::L);
+        case 0x70: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::HL_PTR);
+        case 0x71: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::HL_PTR);
+        case 0x72: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::HL_PTR);
+        case 0x73: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::HL_PTR);
+        case 0x74: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::HL_PTR);
+        case 0x75: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::HL_PTR);
+        case 0x36: return make_load8(InstructionType::LD_8, LoadSource::NUM, LoadTarget::HL_PTR);
 
         default: return std::nullopt;
     }

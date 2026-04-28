@@ -1286,6 +1286,94 @@ class CPU {
                 }
 
                 /* Load Instructions */
+                case InstructionType::LD_8: {
+                    uint8_t source_value = 0;
+                    bool inc_pc_by_two = false;
+
+                    switch (instruction.load8.source) {
+                        case LoadSource::A:
+                            source_value = registers.a;
+                            break;
+                        case LoadSource::B:
+                            source_value = registers.b;
+                            break;
+                        case LoadSource::C:
+                            source_value = registers.c;
+                            break;
+                        case LoadSource::D:
+                            source_value = registers.d;
+                            break;
+                        case LoadSource::E:
+                            source_value = registers.e;
+                            break;
+                        case LoadSource::H:
+                            source_value = registers.h;
+                            break;
+                        case LoadSource::L:
+                            source_value = registers.l;
+                            break;
+                        case LoadSource::HL_PTR: {
+                            uint16_t addr = registers.get_hl();
+                            source_value = bus.read_byte(addr);
+                            break;
+                        }
+                        case LoadSource::NUM:
+                            source_value = bus.read_byte(pc + 1);
+                            inc_pc_by_two = true;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    switch (instruction.load8.target) {
+                        case LoadTarget::A:
+                            registers.a = source_value;
+                            break;
+                        case LoadTarget::B:
+                            registers.b = source_value;
+                            break;
+                        case LoadTarget::C:
+                            registers.c = source_value;
+                            break;
+                        case LoadTarget::D:
+                            registers.d = source_value;
+                            break;
+                        case LoadTarget::E:
+                            registers.e = source_value;
+                            break;
+                        case LoadTarget::H:
+                            registers.h = source_value;
+                            break;
+                        case LoadTarget::L:
+                            registers.l = source_value;
+                            break;
+                        case LoadTarget::BC:
+                            break;
+                        case LoadTarget::DE:
+                            break;
+                        case LoadTarget::HL:
+                            break;
+                        case LoadTarget::SP:
+                            break;
+                        case LoadTarget::HL_PTR: {
+                            uint16_t addr = registers.get_hl();
+                            bus.write_byte(addr, source_value);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    if (inc_pc_by_two) {
+                        pc = pc + 2;
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
+
+                    break;
+                }
+
                 case InstructionType::LD_N: {
                     uint8_t value = bus.read_byte(pc + 1);
 
@@ -1325,6 +1413,8 @@ class CPU {
                         default:
                             break;
                     }
+
+                    pc = pc + 2;
                 }
 
                 default:
