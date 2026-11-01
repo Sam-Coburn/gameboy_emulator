@@ -1288,7 +1288,6 @@ class CPU {
                 /* Load Instructions */
                 case InstructionType::LD_8: {
                     uint8_t source_value = 0;
-                    bool inc_pc_by_two = false;
 
                     switch (instruction.load8.source) {
                         case LoadSource::A:
@@ -1317,10 +1316,6 @@ class CPU {
                             source_value = bus.read_byte(addr);
                             break;
                         }
-                        case LoadSource::NUM:
-                            source_value = bus.read_byte(pc + 1);
-                            inc_pc_by_two = true;
-                            break;
                         default:
                             break;
                     }
@@ -1364,13 +1359,7 @@ class CPU {
                             break;
                     }
 
-                    if (inc_pc_by_two) {
-                        pc = pc + 2;
-                    }
-                    else {
-                        pc = pc + 1;
-                    }
-
+                    pc = pc + 1;
                     break;
                 }
 
@@ -1379,6 +1368,7 @@ class CPU {
 
                     switch (instruction.load8.target) {
                         case LoadTarget::A:
+                            registers.a = value;
                             break;
                         case LoadTarget::B:
                             registers.b = value;
@@ -1398,23 +1388,44 @@ class CPU {
                         case LoadTarget::L:
                             registers.l = value;
                             break;
-                        case LoadTarget::BC:
+                        case LoadTarget::HL_PTR: {
+                            uint16_t addr = registers.get_hl();
+                            bus.write_byte(addr, value);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    pc = pc + 2;
+                    break;
+                }
+
+                case InstructionType::LD_16: {
+                    // Immediate 16-bit value is stored little-endian (low byte first)
+                    uint8_t low = bus.read_byte(pc + 1);
+                    uint8_t high = bus.read_byte(pc + 2);
+                    uint16_t value = (static_cast<uint16_t>(high) << 8) | static_cast<uint16_t>(low);
+
+                    switch (instruction.load16.target) {
+                        case Operand16::BC:
                             registers.set_bc(value);
                             break;
-                        case LoadTarget::DE:
+                        case Operand16::DE:
                             registers.set_de(value);
                             break;
-                        case LoadTarget::HL:
+                        case Operand16::HL:
                             registers.set_hl(value);
                             break;
-                        case LoadTarget::SP:
+                        case Operand16::SP:
                             sp = value;
                             break;
                         default:
                             break;
                     }
 
-                    pc = pc + 2;
+                    pc = pc + 3;
+                    break;
                 }
 
                 default:

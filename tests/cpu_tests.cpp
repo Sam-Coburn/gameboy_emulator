@@ -3188,3 +3188,138 @@ TEST_CASE("JP_HL Unit Tests", "[cpu][jump][jp_hl]") {
         REQUIRE(c.pc == target);
     }
 }
+
+TEST_CASE("LD_8 Unit Tests", "[cpu][load][ld_8]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_8;
+
+    SECTION("LD_8 B into A") {
+        CPU c;
+        c.registers.b = 0x42;
+        instruct.load8.source = LoadSource::B;
+        instruct.load8.target = LoadTarget::A;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x42);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD_8 HL_PTR into C") {
+        CPU c;
+        c.registers.set_hl(0xC000);
+        c.bus.write_byte(0xC000, 0x99);
+        instruct.load8.source = LoadSource::HL_PTR;
+        instruct.load8.target = LoadTarget::C;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.c == 0x99);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD_8 E into HL_PTR") {
+        CPU c;
+        c.registers.e = 0x7A;
+        c.registers.set_hl(0xC010);
+        instruct.load8.source = LoadSource::E;
+        instruct.load8.target = LoadTarget::HL_PTR;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xC010) == 0x7A);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+}
+
+TEST_CASE("LD_N Unit Tests", "[cpu][load][ld_n]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_N;
+    instruct.load8.source = LoadSource::NUM;
+
+    SECTION("LD_N into A") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0x5C);
+        instruct.load8.target = LoadTarget::A;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x5C);
+        REQUIRE(c.pc == start_pc + 2);
+    }
+
+    SECTION("LD_N into L") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0x11);
+        instruct.load8.target = LoadTarget::L;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.l == 0x11);
+        REQUIRE(c.pc == start_pc + 2);
+    }
+
+    SECTION("LD_N into HL_PTR") {
+        CPU c;
+        c.registers.set_hl(0xC020);
+        c.bus.write_byte(c.pc + 1, 0xAB);
+        instruct.load8.target = LoadTarget::HL_PTR;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xC020) == 0xAB);
+        REQUIRE(c.pc == start_pc + 2);
+    }
+}
+
+TEST_CASE("LD_16 Unit Tests", "[cpu][load][ld_16]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_16;
+
+    SECTION("LD_16 into BC is little-endian") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0x34);
+        c.bus.write_byte(c.pc + 2, 0x12);
+        instruct.load16.target = Operand16::BC;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_bc() == 0x1234);
+        REQUIRE(c.registers.b == 0x12);
+        REQUIRE(c.registers.c == 0x34);
+        REQUIRE(c.pc == start_pc + 3);
+    }
+
+    SECTION("LD_16 into HL") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0xEF);
+        c.bus.write_byte(c.pc + 2, 0xBE);
+        instruct.load16.target = Operand16::HL;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_hl() == 0xBEEF);
+        REQUIRE(c.pc == start_pc + 3);
+    }
+
+    SECTION("LD_16 into SP") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0xFE);
+        c.bus.write_byte(c.pc + 2, 0xDF);
+        instruct.load16.target = Operand16::SP;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.sp == 0xDFFE);
+        REQUIRE(c.pc == start_pc + 3);
+    }
+}

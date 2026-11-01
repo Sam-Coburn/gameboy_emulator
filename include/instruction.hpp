@@ -43,6 +43,10 @@ struct Load8Data {
     LoadTarget target;
 };
 
+struct Load16Data {
+    Operand16 target;
+};
+
 enum class InstructionType {
     // 8-bit ALU operations
     ADD, ADC, SUB, SBC, AND,
@@ -66,7 +70,7 @@ enum class InstructionType {
     JP, JR, JP_HL,
 
     // Load instructions
-    LD_8, LD_N
+    LD_8, LD_N, LD_16
 };
 
 struct Instruction {
@@ -78,6 +82,7 @@ struct Instruction {
         BitOpData bitop;
         JumpData jump;
         Load8Data load8;
+        Load16Data load16;
     };
 };
 
@@ -492,6 +497,13 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         return inst;
     };
 
+    auto make_load16 = [](InstructionType t, Operand16 target) -> std::optional<Instruction> {
+        Instruction inst{};
+        inst.type = t;
+        inst.load16.target = target;
+        return inst;
+    };
+
     switch (byte) {
         // --------------------
         // ADD A, r
@@ -689,18 +701,24 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0xE9: return make_simple(InstructionType::JP_HL);
 
         // --------------------
-        // LD_N nn,n
+        // LD_N r,n
         // --------------------
-        case 0x06: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::B);
-        case 0x0E: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::C);
-        case 0x16: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::D);
-        case 0x1E: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::E);
-        case 0x26: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::H);
-        case 0x2E: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::L);
-        case 0x01: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::BC);
-        case 0x11: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::DE);
-        case 0x21: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::HL);
-        case 0x31: return make_load8(InstructionType::LD_N, LoadSource::A, LoadTarget::SP);
+        case 0x3E: return make_load8(InstructionType::LD_N, LoadSource::NUM, LoadTarget::A);
+        case 0x06: return make_load8(InstructionType::LD_N, LoadSource::NUM, LoadTarget::B);
+        case 0x0E: return make_load8(InstructionType::LD_N, LoadSource::NUM, LoadTarget::C);
+        case 0x16: return make_load8(InstructionType::LD_N, LoadSource::NUM, LoadTarget::D);
+        case 0x1E: return make_load8(InstructionType::LD_N, LoadSource::NUM, LoadTarget::E);
+        case 0x26: return make_load8(InstructionType::LD_N, LoadSource::NUM, LoadTarget::H);
+        case 0x2E: return make_load8(InstructionType::LD_N, LoadSource::NUM, LoadTarget::L);
+        case 0x36: return make_load8(InstructionType::LD_N, LoadSource::NUM, LoadTarget::HL_PTR);
+
+        // --------------------
+        // LD_16 rr,nn
+        // --------------------
+        case 0x01: return make_load16(InstructionType::LD_16, Operand16::BC);
+        case 0x11: return make_load16(InstructionType::LD_16, Operand16::DE);
+        case 0x21: return make_load16(InstructionType::LD_16, Operand16::HL);
+        case 0x31: return make_load16(InstructionType::LD_16, Operand16::SP);
 
         // --------------------
         // LD_8 r1,r2
@@ -761,7 +779,6 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x73: return make_load8(InstructionType::LD_8, LoadSource::E, LoadTarget::HL_PTR);
         case 0x74: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::HL_PTR);
         case 0x75: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::HL_PTR);
-        case 0x36: return make_load8(InstructionType::LD_8, LoadSource::NUM, LoadTarget::HL_PTR);
 
         default: return std::nullopt;
     }

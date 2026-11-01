@@ -33,4 +33,27 @@ TEST_CASE("Instruction from_byte() Unit Tests", "[instruction][from_byte]") {
         REQUIRE(instruct.type == InstructionType::JP);
         REQUIRE(instruct.jump.condition == JumpTest::Always);
     }
+
+    SECTION ("from_byte_not_prefixed LD_N A,n") {
+        Instruction instruct = from_byte_not_prefixed(0x3E).value();
+
+        REQUIRE(instruct.type == InstructionType::LD_N);
+        REQUIRE(instruct.load8.source == LoadSource::NUM);
+        REQUIRE(instruct.load8.target == LoadTarget::A);
+    }
+
+    SECTION ("from_byte_not_prefixed LD_N (HL),n") {
+        Instruction instruct = from_byte_not_prefixed(0x36).value();
+
+        REQUIRE(instruct.type == InstructionType::LD_N);
+        REQUIRE(instruct.load8.source == LoadSource::NUM);
+        REQUIRE(instruct.load8.target == LoadTarget::HL_PTR);
+    }
+
+    SECTION ("from_byte_not_prefixed LD_16 SP,nn") {
+        Instruction instruct = from_byte_not_prefixed(0x31).value();
+
+        REQUIRE(instruct.type == InstructionType::LD_16);
+        REQUIRE(instruct.load16.target == Operand16::SP);
+    }
 }
