@@ -30,6 +30,10 @@ struct JumpData {
     JumpTest condition;
 };
 
+struct RstData {
+    uint8_t address;
+};
+
 enum class LoadSource {
     A, B, C, D, E, H, L, HL_PTR, NUM
 };
@@ -70,10 +74,11 @@ enum class InstructionType {
     OR, XOR, CP, INC, DEC,
 
     // 16-bit ALU operations
-    ADDHL,
+    ADDHL, INC16, DEC16, ADDSP,
 
     // Miscelleaneous instructions
-    SWAP, CPL, CCF, SCF,
+    SWAP, CPL, CCF, SCF, DAA,
+    NOP, HALT, STOP, DI, EI,
 
     // Bit operations
     BIT, SET, RES,
@@ -85,6 +90,9 @@ enum class InstructionType {
 
     // Jump instructions
     JP, JR, JP_HL,
+
+    // Call and return instructions
+    CALL, RET, RETI, RST,
 
     // Load instructions
     LD_8, LD_N, LD_16, LD_A_IND, LD_IND_A,
@@ -102,6 +110,7 @@ struct Instruction {
         ALU16Data alu16;
         BitOpData bitop;
         JumpData jump;
+        RstData rst;
         Load8Data load8;
         Load16Data load16;
         LoadIndirectData load_ind;
@@ -512,6 +521,13 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         return inst;
     };
 
+    auto make_rst = [](uint8_t address) -> std::optional<Instruction> {
+        Instruction inst{};
+        inst.type = InstructionType::RST;
+        inst.rst.address = address;
+        return inst;
+    };
+
     auto make_load8 = [](InstructionType t, LoadSource source, LoadTarget target) -> std::optional<Instruction> {
         Instruction inst{};
         inst.type = t;
@@ -687,12 +703,51 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x37: return make_simple(InstructionType::SCF);
 
         // --------------------
+        // DAA
+        // --------------------
+        case 0x27: return make_simple(InstructionType::DAA);
+
+        // --------------------
+        // NOP, HALT, STOP
+        // --------------------
+        case 0x00: return make_simple(InstructionType::NOP);
+        case 0x76: return make_simple(InstructionType::HALT);
+        case 0x10: return make_simple(InstructionType::STOP);
+
+        // --------------------
+        // DI, EI
+        // --------------------
+        case 0xF3: return make_simple(InstructionType::DI);
+        case 0xFB: return make_simple(InstructionType::EI);
+
+        // --------------------
         // ADDHL HL, r
         // --------------------
         case 0x09: return make_alu16(InstructionType::ADDHL, Operand16::BC);
         case 0x19: return make_alu16(InstructionType::ADDHL, Operand16::DE);
         case 0x29: return make_alu16(InstructionType::ADDHL, Operand16::HL);
         case 0x39: return make_alu16(InstructionType::ADDHL, Operand16::SP);
+
+        // --------------------
+        // INC rr
+        // --------------------
+        case 0x03: return make_alu16(InstructionType::INC16, Operand16::BC);
+        case 0x13: return make_alu16(InstructionType::INC16, Operand16::DE);
+        case 0x23: return make_alu16(InstructionType::INC16, Operand16::HL);
+        case 0x33: return make_alu16(InstructionType::INC16, Operand16::SP);
+
+        // --------------------
+        // DEC rr
+        // --------------------
+        case 0x0B: return make_alu16(InstructionType::DEC16, Operand16::BC);
+        case 0x1B: return make_alu16(InstructionType::DEC16, Operand16::DE);
+        case 0x2B: return make_alu16(InstructionType::DEC16, Operand16::HL);
+        case 0x3B: return make_alu16(InstructionType::DEC16, Operand16::SP);
+
+        // --------------------
+        // ADD SP, e
+        // --------------------
+        case 0xE8: return make_simple(InstructionType::ADDSP);
 
         // --------------------
         // RLCA
@@ -736,6 +791,41 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         // JP_HL
         // --------------------
         case 0xE9: return make_simple(InstructionType::JP_HL);
+
+        // --------------------
+        // CALL
+        // --------------------
+        case 0xCD: return make_jump(InstructionType::CALL, JumpTest::Always);
+        case 0xC4: return make_jump(InstructionType::CALL, JumpTest::NotZero);
+        case 0xCC: return make_jump(InstructionType::CALL, JumpTest::Zero);
+        case 0xD4: return make_jump(InstructionType::CALL, JumpTest::NotCarry);
+        case 0xDC: return make_jump(InstructionType::CALL, JumpTest::Carry);
+
+        // --------------------
+        // RET
+        // --------------------
+        case 0xC9: return make_jump(InstructionType::RET, JumpTest::Always);
+        case 0xC0: return make_jump(InstructionType::RET, JumpTest::NotZero);
+        case 0xC8: return make_jump(InstructionType::RET, JumpTest::Zero);
+        case 0xD0: return make_jump(InstructionType::RET, JumpTest::NotCarry);
+        case 0xD8: return make_jump(InstructionType::RET, JumpTest::Carry);
+
+        // --------------------
+        // RETI
+        // --------------------
+        case 0xD9: return make_simple(InstructionType::RETI);
+
+        // --------------------
+        // RST n
+        // --------------------
+        case 0xC7: return make_rst(0x00);
+        case 0xCF: return make_rst(0x08);
+        case 0xD7: return make_rst(0x10);
+        case 0xDF: return make_rst(0x18);
+        case 0xE7: return make_rst(0x20);
+        case 0xEF: return make_rst(0x28);
+        case 0xF7: return make_rst(0x30);
+        case 0xFF: return make_rst(0x38);
 
         // --------------------
         // LD_N r,n

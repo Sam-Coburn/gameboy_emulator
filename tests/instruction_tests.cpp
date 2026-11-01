@@ -98,4 +98,38 @@ TEST_CASE("Instruction from_byte() Unit Tests", "[instruction][from_byte]") {
         REQUIRE(instruct.type == InstructionType::POP);
         REQUIRE(instruct.stack.target == StackTarget::HL);
     }
+
+    SECTION ("from_byte_not_prefixed CALL NotCarry") {
+        Instruction instruct = from_byte_not_prefixed(0xD4).value();
+
+        REQUIRE(instruct.type == InstructionType::CALL);
+        REQUIRE(instruct.jump.condition == JumpTest::NotCarry);
+    }
+
+    SECTION ("from_byte_not_prefixed RET Always") {
+        Instruction instruct = from_byte_not_prefixed(0xC9).value();
+
+        REQUIRE(instruct.type == InstructionType::RET);
+        REQUIRE(instruct.jump.condition == JumpTest::Always);
+    }
+
+    SECTION ("from_byte_not_prefixed RST 0x28") {
+        Instruction instruct = from_byte_not_prefixed(0xEF).value();
+
+        REQUIRE(instruct.type == InstructionType::RST);
+        REQUIRE(instruct.rst.address == 0x28);
+    }
+
+    SECTION ("from_byte_not_prefixed DEC16 SP") {
+        Instruction instruct = from_byte_not_prefixed(0x3B).value();
+
+        REQUIRE(instruct.type == InstructionType::DEC16);
+        REQUIRE(instruct.alu16.target == Operand16::SP);
+    }
+
+    SECTION ("from_byte_not_prefixed HALT") {
+        Instruction instruct = from_byte_not_prefixed(0x76).value();
+
+        REQUIRE(instruct.type == InstructionType::HALT);
+    }
 }
