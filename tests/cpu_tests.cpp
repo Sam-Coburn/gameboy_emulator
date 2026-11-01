@@ -4057,3 +4057,116 @@ TEST_CASE("NOP and STOP Unit Tests", "[cpu][misc][nop]") {
         REQUIRE(c.pc == start_pc + 2);
     }
 }
+
+TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
+    // Writes the instruction bytes at pc, runs one step and returns the T-cycles it took
+    auto run = [](CPU& c, std::initializer_list<uint8_t> bytes) -> uint8_t {
+        uint16_t addr = c.pc;
+        for (uint8_t byte : bytes) {
+            c.bus.write_byte(addr, byte);
+            addr = addr + 1;
+        }
+        return c.step();
+    };
+
+    SECTION("Register-only instructions take 4 (opcode fetch only)") {
+        CPU c;
+        REQUIRE(run(c, {0x00}) == 4);       // NOP
+        REQUIRE(run(c, {0x41}) == 4);       // LD B,C
+        REQUIRE(run(c, {0x80}) == 4);       // ADD A,B
+    }
+
+    SECTION("Memory accesses add 4 each") {
+        CPU c;
+        c.registers.set_hl(0xC000);
+        REQUIRE(run(c, {0x86}) == 8);             // ADD A,(HL): fetch + read
+        REQUIRE(run(c, {0xC6, 0x01}) == 8);       // ADD A,n: fetch + read n
+        REQUIRE(run(c, {0x34}) == 12);            // INC (HL): fetch + read + write
+        REQUIRE(run(c, {0x36, 0x01}) == 12);      // LD (HL),n: fetch + read n + write
+        REQUIRE(run(c, {0x01, 0x34, 0x12}) == 12); // LD BC,nn: fetch + 2 reads
+    }
+
+    SECTION("Internal steps add cycles without memory accesses") {
+        CPU c;
+        REQUIRE(run(c, {0x09}) == 8);  // ADD HL,BC
+        REQUIRE(run(c, {0x03}) == 8);  // INC BC
+    }
+
+    SECTION("Stack and 16-bit memory instructions") {
+        CPU c;
+        c.sp = 0xDFF0;
+        REQUIRE(run(c, {0xC5}) == 16);              // PUSH BC
+        REQUIRE(run(c, {0xC1}) == 12);              // POP BC
+        REQUIRE(run(c, {0x08, 0x00, 0xC0}) == 20);  // LD (nn),SP
+    }
+
+    SECTION("JR cc taken vs not taken") {
+        CPU c;
+        c.registers.f.zero = false;
+        REQUIRE(run(c, {0x20, 0x00}) == 12);  // JR NZ taken
+        c.registers.f.zero = true;
+        REQUIRE(run(c, {0x20, 0x00}) == 8);   // JR NZ not taken
+    }
+
+    SECTION("JP cc taken vs not taken") {
+        CPU c;
+        c.registers.f.carry = true;
+        REQUIRE(run(c, {0xDA, 0x00, 0xC0}) == 16);  // JP C taken
+        c.pc = 0x0100;
+        c.registers.f.carry = false;
+        REQUIRE(run(c, {0xDA, 0x00, 0xC0}) == 12);  // JP C not taken
+    }
+
+    SECTION("CALL cc taken vs not taken") {
+        CPU c;
+        c.registers.f.zero = true;
+        REQUIRE(run(c, {0xCC, 0x00, 0x02}) == 24);  // CALL Z taken
+        c.pc = 0x0100;
+        c.registers.f.zero = false;
+        REQUIRE(run(c, {0xCC, 0x00, 0x02}) == 12);  // CALL Z not taken
+    }
+
+    SECTION("RET cc taken vs not taken") {
+        CPU c;
+        c.push(0x0100);
+        c.registers.f.carry = false;
+        REQUIRE(run(c, {0xD0}) == 20);  // RET NC taken
+        c.registers.f.carry = true;
+        REQUIRE(run(c, {0xD0}) == 8);   // RET NC not taken
+    }
+
+    SECTION("Unconditional jumps, calls and returns") {
+        CPU c;
+        REQUIRE(run(c, {0x18, 0x00}) == 12);        // JR e
+        REQUIRE(run(c, {0xC3, 0x00, 0x02}) == 16);  // JP nn
+        REQUIRE(run(c, {0xCD, 0x00, 0x03}) == 24);  // CALL nn
+        REQUIRE(run(c, {0xC9}) == 16);              // RET
+        REQUIRE(run(c, {0xFF}) == 16);              // RST 38
+        c.registers.set_hl(0x0400);
+        REQUIRE(run(c, {0xE9}) == 4);               // JP HL
+    }
+
+    SECTION("CB-prefixed instructions include the prefix fetch") {
+        CPU c;
+        c.registers.set_hl(0xC000);
+        REQUIRE(run(c, {0xCB, 0x30}) == 8);   // SWAP B
+        REQUIRE(run(c, {0xCB, 0x46}) == 12);  // BIT 0,(HL): read only
+        REQUIRE(run(c, {0xCB, 0xC6}) == 16);  // SET 0,(HL): read + write
+        REQUIRE(run(c, {0xCB, 0x06}) == 16);  // RLC (HL): read + write
+    }
+
+    SECTION("Every decodable opcode has a cycle count, illegal opcodes don't") {
+        for (int op = 0; op < 256; op++) {
+            if (op == 0xCB) {
+                continue;
+            }
+
+            bool decodable = from_byte_not_prefixed(op).has_value();
+            INFO("unprefixed opcode " << op);
+            REQUIRE((UNPREFIXED_CYCLES[op] != 0) == decodable);
+
+            INFO("prefixed opcode " << op);
+            REQUIRE(PREFIXED_CYCLES[op] >= 8);
+        }
+    }
+}

@@ -1,3 +1,4 @@
+#include <cycles.hpp>
 #include <instruction.hpp>
 #include <memorybus.hpp>
 #include <registers.hpp>
@@ -18,7 +19,12 @@ class CPU {
         uint16_t pc = 0x100;
         uint16_t sp = 0xFFFE;
 
-        void step() {
+        // Set by execute() when a conditional JP/JR/CALL/RET takes its branch, so step()
+        // can add the extra cycles a taken branch costs
+        bool branch_taken = false;
+
+        // Executes the instruction at pc and returns the number of T-cycles it took
+        uint8_t step() {
             // Use program counter to read instruction byte from memory
             uint8_t instruction_byte = bus.read_byte(pc);
             bool prefixed = instruction_byte == 0xCB;
@@ -31,7 +37,20 @@ class CPU {
             std::optional<Instruction> opt_instruct = from_byte(instruction_byte, prefixed);
             if (opt_instruct.has_value()) {
                 Instruction instruct = opt_instruct.value();
+
+                branch_taken = false;
                 execute(instruct);
+
+                if (prefixed) {
+                    return PREFIXED_CYCLES[instruction_byte];
+                }
+
+                uint8_t cycles = UNPREFIXED_CYCLES[instruction_byte];
+                if (branch_taken) {
+                    cycles = cycles + branch_taken_extra_cycles(instruction_byte);
+                }
+
+                return cycles;
             }
             else {
                 std::string description = "";
@@ -1352,6 +1371,7 @@ class CPU {
 
                 case InstructionType::JP: {
                     bool jump_condition = check_jump_condition(instruction.jump.condition);
+                    branch_taken = jump_condition;
 
                     pc = jump(jump_condition);
 
@@ -1360,6 +1380,7 @@ class CPU {
 
                 case InstructionType::JR: {
                     bool jump_condition = check_jump_condition(instruction.jump.condition);
+                    branch_taken = jump_condition;
 
                     pc = jump_relative(jump_condition);
 
@@ -1377,6 +1398,7 @@ class CPU {
                 // CALL Instruction pushes the address of the next instruction and jumps to nn
                 case InstructionType::CALL: {
                     bool jump_condition = check_jump_condition(instruction.jump.condition);
+                    branch_taken = jump_condition;
 
                     if (jump_condition) {
                         push(pc + 3); // CALL is 3 bytes wide, so return to the instruction after it
@@ -1392,6 +1414,7 @@ class CPU {
                 // RET Instruction pops the return address off the stack and jumps to it
                 case InstructionType::RET: {
                     bool jump_condition = check_jump_condition(instruction.jump.condition);
+                    branch_taken = jump_condition;
 
                     if (jump_condition) {
                         pc = pop();
