@@ -20,6 +20,7 @@ add_executable(tests
   tests/register_tests.cpp
   tests/cpu_tests.cpp
   tests/instruction_tests.cpp
+  tests/memorybus_tests.cpp
 )
 
 target_include_directories(tests PRIVATE
