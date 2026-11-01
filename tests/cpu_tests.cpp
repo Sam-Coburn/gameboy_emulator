@@ -3717,3 +3717,343 @@ TEST_CASE("POP Unit Tests", "[cpu][stack][pop]") {
         REQUIRE(c.sp == start_sp);
     }
 }
+
+TEST_CASE("CALL Unit Tests", "[cpu][call][call]") {
+    Instruction instruct;
+    instruct.type = InstructionType::CALL;
+
+    SECTION("CALL Always pushes return address and jumps") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0x34);
+        c.bus.write_byte(c.pc + 2, 0x12);
+        instruct.jump.condition = JumpTest::Always;
+        uint16_t start_pc = c.pc;
+        uint16_t start_sp = c.sp;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == 0x1234);
+        REQUIRE(c.sp == start_sp - 2);
+        REQUIRE(c.pop() == start_pc + 3);
+    }
+
+    SECTION("CALL NotZero taken") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0x00);
+        c.bus.write_byte(c.pc + 2, 0x40);
+        c.registers.f.zero = false;
+        instruct.jump.condition = JumpTest::NotZero;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == 0x4000);
+    }
+
+    SECTION("CALL Carry not taken") {
+        CPU c;
+        c.registers.f.carry = false;
+        instruct.jump.condition = JumpTest::Carry;
+        uint16_t start_pc = c.pc;
+        uint16_t start_sp = c.sp;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == start_pc + 3);
+        REQUIRE(c.sp == start_sp);
+    }
+}
+
+TEST_CASE("RET Unit Tests", "[cpu][call][ret]") {
+    Instruction instruct;
+    instruct.type = InstructionType::RET;
+
+    SECTION("RET Always pops return address") {
+        CPU c;
+        c.push(0x2345);
+        uint16_t pushed_sp = c.sp;
+        instruct.jump.condition = JumpTest::Always;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == 0x2345);
+        REQUIRE(c.sp == pushed_sp + 2);
+    }
+
+    SECTION("RET Zero not taken") {
+        CPU c;
+        c.push(0x2345);
+        uint16_t pushed_sp = c.sp;
+        c.registers.f.zero = false;
+        instruct.jump.condition = JumpTest::Zero;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == start_pc + 1);
+        REQUIRE(c.sp == pushed_sp);
+    }
+
+    SECTION("CALL then RET returns to instruction after CALL") {
+        CPU c;
+        Instruction call;
+        call.type = InstructionType::CALL;
+        call.jump.condition = JumpTest::Always;
+        c.bus.write_byte(c.pc + 1, 0x00);
+        c.bus.write_byte(c.pc + 2, 0x50);
+        uint16_t start_pc = c.pc;
+        uint16_t start_sp = c.sp;
+        instruct.jump.condition = JumpTest::Always;
+
+        c.execute(call);
+        c.execute(instruct);
+
+        REQUIRE(c.pc == start_pc + 3);
+        REQUIRE(c.sp == start_sp);
+    }
+}
+
+TEST_CASE("RETI Unit Tests", "[cpu][call][reti]") {
+    Instruction instruct;
+    instruct.type = InstructionType::RETI;
+
+    SECTION("RETI pops return address") {
+        CPU c;
+        c.push(0x0150);
+        uint16_t pushed_sp = c.sp;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == 0x0150);
+        REQUIRE(c.sp == pushed_sp + 2);
+    }
+}
+
+TEST_CASE("RST Unit Tests", "[cpu][call][rst]") {
+    Instruction instruct;
+    instruct.type = InstructionType::RST;
+
+    SECTION("RST 0x38 pushes return address and jumps") {
+        CPU c;
+        instruct.rst.address = 0x38;
+        uint16_t start_pc = c.pc;
+        uint16_t start_sp = c.sp;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == 0x0038);
+        REQUIRE(c.sp == start_sp - 2);
+        REQUIRE(c.pop() == start_pc + 1);
+    }
+}
+
+TEST_CASE("INC16 Unit Tests", "[cpu][16-bit][inc16]") {
+    Instruction instruct;
+    instruct.type = InstructionType::INC16;
+
+    SECTION("INC BC carries into high byte and leaves flags alone") {
+        CPU c;
+        c.registers.set_bc(0x12FF);
+        c.registers.f.zero = true;
+        c.registers.f.carry = true;
+        instruct.alu16.target = Operand16::BC;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_bc() == 0x1300);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("INC HL wraps around") {
+        CPU c;
+        c.registers.set_hl(0xFFFF);
+        instruct.alu16.target = Operand16::HL;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_hl() == 0x0000);
+        REQUIRE(c.registers.f.zero == false);
+    }
+
+    SECTION("INC SP") {
+        CPU c;
+        c.sp = 0xC000;
+        instruct.alu16.target = Operand16::SP;
+
+        c.execute(instruct);
+
+        REQUIRE(c.sp == 0xC001);
+    }
+}
+
+TEST_CASE("DEC16 Unit Tests", "[cpu][16-bit][dec16]") {
+    Instruction instruct;
+    instruct.type = InstructionType::DEC16;
+
+    SECTION("DEC DE borrows from high byte") {
+        CPU c;
+        c.registers.set_de(0x1200);
+        instruct.alu16.target = Operand16::DE;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_de() == 0x11FF);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("DEC BC wraps around and leaves flags alone") {
+        CPU c;
+        c.registers.set_bc(0x0000);
+        instruct.alu16.target = Operand16::BC;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_bc() == 0xFFFF);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+    }
+
+    SECTION("DEC SP") {
+        CPU c;
+        c.sp = 0xC000;
+        instruct.alu16.target = Operand16::SP;
+
+        c.execute(instruct);
+
+        REQUIRE(c.sp == 0xBFFF);
+    }
+}
+
+TEST_CASE("ADDSP Unit Tests", "[cpu][16-bit][addsp]") {
+    Instruction instruct;
+    instruct.type = InstructionType::ADDSP;
+
+    SECTION("ADD SP,e positive offset w/ half carry and carry") {
+        CPU c;
+        c.sp = 0xC0FF;
+        c.bus.write_byte(c.pc + 1, 0x01);
+        c.registers.f.zero = true;
+        c.registers.f.subtract = true;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.sp == 0xC100);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == true);
+        REQUIRE(c.registers.f.carry == true);
+        REQUIRE(c.pc == start_pc + 2);
+    }
+
+    SECTION("ADD SP,e negative offset") {
+        CPU c;
+        c.sp = 0xC000;
+        int8_t offset = -1;
+        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+
+        c.execute(instruct);
+
+        // Flags come from unsigned 0x00 + 0xFF on the low byte
+        REQUIRE(c.sp == 0xBFFF);
+        REQUIRE(c.registers.f.half_carry == false);
+        REQUIRE(c.registers.f.carry == false);
+    }
+}
+
+TEST_CASE("DAA Unit Tests", "[cpu][misc][daa]") {
+    Instruction instruct;
+    instruct.type = InstructionType::DAA;
+
+    SECTION("DAA after addition w/o carry (15 + 27 = 42)") {
+        CPU c;
+        c.registers.a = 0x3C; // 0x15 + 0x27 in binary
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x42);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.registers.f.half_carry == false);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("DAA after addition w/ decimal carry (99 + 1 = 100)") {
+        CPU c;
+        c.registers.a = 0x9A; // 0x99 + 0x01 in binary
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x00);
+        REQUIRE(c.registers.f.zero == true);
+        REQUIRE(c.registers.f.carry == true);
+    }
+
+    SECTION("DAA after addition w/ half carry (09 + 08 = 17)") {
+        CPU c;
+        c.registers.a = 0x11; // 0x09 + 0x08 in binary, carried out of the low nibble
+        c.registers.f.half_carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x17);
+        REQUIRE(c.registers.f.half_carry == false);
+    }
+
+    SECTION("DAA after subtraction w/ half borrow (42 - 15 = 27)") {
+        CPU c;
+        c.registers.a = 0x2D; // 0x42 - 0x15 in binary
+        c.registers.f.subtract = true;
+        c.registers.f.half_carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x27);
+        REQUIRE(c.registers.f.subtract == true);
+        REQUIRE(c.registers.f.carry == false);
+    }
+
+    SECTION("DAA after subtraction w/ borrow (10 - 20 = 90, borrow)") {
+        CPU c;
+        c.registers.a = 0xF0; // 0x10 - 0x20 in binary
+        c.registers.f.subtract = true;
+        c.registers.f.carry = true;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x90);
+        REQUIRE(c.registers.f.carry == true);
+    }
+}
+
+TEST_CASE("NOP and STOP Unit Tests", "[cpu][misc][nop]") {
+    SECTION("NOP only advances pc") {
+        CPU c;
+        Instruction instruct;
+        instruct.type = InstructionType::NOP;
+        c.registers.a = 0x12;
+        uint16_t start_pc = c.pc;
+        uint16_t start_sp = c.sp;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == start_pc + 1);
+        REQUIRE(c.sp == start_sp);
+        REQUIRE(c.registers.a == 0x12);
+    }
+
+    SECTION("STOP is 2 bytes wide") {
+        CPU c;
+        Instruction instruct;
+        instruct.type = InstructionType::STOP;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.pc == start_pc + 2);
+    }
+}

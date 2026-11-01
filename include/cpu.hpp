@@ -654,6 +654,84 @@ class CPU {
                     break;
                 }
 
+                // DAA Instruction adjusts register A into a valid BCD (binary-coded decimal) number
+                // after an addition or subtraction, using the subtract, half carry and carry flags
+                case InstructionType::DAA: {
+                    uint8_t value = registers.a;
+
+                    if (!registers.f.subtract) {
+                        // After an addition, correct each nibble that went above 9 (or carried out)
+                        if (registers.f.carry || value > 0x99) {
+                            value = value + 0x60;
+                            registers.f.carry = true;
+                        }
+                        if (registers.f.half_carry || (value & 0xF) > 0x9) {
+                            value = value + 0x06;
+                        }
+                    }
+                    else {
+                        // After a subtraction, only undo the borrows that actually happened
+                        if (registers.f.carry) {
+                            value = value - 0x60;
+                        }
+                        if (registers.f.half_carry) {
+                            value = value - 0x06;
+                        }
+                    }
+
+                    registers.a = value;
+
+                    registers.f.zero = value == 0;
+                    registers.f.subtract = registers.f.subtract; // DAA leaves subtract flag unaffected
+                    registers.f.half_carry = false;
+
+                    pc = pc + 1;
+
+                    break;
+                }
+
+                // NOP Instruction does nothing
+                case InstructionType::NOP: {
+                    pc = pc + 1;
+
+                    break;
+                }
+
+                // HALT Instruction suspends the CPU until an interrupt is pending
+                case InstructionType::HALT: {
+                    // TODO (#16 interrupts): enter the halted state
+
+                    pc = pc + 1;
+
+                    break;
+                }
+
+                // STOP Instruction enters very low power mode until a button is pressed. It is
+                // 2 bytes wide (0x10 0x00) and isn't needed by most games, so it's treated as a NOP
+                case InstructionType::STOP: {
+                    pc = pc + 2;
+
+                    break;
+                }
+
+                // DI Instruction disables interrupts
+                case InstructionType::DI: {
+                    // TODO (#16 interrupts): clear IME
+
+                    pc = pc + 1;
+
+                    break;
+                }
+
+                // EI Instruction enables interrupts after the following instruction
+                case InstructionType::EI: {
+                    // TODO (#16 interrupts): schedule IME to be set after the next instruction
+
+                    pc = pc + 1;
+
+                    break;
+                }
+
                 /* Bitwise CPU Instructions */
 
                 // BIT Instruction tests the bit value for the given register at the given bit index
@@ -825,6 +903,59 @@ class CPU {
                     registers.set_hl(new_value);
 
                     pc = pc + 1;
+
+                    break;
+                }
+
+                // INC16 Instruction increments a 16-bit register, no flags are affected
+                case InstructionType::INC16: {
+                    switch (instruction.alu16.target) {
+                        case Operand16::BC:
+                            registers.set_bc(registers.get_bc() + 1);
+                            break;
+                        case Operand16::DE:
+                            registers.set_de(registers.get_de() + 1);
+                            break;
+                        case Operand16::HL:
+                            registers.set_hl(registers.get_hl() + 1);
+                            break;
+                        case Operand16::SP:
+                            sp = sp + 1;
+                            break;
+                    }
+
+                    pc = pc + 1;
+
+                    break;
+                }
+
+                // DEC16 Instruction decrements a 16-bit register, no flags are affected
+                case InstructionType::DEC16: {
+                    switch (instruction.alu16.target) {
+                        case Operand16::BC:
+                            registers.set_bc(registers.get_bc() - 1);
+                            break;
+                        case Operand16::DE:
+                            registers.set_de(registers.get_de() - 1);
+                            break;
+                        case Operand16::HL:
+                            registers.set_hl(registers.get_hl() - 1);
+                            break;
+                        case Operand16::SP:
+                            sp = sp - 1;
+                            break;
+                    }
+
+                    pc = pc + 1;
+
+                    break;
+                }
+
+                // ADDSP Instruction adds a signed 8-bit offset to SP
+                case InstructionType::ADDSP: {
+                    sp = add_sp_offset();
+
+                    pc = pc + 2;
 
                     break;
                 }
@@ -1220,29 +1351,7 @@ class CPU {
                 /* Jump Instructions */
 
                 case InstructionType::JP: {
-                    bool jump_condition = false;
-
-                    switch (instruction.jump.condition) {
-                        case JumpTest::NotZero:
-                            jump_condition = !registers.f.zero;
-                            break;
-
-                        case JumpTest::NotCarry:
-                            jump_condition = !registers.f.carry;
-                            break;
-
-                        case JumpTest::Zero:
-                            jump_condition = registers.f.zero;
-                            break;
-
-                        case JumpTest::Carry:
-                            jump_condition = registers.f.carry;
-                            break;
-
-                        case JumpTest::Always:
-                            jump_condition = true;
-                            break;
-                    }
+                    bool jump_condition = check_jump_condition(instruction.jump.condition);
 
                     pc = jump(jump_condition);
 
@@ -1250,29 +1359,7 @@ class CPU {
                 }
 
                 case InstructionType::JR: {
-                    bool jump_condition = false;
-
-                    switch (instruction.jump.condition) {
-                        case JumpTest::NotZero:
-                            jump_condition = !registers.f.zero;
-                            break;
-
-                        case JumpTest::NotCarry:
-                            jump_condition = !registers.f.carry;
-                            break;
-
-                        case JumpTest::Zero:
-                            jump_condition = registers.f.zero;
-                            break;
-
-                        case JumpTest::Carry:
-                            jump_condition = registers.f.carry;
-                            break;
-
-                        case JumpTest::Always:
-                            jump_condition = true;
-                            break;
-                    }
+                    bool jump_condition = check_jump_condition(instruction.jump.condition);
 
                     pc = jump_relative(jump_condition);
 
@@ -1281,6 +1368,54 @@ class CPU {
 
                 case InstructionType::JP_HL: {
                     pc = registers.get_hl();
+
+                    break;
+                }
+
+                /* Call and Return Instructions */
+
+                // CALL Instruction pushes the address of the next instruction and jumps to nn
+                case InstructionType::CALL: {
+                    bool jump_condition = check_jump_condition(instruction.jump.condition);
+
+                    if (jump_condition) {
+                        push(pc + 3); // CALL is 3 bytes wide, so return to the instruction after it
+                        pc = read_immediate_word();
+                    }
+                    else {
+                        pc = pc + 3;
+                    }
+
+                    break;
+                }
+
+                // RET Instruction pops the return address off the stack and jumps to it
+                case InstructionType::RET: {
+                    bool jump_condition = check_jump_condition(instruction.jump.condition);
+
+                    if (jump_condition) {
+                        pc = pop();
+                    }
+                    else {
+                        pc = pc + 1;
+                    }
+
+                    break;
+                }
+
+                // RETI Instruction returns from an interrupt handler and re-enables interrupts
+                case InstructionType::RETI: {
+                    pc = pop();
+
+                    // TODO (#16 interrupts): set IME (takes effect immediately, unlike EI)
+
+                    break;
+                }
+
+                // RST Instruction is a 1-byte CALL to one of 8 fixed addresses (0x00, 0x08, ..., 0x38)
+                case InstructionType::RST: {
+                    push(pc + 1);
+                    pc = instruction.rst.address;
 
                     break;
                 }
@@ -1449,17 +1584,7 @@ class CPU {
 
                 // LD HL,SP+e loads SP plus a signed 8-bit offset into HL
                 case InstructionType::LD_HL_SP: {
-                    uint8_t unsigned_offset = bus.read_byte(pc + 1);
-                    int8_t offset = static_cast<int8_t>(unsigned_offset);
-
-                    registers.set_hl(static_cast<uint16_t>(sp + offset));
-
-                    // Half Carry and Carry are calculated from the unsigned addition of the
-                    // offset to the low byte of SP (carry out of bit 3 and bit 7)
-                    registers.f.zero = false;
-                    registers.f.subtract = false;
-                    registers.f.half_carry = (sp & 0xF) + (unsigned_offset & 0xF) > 0xF;
-                    registers.f.carry = (sp & 0xFF) + unsigned_offset > 0xFF;
+                    registers.set_hl(add_sp_offset());
 
                     pc = pc + 2;
                     break;
@@ -1780,6 +1905,38 @@ class CPU {
             } else {
                 return pc + 2;
             }
+        }
+
+        bool check_jump_condition(JumpTest condition) {
+            switch (condition) {
+                case JumpTest::NotZero:
+                    return !registers.f.zero;
+                case JumpTest::NotCarry:
+                    return !registers.f.carry;
+                case JumpTest::Zero:
+                    return registers.f.zero;
+                case JumpTest::Carry:
+                    return registers.f.carry;
+                case JumpTest::Always:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        // Returns SP plus the signed 8-bit offset following the current instruction and sets
+        // flags, shared by ADD SP,e and LD HL,SP+e. Half Carry and Carry are calculated from the
+        // unsigned addition of the offset to the low byte of SP (carry out of bit 3 and bit 7)
+        uint16_t add_sp_offset() {
+            uint8_t unsigned_offset = bus.read_byte(pc + 1);
+            int8_t offset = static_cast<int8_t>(unsigned_offset);
+
+            registers.f.zero = false;
+            registers.f.subtract = false;
+            registers.f.half_carry = (sp & 0xF) + (unsigned_offset & 0xF) > 0xF;
+            registers.f.carry = (sp & 0xFF) + unsigned_offset > 0xFF;
+
+            return static_cast<uint16_t>(sp + offset);
         }
 
         // Reads the 16-bit immediate value following the current instruction (little endian)
