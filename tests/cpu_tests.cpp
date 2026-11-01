@@ -3323,3 +3323,397 @@ TEST_CASE("LD_16 Unit Tests", "[cpu][load][ld_16]") {
         REQUIRE(c.pc == start_pc + 3);
     }
 }
+
+TEST_CASE("LD_8 r,A Unit Tests", "[cpu][load][ld_8]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_8;
+    instruct.load8.source = LoadSource::A;
+
+    SECTION("LD_8 A into H") {
+        CPU c;
+        c.registers.a = 0x3C;
+        instruct.load8.target = LoadTarget::H;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.h == 0x3C);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD_8 A into HL_PTR") {
+        CPU c;
+        c.registers.a = 0x5D;
+        c.registers.set_hl(0xC030);
+        instruct.load8.target = LoadTarget::HL_PTR;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xC030) == 0x5D);
+    }
+}
+
+TEST_CASE("LD_A_IND Unit Tests", "[cpu][load][ld_a_ind]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_A_IND;
+
+    SECTION("LD A,(BC)") {
+        CPU c;
+        c.registers.set_bc(0xC100);
+        c.bus.write_byte(0xC100, 0x21);
+        instruct.load_ind.address = IndirectAddress::BC;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x21);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD A,(DE)") {
+        CPU c;
+        c.registers.set_de(0xC200);
+        c.bus.write_byte(0xC200, 0x43);
+        instruct.load_ind.address = IndirectAddress::DE;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x43);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD A,(nn)") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0x34);
+        c.bus.write_byte(c.pc + 2, 0xC3);
+        c.bus.write_byte(0xC334, 0x65);
+        instruct.load_ind.address = IndirectAddress::NN;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x65);
+        REQUIRE(c.pc == start_pc + 3);
+    }
+
+    SECTION("LD A,(FF00+C)") {
+        CPU c;
+        c.registers.c = 0x80;
+        c.bus.write_byte(0xFF80, 0x87);
+        instruct.load_ind.address = IndirectAddress::FF00_C;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x87);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LDH A,(FF00+n)") {
+        CPU c;
+        c.bus.write_byte(c.pc + 1, 0x44);
+        c.bus.write_byte(0xFF44, 0x90);
+        instruct.load_ind.address = IndirectAddress::FF00_N;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x90);
+        REQUIRE(c.pc == start_pc + 2);
+    }
+
+    SECTION("LD A,(HL+)") {
+        CPU c;
+        c.registers.set_hl(0xC400);
+        c.bus.write_byte(0xC400, 0xA1);
+        instruct.load_ind.address = IndirectAddress::HL_INC;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0xA1);
+        REQUIRE(c.registers.get_hl() == 0xC401);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD A,(HL-)") {
+        CPU c;
+        c.registers.set_hl(0xC500);
+        c.bus.write_byte(0xC500, 0xB2);
+        instruct.load_ind.address = IndirectAddress::HL_DEC;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0xB2);
+        REQUIRE(c.registers.get_hl() == 0xC4FF);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+}
+
+TEST_CASE("LD_IND_A Unit Tests", "[cpu][load][ld_ind_a]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_IND_A;
+
+    SECTION("LD (BC),A") {
+        CPU c;
+        c.registers.a = 0x11;
+        c.registers.set_bc(0xC100);
+        instruct.load_ind.address = IndirectAddress::BC;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xC100) == 0x11);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD (DE),A") {
+        CPU c;
+        c.registers.a = 0x22;
+        c.registers.set_de(0xC200);
+        instruct.load_ind.address = IndirectAddress::DE;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xC200) == 0x22);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD (nn),A") {
+        CPU c;
+        c.registers.a = 0x33;
+        c.bus.write_byte(c.pc + 1, 0x00);
+        c.bus.write_byte(c.pc + 2, 0xD0);
+        instruct.load_ind.address = IndirectAddress::NN;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xD000) == 0x33);
+        REQUIRE(c.pc == start_pc + 3);
+    }
+
+    SECTION("LD (FF00+C),A") {
+        CPU c;
+        c.registers.a = 0x44;
+        c.registers.c = 0x81;
+        instruct.load_ind.address = IndirectAddress::FF00_C;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xFF81) == 0x44);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LDH (FF00+n),A") {
+        CPU c;
+        c.registers.a = 0x55;
+        c.bus.write_byte(c.pc + 1, 0x82);
+        instruct.load_ind.address = IndirectAddress::FF00_N;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xFF82) == 0x55);
+        REQUIRE(c.pc == start_pc + 2);
+    }
+
+    SECTION("LD (HL+),A") {
+        CPU c;
+        c.registers.a = 0x66;
+        c.registers.set_hl(0xC0FF);
+        instruct.load_ind.address = IndirectAddress::HL_INC;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xC0FF) == 0x66);
+        REQUIRE(c.registers.get_hl() == 0xC100);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("LD (HL-),A") {
+        CPU c;
+        c.registers.a = 0x77;
+        c.registers.set_hl(0xC600);
+        instruct.load_ind.address = IndirectAddress::HL_DEC;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xC600) == 0x77);
+        REQUIRE(c.registers.get_hl() == 0xC5FF);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+}
+
+TEST_CASE("LD_SP_HL Unit Tests", "[cpu][load][ld_sp_hl]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_SP_HL;
+
+    SECTION("LD SP,HL") {
+        CPU c;
+        c.registers.set_hl(0xD123);
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.sp == 0xD123);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+}
+
+TEST_CASE("LD_HL_SP Unit Tests", "[cpu][load][ld_hl_sp]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_HL_SP;
+
+    SECTION("LD HL,SP+e positive offset w/o carries") {
+        CPU c;
+        c.sp = 0xC000;
+        c.bus.write_byte(c.pc + 1, 0x05);
+        c.registers.f.zero = true;
+        c.registers.f.subtract = true;
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_hl() == 0xC005);
+        REQUIRE(c.sp == 0xC000);
+        REQUIRE(c.registers.f.zero == false);
+        REQUIRE(c.registers.f.subtract == false);
+        REQUIRE(c.registers.f.half_carry == false);
+        REQUIRE(c.registers.f.carry == false);
+        REQUIRE(c.pc == start_pc + 2);
+    }
+
+    SECTION("LD HL,SP+e w/ half carry and carry") {
+        CPU c;
+        c.sp = 0xC0FF;
+        c.bus.write_byte(c.pc + 1, 0x01);
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_hl() == 0xC100);
+        REQUIRE(c.registers.f.half_carry == true);
+        REQUIRE(c.registers.f.carry == true);
+    }
+
+    SECTION("LD HL,SP+e negative offset") {
+        CPU c;
+        c.sp = 0xC010;
+        int8_t offset = -2;
+        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+
+        c.execute(instruct);
+
+        // Flags come from unsigned 0x10 + 0xFE on the low byte
+        REQUIRE(c.registers.get_hl() == 0xC00E);
+        REQUIRE(c.registers.f.half_carry == false);
+        REQUIRE(c.registers.f.carry == true);
+    }
+}
+
+TEST_CASE("LD_NN_SP Unit Tests", "[cpu][load][ld_nn_sp]") {
+    Instruction instruct;
+    instruct.type = InstructionType::LD_NN_SP;
+
+    SECTION("LD (nn),SP stores SP little-endian") {
+        CPU c;
+        c.sp = 0xBEEF;
+        c.bus.write_byte(c.pc + 1, 0x00);
+        c.bus.write_byte(c.pc + 2, 0xC8);
+        uint16_t start_pc = c.pc;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(0xC800) == 0xEF);
+        REQUIRE(c.bus.read_byte(0xC801) == 0xBE);
+        REQUIRE(c.pc == start_pc + 3);
+    }
+}
+
+TEST_CASE("PUSH Unit Tests", "[cpu][stack][push]") {
+    Instruction instruct;
+    instruct.type = InstructionType::PUSH;
+
+    SECTION("PUSH BC") {
+        CPU c;
+        c.registers.set_bc(0x1234);
+        uint16_t start_sp = c.sp;
+        uint16_t start_pc = c.pc;
+        instruct.stack.target = StackTarget::BC;
+
+        c.execute(instruct);
+
+        REQUIRE(c.sp == start_sp - 2);
+        REQUIRE(c.bus.read_byte(start_sp - 1) == 0x12);
+        REQUIRE(c.bus.read_byte(start_sp - 2) == 0x34);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("PUSH AF") {
+        CPU c;
+        c.registers.a = 0xAB;
+        c.registers.f.zero = true;
+        c.registers.f.carry = true;
+        instruct.stack.target = StackTarget::AF;
+
+        c.execute(instruct);
+
+        REQUIRE(c.bus.read_byte(c.sp + 1) == 0xAB);
+        REQUIRE(c.bus.read_byte(c.sp) == 0x90);
+    }
+}
+
+TEST_CASE("POP Unit Tests", "[cpu][stack][pop]") {
+    Instruction instruct;
+    instruct.type = InstructionType::POP;
+
+    SECTION("POP DE") {
+        CPU c;
+        c.sp = 0xDFFC;
+        c.bus.write_byte(0xDFFC, 0x78);
+        c.bus.write_byte(0xDFFD, 0x56);
+        uint16_t start_pc = c.pc;
+        instruct.stack.target = StackTarget::DE;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_de() == 0x5678);
+        REQUIRE(c.sp == 0xDFFE);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("POP AF masks lower nibble of F") {
+        CPU c;
+        c.sp = 0xDFFC;
+        c.bus.write_byte(0xDFFC, 0xFF);
+        c.bus.write_byte(0xDFFD, 0x12);
+        instruct.stack.target = StackTarget::AF;
+
+        c.execute(instruct);
+
+        REQUIRE(c.registers.a == 0x12);
+        REQUIRE(c.registers.get_af() == 0x12F0);
+    }
+
+    SECTION("PUSH then POP round trip") {
+        CPU c;
+        Instruction push;
+        push.type = InstructionType::PUSH;
+        push.stack.target = StackTarget::HL;
+        instruct.stack.target = StackTarget::BC;
+        c.registers.set_hl(0xCAFE);
+        uint16_t start_sp = c.sp;
+
+        c.execute(push);
+        c.execute(instruct);
+
+        REQUIRE(c.registers.get_bc() == 0xCAFE);
+        REQUIRE(c.sp == start_sp);
+    }
+}

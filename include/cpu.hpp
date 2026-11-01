@@ -1402,10 +1402,7 @@ class CPU {
                 }
 
                 case InstructionType::LD_16: {
-                    // Immediate 16-bit value is stored little-endian (low byte first)
-                    uint8_t low = bus.read_byte(pc + 1);
-                    uint8_t high = bus.read_byte(pc + 2);
-                    uint16_t value = (static_cast<uint16_t>(high) << 8) | static_cast<uint16_t>(low);
+                    uint16_t value = read_immediate_word();
 
                     switch (instruction.load16.target) {
                         case Operand16::BC:
@@ -1425,6 +1422,105 @@ class CPU {
                     }
 
                     pc = pc + 3;
+                    break;
+                }
+
+                // LD_A_IND loads the byte at a memory address into register A
+                case InstructionType::LD_A_IND: {
+                    uint16_t addr = indirect_address(instruction.load_ind.address);
+                    registers.a = bus.read_byte(addr);
+                    pc = pc + indirect_length(instruction.load_ind.address);
+                    break;
+                }
+
+                // LD_IND_A stores register A at a memory address
+                case InstructionType::LD_IND_A: {
+                    uint16_t addr = indirect_address(instruction.load_ind.address);
+                    bus.write_byte(addr, registers.a);
+                    pc = pc + indirect_length(instruction.load_ind.address);
+                    break;
+                }
+
+                case InstructionType::LD_SP_HL: {
+                    sp = registers.get_hl();
+                    pc = pc + 1;
+                    break;
+                }
+
+                // LD HL,SP+e loads SP plus a signed 8-bit offset into HL
+                case InstructionType::LD_HL_SP: {
+                    uint8_t unsigned_offset = bus.read_byte(pc + 1);
+                    int8_t offset = static_cast<int8_t>(unsigned_offset);
+
+                    registers.set_hl(static_cast<uint16_t>(sp + offset));
+
+                    // Half Carry and Carry are calculated from the unsigned addition of the
+                    // offset to the low byte of SP (carry out of bit 3 and bit 7)
+                    registers.f.zero = false;
+                    registers.f.subtract = false;
+                    registers.f.half_carry = (sp & 0xF) + (unsigned_offset & 0xF) > 0xF;
+                    registers.f.carry = (sp & 0xFF) + unsigned_offset > 0xFF;
+
+                    pc = pc + 2;
+                    break;
+                }
+
+                // LD (nn),SP stores SP at address nn (little endian)
+                case InstructionType::LD_NN_SP: {
+                    uint16_t addr = read_immediate_word();
+                    bus.write_byte(addr, static_cast<uint8_t>(sp & 0xFF));
+                    bus.write_byte(addr + 1, static_cast<uint8_t>((sp & 0xFF00) >> 8));
+                    pc = pc + 3;
+                    break;
+                }
+
+                /* Stack Instructions */
+                case InstructionType::PUSH: {
+                    uint16_t value = 0;
+
+                    switch (instruction.stack.target) {
+                        case StackTarget::AF:
+                            value = registers.get_af();
+                            break;
+                        case StackTarget::BC:
+                            value = registers.get_bc();
+                            break;
+                        case StackTarget::DE:
+                            value = registers.get_de();
+                            break;
+                        case StackTarget::HL:
+                            value = registers.get_hl();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    push(value);
+                    pc = pc + 1;
+                    break;
+                }
+
+                case InstructionType::POP: {
+                    uint16_t value = pop();
+
+                    switch (instruction.stack.target) {
+                        case StackTarget::AF:
+                            registers.set_af(value);
+                            break;
+                        case StackTarget::BC:
+                            registers.set_bc(value);
+                            break;
+                        case StackTarget::DE:
+                            registers.set_de(value);
+                            break;
+                        case StackTarget::HL:
+                            registers.set_hl(value);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    pc = pc + 1;
                     break;
                 }
 
@@ -1684,5 +1780,69 @@ class CPU {
             } else {
                 return pc + 2;
             }
+        }
+
+        // Reads the 16-bit immediate value following the current instruction (little endian)
+        uint16_t read_immediate_word() {
+            uint16_t least_significant_byte = bus.read_byte(pc + 1);
+            uint16_t most_significant_byte = bus.read_byte(pc + 2);
+            return (most_significant_byte << 8) | least_significant_byte;
+        }
+
+        // Resolves the memory address for LD_A_IND / LD_IND_A. HL_INC and HL_DEC
+        // return the current HL and then increment/decrement HL afterwards.
+        uint16_t indirect_address(IndirectAddress address) {
+            switch (address) {
+                case IndirectAddress::BC:
+                    return registers.get_bc();
+                case IndirectAddress::DE:
+                    return registers.get_de();
+                case IndirectAddress::NN:
+                    return read_immediate_word();
+                case IndirectAddress::FF00_C:
+                    return 0xFF00 + registers.c;
+                case IndirectAddress::FF00_N:
+                    return 0xFF00 + bus.read_byte(pc + 1);
+                case IndirectAddress::HL_INC: {
+                    uint16_t hl = registers.get_hl();
+                    registers.set_hl(hl + 1);
+                    return hl;
+                }
+                case IndirectAddress::HL_DEC: {
+                    uint16_t hl = registers.get_hl();
+                    registers.set_hl(hl - 1);
+                    return hl;
+                }
+                default:
+                    return 0;
+            }
+        }
+
+        // Instruction width in bytes for LD_A_IND / LD_IND_A
+        uint16_t indirect_length(IndirectAddress address) {
+            switch (address) {
+                case IndirectAddress::NN:
+                    return 3;
+                case IndirectAddress::FF00_N:
+                    return 2;
+                default:
+                    return 1;
+            }
+        }
+
+        // Stack grows downwards: high byte is stored first at SP - 1, then low byte at SP - 2
+        void push(uint16_t value) {
+            sp = sp - 1;
+            bus.write_byte(sp, static_cast<uint8_t>((value & 0xFF00) >> 8));
+            sp = sp - 1;
+            bus.write_byte(sp, static_cast<uint8_t>(value & 0xFF));
+        }
+
+        uint16_t pop() {
+            uint16_t least_significant_byte = bus.read_byte(sp);
+            sp = sp + 1;
+            uint16_t most_significant_byte = bus.read_byte(sp);
+            sp = sp + 1;
+            return (most_significant_byte << 8) | least_significant_byte;
         }
 };

@@ -56,4 +56,46 @@ TEST_CASE("Instruction from_byte() Unit Tests", "[instruction][from_byte]") {
         REQUIRE(instruct.type == InstructionType::LD_16);
         REQUIRE(instruct.load16.target == Operand16::SP);
     }
+
+    SECTION ("from_byte_not_prefixed LD_8 (HL),A") {
+        Instruction instruct = from_byte_not_prefixed(0x77).value();
+
+        REQUIRE(instruct.type == InstructionType::LD_8);
+        REQUIRE(instruct.load8.source == LoadSource::A);
+        REQUIRE(instruct.load8.target == LoadTarget::HL_PTR);
+    }
+
+    SECTION ("from_byte_not_prefixed LD_A_IND A,(HL+)") {
+        Instruction instruct = from_byte_not_prefixed(0x2A).value();
+
+        REQUIRE(instruct.type == InstructionType::LD_A_IND);
+        REQUIRE(instruct.load_ind.address == IndirectAddress::HL_INC);
+    }
+
+    SECTION ("from_byte_not_prefixed LD_IND_A (FF00+n),A") {
+        Instruction instruct = from_byte_not_prefixed(0xE0).value();
+
+        REQUIRE(instruct.type == InstructionType::LD_IND_A);
+        REQUIRE(instruct.load_ind.address == IndirectAddress::FF00_N);
+    }
+
+    SECTION ("from_byte_not_prefixed LD_HL_SP") {
+        Instruction instruct = from_byte_not_prefixed(0xF8).value();
+
+        REQUIRE(instruct.type == InstructionType::LD_HL_SP);
+    }
+
+    SECTION ("from_byte_not_prefixed PUSH AF") {
+        Instruction instruct = from_byte_not_prefixed(0xF5).value();
+
+        REQUIRE(instruct.type == InstructionType::PUSH);
+        REQUIRE(instruct.stack.target == StackTarget::AF);
+    }
+
+    SECTION ("from_byte_not_prefixed POP HL") {
+        Instruction instruct = from_byte_not_prefixed(0xE1).value();
+
+        REQUIRE(instruct.type == InstructionType::POP);
+        REQUIRE(instruct.stack.target == StackTarget::HL);
+    }
 }

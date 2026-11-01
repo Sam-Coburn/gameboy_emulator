@@ -47,6 +47,23 @@ struct Load16Data {
     Operand16 target;
 };
 
+// Memory addresses used by loads between register A and memory
+enum class IndirectAddress {
+    BC, DE, NN, FF00_C, FF00_N, HL_INC, HL_DEC
+};
+
+struct LoadIndirectData {
+    IndirectAddress address;
+};
+
+enum class StackTarget {
+    AF, BC, DE, HL
+};
+
+struct StackData {
+    StackTarget target;
+};
+
 enum class InstructionType {
     // 8-bit ALU operations
     ADD, ADC, SUB, SBC, AND,
@@ -70,7 +87,11 @@ enum class InstructionType {
     JP, JR, JP_HL,
 
     // Load instructions
-    LD_8, LD_N, LD_16
+    LD_8, LD_N, LD_16, LD_A_IND, LD_IND_A,
+    LD_SP_HL, LD_HL_SP, LD_NN_SP,
+
+    // Stack instructions
+    PUSH, POP
 };
 
 struct Instruction {
@@ -83,6 +104,8 @@ struct Instruction {
         JumpData jump;
         Load8Data load8;
         Load16Data load16;
+        LoadIndirectData load_ind;
+        StackData stack;
     };
 };
 
@@ -504,6 +527,20 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         return inst;
     };
 
+    auto make_load_ind = [](InstructionType t, IndirectAddress address) -> std::optional<Instruction> {
+        Instruction inst{};
+        inst.type = t;
+        inst.load_ind.address = address;
+        return inst;
+    };
+
+    auto make_stack = [](InstructionType t, StackTarget target) -> std::optional<Instruction> {
+        Instruction inst{};
+        inst.type = t;
+        inst.stack.target = target;
+        return inst;
+    };
+
     switch (byte) {
         // --------------------
         // ADD A, r
@@ -721,6 +758,51 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x31: return make_load16(InstructionType::LD_16, Operand16::SP);
 
         // --------------------
+        // LD_A_IND A,(addr)
+        // --------------------
+        case 0x0A: return make_load_ind(InstructionType::LD_A_IND, IndirectAddress::BC);
+        case 0x1A: return make_load_ind(InstructionType::LD_A_IND, IndirectAddress::DE);
+        case 0xFA: return make_load_ind(InstructionType::LD_A_IND, IndirectAddress::NN);
+        case 0xF2: return make_load_ind(InstructionType::LD_A_IND, IndirectAddress::FF00_C);
+        case 0xF0: return make_load_ind(InstructionType::LD_A_IND, IndirectAddress::FF00_N);
+        case 0x2A: return make_load_ind(InstructionType::LD_A_IND, IndirectAddress::HL_INC);
+        case 0x3A: return make_load_ind(InstructionType::LD_A_IND, IndirectAddress::HL_DEC);
+
+        // --------------------
+        // LD_IND_A (addr),A
+        // --------------------
+        case 0x02: return make_load_ind(InstructionType::LD_IND_A, IndirectAddress::BC);
+        case 0x12: return make_load_ind(InstructionType::LD_IND_A, IndirectAddress::DE);
+        case 0xEA: return make_load_ind(InstructionType::LD_IND_A, IndirectAddress::NN);
+        case 0xE2: return make_load_ind(InstructionType::LD_IND_A, IndirectAddress::FF00_C);
+        case 0xE0: return make_load_ind(InstructionType::LD_IND_A, IndirectAddress::FF00_N);
+        case 0x22: return make_load_ind(InstructionType::LD_IND_A, IndirectAddress::HL_INC);
+        case 0x32: return make_load_ind(InstructionType::LD_IND_A, IndirectAddress::HL_DEC);
+
+        // --------------------
+        // 16-bit SP loads
+        // --------------------
+        case 0xF9: return make_simple(InstructionType::LD_SP_HL);
+        case 0xF8: return make_simple(InstructionType::LD_HL_SP);
+        case 0x08: return make_simple(InstructionType::LD_NN_SP);
+
+        // --------------------
+        // PUSH rr
+        // --------------------
+        case 0xF5: return make_stack(InstructionType::PUSH, StackTarget::AF);
+        case 0xC5: return make_stack(InstructionType::PUSH, StackTarget::BC);
+        case 0xD5: return make_stack(InstructionType::PUSH, StackTarget::DE);
+        case 0xE5: return make_stack(InstructionType::PUSH, StackTarget::HL);
+
+        // --------------------
+        // POP rr
+        // --------------------
+        case 0xF1: return make_stack(InstructionType::POP, StackTarget::AF);
+        case 0xC1: return make_stack(InstructionType::POP, StackTarget::BC);
+        case 0xD1: return make_stack(InstructionType::POP, StackTarget::DE);
+        case 0xE1: return make_stack(InstructionType::POP, StackTarget::HL);
+
+        // --------------------
         // LD_8 r1,r2
         // --------------------
         case 0x7F: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::A);
@@ -731,6 +813,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x7C: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::A);
         case 0x7D: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::A);
         case 0x7E: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::A);
+        case 0x47: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::B);
         case 0x40: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::B);
         case 0x41: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::B);
         case 0x42: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::B);
@@ -738,6 +821,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x44: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::B);
         case 0x45: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::B);
         case 0x46: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::B);
+        case 0x4F: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::C);
         case 0x48: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::C);
         case 0x49: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::C);
         case 0x4A: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::C);
@@ -745,6 +829,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x4C: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::C);
         case 0x4D: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::C);
         case 0x4E: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::C);
+        case 0x57: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::D);
         case 0x50: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::D);
         case 0x51: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::D);
         case 0x52: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::D);
@@ -752,6 +837,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x54: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::D);
         case 0x55: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::D);
         case 0x56: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::D);
+        case 0x5F: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::E);
         case 0x58: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::E);
         case 0x59: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::E);
         case 0x5A: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::E);
@@ -759,6 +845,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x5C: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::E);
         case 0x5D: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::E);
         case 0x5E: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::E);
+        case 0x67: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::H);
         case 0x60: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::H);
         case 0x61: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::H);
         case 0x62: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::H);
@@ -766,6 +853,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x64: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::H);
         case 0x65: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::H);
         case 0x66: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::H);
+        case 0x6F: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::L);
         case 0x68: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::L);
         case 0x69: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::L);
         case 0x6A: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::L);
@@ -773,6 +861,7 @@ static std::optional<Instruction> from_byte_not_prefixed(uint8_t byte) {
         case 0x6C: return make_load8(InstructionType::LD_8, LoadSource::H, LoadTarget::L);
         case 0x6D: return make_load8(InstructionType::LD_8, LoadSource::L, LoadTarget::L);
         case 0x6E: return make_load8(InstructionType::LD_8, LoadSource::HL_PTR, LoadTarget::L);
+        case 0x77: return make_load8(InstructionType::LD_8, LoadSource::A, LoadTarget::HL_PTR);
         case 0x70: return make_load8(InstructionType::LD_8, LoadSource::B, LoadTarget::HL_PTR);
         case 0x71: return make_load8(InstructionType::LD_8, LoadSource::C, LoadTarget::HL_PTR);
         case 0x72: return make_load8(InstructionType::LD_8, LoadSource::D, LoadTarget::HL_PTR);
