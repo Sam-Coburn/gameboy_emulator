@@ -4170,3 +4170,264 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
         }
     }
 }
+
+TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
+    SECTION("V-Blank interrupt is serviced") {
+        CPU c;
+        c.ime = true;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
+        uint16_t start_pc = c.pc;
+        uint16_t start_sp = c.sp;
+
+        REQUIRE(c.step() == 20);
+
+        REQUIRE(c.pc == 0x40);
+        REQUIRE(c.sp == start_sp - 2);
+        REQUIRE(c.bus.read_byte(CPU::IF_ADDRESS) == 0x00);
+        REQUIRE(c.ime == false);
+        REQUIRE(c.pop() == start_pc);
+    }
+
+    SECTION("Servicing doesn't overwrite the top of the stack") {
+        CPU c;
+        c.push(0xBEEF);
+        c.ime = true;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x04);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x04);
+        uint16_t start_pc = c.pc;
+
+        c.step();
+
+        REQUIRE(c.pc == 0x50);
+        REQUIRE(c.pop() == start_pc);
+        REQUIRE(c.pop() == 0xBEEF);
+    }
+
+    SECTION("Lowest bit has priority and others stay requested") {
+        CPU c;
+        c.ime = true;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x1F);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x14); // Timer + Joypad
+
+        c.step();
+
+        REQUIRE(c.pc == 0x50);
+        REQUIRE(c.bus.read_byte(CPU::IF_ADDRESS) == 0x10);
+    }
+
+    SECTION("Each interrupt jumps to its vector") {
+        uint16_t vectors[] = {0x40, 0x48, 0x50, 0x58, 0x60};
+
+        for (int bit = 0; bit < 5; bit++) {
+            CPU c;
+            c.ime = true;
+            c.bus.write_byte(CPU::IE_ADDRESS, 1 << bit);
+            c.bus.write_byte(CPU::IF_ADDRESS, 1 << bit);
+
+            c.step();
+
+            INFO("interrupt bit " << bit);
+            REQUIRE(c.pc == vectors[bit]);
+        }
+    }
+
+    SECTION("Requested but not enabled in IE is not serviced") {
+        CPU c;
+        c.ime = true;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x02);
+        c.bus.write_byte(c.pc, 0x00); // NOP
+        uint16_t start_pc = c.pc;
+
+        REQUIRE(c.step() == 4);
+        REQUIRE(c.pc == start_pc + 1);
+    }
+
+    SECTION("Pending interrupt is not serviced while IME is off") {
+        CPU c;
+        c.ime = false;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
+        c.bus.write_byte(c.pc, 0x00); // NOP
+        uint16_t start_pc = c.pc;
+
+        REQUIRE(c.step() == 4);
+        REQUIRE(c.pc == start_pc + 1);
+        REQUIRE(c.bus.read_byte(CPU::IF_ADDRESS) == 0x01);
+    }
+
+    SECTION("Delayed EI enable turns IME on after the next instruction") {
+        CPU c;
+        c.ei_delayed = true;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x00);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
+        c.bus.write_byte(c.pc, 0x00); // NOP
+
+        c.step();
+
+        REQUIRE(c.ime == true);
+        REQUIRE(c.ei_delayed == false);
+    }
+}
+
+TEST_CASE("HALT state Unit Tests", "[cpu][interrupts][halt]") {
+    SECTION("Halted with nothing pending takes 4 cycles and doesn't fetch") {
+        CPU c;
+        c.halted = true;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
+        uint16_t start_pc = c.pc;
+
+        REQUIRE(c.step() == 4);
+        REQUIRE(c.halted == true);
+        REQUIRE(c.pc == start_pc);
+    }
+
+    SECTION("Pending interrupt wakes CPU without servicing when IME is off") {
+        CPU c;
+        c.halted = true;
+        c.ime = false;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
+        c.bus.write_byte(c.pc, 0x00); // NOP
+        uint16_t start_pc = c.pc;
+
+        REQUIRE(c.step() == 4);
+        REQUIRE(c.halted == false);
+        REQUIRE(c.pc == start_pc + 1);
+        REQUIRE(c.bus.read_byte(CPU::IF_ADDRESS) == 0x01);
+    }
+
+    SECTION("Pending interrupt wakes CPU and is serviced when IME is on") {
+        CPU c;
+        c.halted = true;
+        c.ime = true;
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
+        uint16_t start_pc = c.pc;
+
+        REQUIRE(c.step() == 20);
+        REQUIRE(c.halted == false);
+        REQUIRE(c.pc == 0x40);
+        REQUIRE(c.pop() == start_pc);
+    }
+}
+
+TEST_CASE("Interrupt instruction end-to-end Unit Tests", "[cpu][interrupts][instructions]") {
+    // Writes the instruction bytes at pc so the next step() calls run them
+    auto load = [](CPU& c, std::initializer_list<uint8_t> bytes) {
+        uint16_t addr = c.pc;
+        for (uint8_t byte : bytes) {
+            c.bus.write_byte(addr, byte);
+            addr = addr + 1;
+        }
+    };
+
+    SECTION("EI enables interrupts only after the next instruction") {
+        CPU c;
+        load(c, {0xFB, 0x00, 0x00}); // EI, NOP, NOP
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x01); // V-Blank already pending
+        uint16_t start_pc = c.pc;
+
+        REQUIRE(c.step() == 4);   // EI
+        REQUIRE(c.ime == false);
+
+        REQUIRE(c.step() == 4);   // NOP still runs before the interrupt
+        REQUIRE(c.ime == true);
+        REQUIRE(c.pc == start_pc + 2);
+
+        REQUIRE(c.step() == 20);  // Interrupt serviced
+        REQUIRE(c.pc == 0x40);
+        REQUIRE(c.pop() == start_pc + 2);
+    }
+
+    SECTION("EI directly followed by DI leaves interrupts disabled") {
+        CPU c;
+        load(c, {0xFB, 0xF3, 0x00}); // EI, DI, NOP
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
+        uint16_t start_pc = c.pc;
+
+        c.step(); // EI
+        c.step(); // DI
+        REQUIRE(c.ime == false);
+        REQUIRE(c.ei_delayed == false);
+
+        REQUIRE(c.step() == 4); // NOP runs, interrupt not serviced
+        REQUIRE(c.pc == start_pc + 3);
+    }
+
+    SECTION("DI disables interrupts immediately") {
+        CPU c;
+        c.ime = true;
+        load(c, {0xF3}); // DI
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x00);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
+
+        REQUIRE(c.step() == 4);
+        REQUIRE(c.ime == false);
+    }
+
+    SECTION("EI then HALT sleeps until the interrupt, then services it") {
+        CPU c;
+        load(c, {0xFB, 0x76, 0x00}); // EI, HALT, NOP
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
+        uint16_t start_pc = c.pc;
+
+        c.step(); // EI
+        REQUIRE(c.step() == 4); // HALT
+        REQUIRE(c.halted == true);
+        REQUIRE(c.ime == true);
+
+        REQUIRE(c.step() == 4); // Asleep
+        REQUIRE(c.step() == 4); // Still asleep
+        REQUIRE(c.pc == start_pc + 2);
+
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x01); // Hardware requests V-Blank
+
+        REQUIRE(c.step() == 20);
+        REQUIRE(c.halted == false);
+        REQUIRE(c.pc == 0x40);
+        REQUIRE(c.pop() == start_pc + 2); // Returns to the instruction after HALT
+    }
+
+    SECTION("HALT with IME off wakes and continues without servicing") {
+        CPU c;
+        load(c, {0x76, 0x00}); // HALT, NOP
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x04);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
+        uint16_t start_pc = c.pc;
+
+        c.step(); // HALT
+        REQUIRE(c.step() == 4);
+        REQUIRE(c.pc == start_pc + 1);
+
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x04); // Timer requested
+
+        REQUIRE(c.step() == 4); // Wakes and runs the NOP
+        REQUIRE(c.halted == false);
+        REQUIRE(c.pc == start_pc + 2);
+        REQUIRE(c.bus.read_byte(CPU::IF_ADDRESS) == 0x04); // Still requested
+    }
+
+    SECTION("Interrupt handler returns with RETI and re-enables interrupts") {
+        CPU c;
+        c.ime = true;
+        c.bus.write_byte(0x40, 0xD9); // V-Blank handler: RETI
+        c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
+        c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
+        uint16_t start_pc = c.pc;
+        uint16_t start_sp = c.sp;
+
+        REQUIRE(c.step() == 20); // Dispatch
+        REQUIRE(c.ime == false);
+
+        REQUIRE(c.step() == 16); // RETI
+        REQUIRE(c.pc == start_pc);
+        REQUIRE(c.sp == start_sp);
+        REQUIRE(c.ime == true);
+    }
+}

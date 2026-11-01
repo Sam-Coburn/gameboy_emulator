@@ -23,8 +23,32 @@ class CPU {
         // can add the extra cycles a taken branch costs
         bool branch_taken = false;
 
+        bool ime = false; // Interrupt Master Enable
+        bool ei_delayed = false; // Set by EI: turn IME on after the next instruction
+        bool halted = false; // Set by HALT: CPU is asleep until an interrupt is pending
+
+        static constexpr uint16_t IE_ADDRESS = 0xFFFF; // Interrupt Enable register
+        static constexpr uint16_t IF_ADDRESS = 0xFF0F; // Interrupt Flag register
+
         // Executes the instruction at pc and returns the number of T-cycles it took
         uint8_t step() {
+            uint8_t pending = pending_interrupts();
+
+            // HALT sleeps until an interrupt is pending, even when IME is off. If IME is off
+            // the CPU wakes up and continues with the next instruction without servicing it
+            if (halted) {
+                if (!pending) {
+                    return 4;
+                }
+                halted = false;
+            }
+
+            // Interrupts are serviced between instructions instead of fetching the next one
+            if (ime && pending) {
+                service_interrupt(pending);
+                return 20;
+            }
+
             // Use program counter to read instruction byte from memory
             uint8_t instruction_byte = bus.read_byte(pc);
             bool prefixed = instruction_byte == 0xCB;
@@ -39,7 +63,18 @@ class CPU {
                 Instruction instruct = opt_instruct.value();
 
                 branch_taken = false;
+
+                // EI turns IME on only after the instruction following it, so only apply a
+                // delayed enable that was already pending before this instruction ran
+                bool ei_pending = ei_delayed;
+
                 execute(instruct);
+
+                // DI clears ei_delayed, so an EI directly followed by DI leaves IME off
+                if (ei_pending && ei_delayed) {
+                    ime = true;
+                    ei_delayed = false;
+                }
 
                 if (prefixed) {
                     return PREFIXED_CYCLES[instruction_byte];
@@ -718,7 +753,7 @@ class CPU {
 
                 // HALT Instruction suspends the CPU until an interrupt is pending
                 case InstructionType::HALT: {
-                    // TODO (#16 interrupts): enter the halted state
+                    halted = true;
 
                     pc = pc + 1;
 
@@ -735,7 +770,8 @@ class CPU {
 
                 // DI Instruction disables interrupts
                 case InstructionType::DI: {
-                    // TODO (#16 interrupts): clear IME
+                    ime = false;
+                    ei_delayed = false;
 
                     pc = pc + 1;
 
@@ -744,7 +780,7 @@ class CPU {
 
                 // EI Instruction enables interrupts after the following instruction
                 case InstructionType::EI: {
-                    // TODO (#16 interrupts): schedule IME to be set after the next instruction
+                    ei_delayed = true;
 
                     pc = pc + 1;
 
@@ -1429,8 +1465,7 @@ class CPU {
                 // RETI Instruction returns from an interrupt handler and re-enables interrupts
                 case InstructionType::RETI: {
                     pc = pop();
-
-                    // TODO (#16 interrupts): set IME (takes effect immediately, unlike EI)
+                    ime = true; // Unlike EI, RETI enables interrupts immediately
 
                     break;
                 }
@@ -1927,6 +1962,27 @@ class CPU {
                 return static_cast<uint16_t>(pc + 2 + offset);
             } else {
                 return pc + 2;
+            }
+        }
+
+        // Interrupts that are both requested (IF) and enabled (IE). Only bits 0-4 are interrupts
+        uint8_t pending_interrupts() {
+            return bus.read_byte(IE_ADDRESS) & bus.read_byte(IF_ADDRESS) & 0x1F;
+        }
+
+        // Services the highest-priority pending interrupt (lowest bit first: V-Blank, STAT,
+        // Timer, Serial, Joypad) by calling its handler at 0x40, 0x48, 0x50, 0x58 or 0x60
+        void service_interrupt(uint8_t pending) {
+            for (uint8_t bit = 0; bit < 5; bit++) {
+                uint8_t mask = 1 << bit;
+
+                if (pending & mask) {
+                    ime = false; // The handler can't be interrupted unless it runs EI
+                    bus.write_byte(IF_ADDRESS, bus.read_byte(IF_ADDRESS) & ~mask);
+                    push(pc);
+                    pc = 0x40 + bit * 8;
+                    return;
+                }
             }
         }
 
