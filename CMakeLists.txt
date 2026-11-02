@@ -21,6 +21,7 @@ add_executable(tests
   tests/cpu_tests.cpp
   tests/instruction_tests.cpp
   tests/memorybus_tests.cpp
+  tests/testrom_tests.cpp
 )
 
 target_include_directories(tests PRIVATE
@@ -28,3 +29,15 @@ target_include_directories(tests PRIVATE
 )
 
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+
+# Test-ROM tests look for Blargg's ROMs here
+target_compile_definitions(tests PRIVATE ROMS_DIR="${CMAKE_SOURCE_DIR}/roms")
+
+# Headless runner: runs a test ROM and prints its serial output
+add_executable(gameboy
+  src/main.cpp
+)
+
+target_include_directories(gameboy PRIVATE
+  ${CMAKE_SOURCE_DIR}/include
+)
