@@ -1,2 +1,4 @@
 /build/
 .vscode
+/roms/*
+!/roms/README.md
