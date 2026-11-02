@@ -22,21 +22,25 @@ The emulator is an interpreter that models the Game Boy's state, and the rules f
 
 ## Current state
 
-- **Done:** the CPU instruction set except 34 unprefixed opcodes, i.e. 8-bit ALU, `ADD HL`, misc, bit ops, rotates/shifts, `JP`/`JR`, and all loads plus `PUSH`/`POP`. All 256 CB-prefixed opcodes are decoded.
-- **Not started:** cycle timing, interrupts, memory map, cartridge, timers, PPU, frontend, serial, audio. `src/main.cpp` doesn't run the emulator yet.
+- **Done:**
+  - **CPU (#16):** all 256 unprefixed and 256 CB-prefixed opcodes, T-cycle timing (including taken branches), interrupts (`IME`, `IE`/`IF`, priority, vectors, delayed `EI`) and `HALT`.
+  - **Serial (#22):** `SB`/`SC` with a "no cable connected" stub. Internal-clock transfers capture the byte, set `SB` to `0xFF` and request the serial interrupt.
+  - **Headless test-ROM runner:** `build/gameboy <rom>` runs a ROM of 32 KB or less and prints its serial output. Blargg `cpu_instrs` tests also run as Catch2 tests tagged `[testrom]`.
+- **Blargg `cpu_instrs`:** 10 of the 11 individual ROMs pass. `02-interrupts` fails until the timer (#19) exists, because it tests the timer interrupt. The combined `cpu_instrs.gb` is 64 KB and can't load until MBC1 banking (#18).
+- **Not started:** memory map, cartridge, timers, PPU, frontend, audio. Memory is still a flat 64 KB array, with `SC` writes special-cased for the serial port.
 
 ## Phases
 
-| # | Phase | Issue | Depends on |
-|---|---|---|---|
-| 1 | Finish the CPU: remaining opcodes, cycle counts, interrupts | [#16](https://github.com/Sam-Coburn/gameboy_emulator/issues/16) | (#22 for test ROMs) |
-| 2 | Memory bus address decoding and post-boot state | [#17](https://github.com/Sam-Coburn/gameboy_emulator/issues/17) | — |
-| 3 | Cartridge loading and MBC3 bank switching, battery saves | [#18](https://github.com/Sam-Coburn/gameboy_emulator/issues/18) | #17 |
-| 4 | Timer and divider registers | [#19](https://github.com/Sam-Coburn/gameboy_emulator/issues/19) | #16, #17 |
-| 5 | PPU (graphics) | [#20](https://github.com/Sam-Coburn/gameboy_emulator/issues/20) | #16, #17 |
-| 6 | SDL frontend, main loop, joypad | [#21](https://github.com/Sam-Coburn/gameboy_emulator/issues/21) | #17, #19, #20 |
-| 7 | Serial port output and link cable stub | [#22](https://github.com/Sam-Coburn/gameboy_emulator/issues/22) | — |
-| 8 | APU (audio) | [#23](https://github.com/Sam-Coburn/gameboy_emulator/issues/23) | #16, #21 |
+| # | Phase | Issue | Depends on | Status |
+|---|---|---|---|---|
+| 1 | Finish the CPU: remaining opcodes, cycle counts, interrupts | [#16](https://github.com/Sam-Coburn/gameboy_emulator/issues/16) | (#22 for test ROMs) | ✅ Done |
+| 2 | Memory bus address decoding and post-boot state | [#17](https://github.com/Sam-Coburn/gameboy_emulator/issues/17) | — | Not started |
+| 3 | Cartridge loading and MBC3 bank switching, battery saves | [#18](https://github.com/Sam-Coburn/gameboy_emulator/issues/18) | #17 | Not started |
+| 4 | Timer and divider registers | [#19](https://github.com/Sam-Coburn/gameboy_emulator/issues/19) | #16, #17 | Not started |
+| 5 | PPU (graphics) | [#20](https://github.com/Sam-Coburn/gameboy_emulator/issues/20) | #16, #17 | Not started |
+| 6 | SDL frontend, main loop, joypad | [#21](https://github.com/Sam-Coburn/gameboy_emulator/issues/21) | #17, #19, #20 | Not started |
+| 7 | Serial port output and link cable stub | [#22](https://github.com/Sam-Coburn/gameboy_emulator/issues/22) | — | ✅ Done |
+| 8 | APU (audio) | [#23](https://github.com/Sam-Coburn/gameboy_emulator/issues/23) | #16, #21 | Not started |
 
 Each issue explains what the component does conceptually, the technical work, and a "done when" check.
 
@@ -82,11 +86,11 @@ Each issue explains what the component does conceptually, the technical work, an
 
 Each step makes the next one testable, so you're never writing a lot of code you can't check:
 
-1. CPU opcodes (#16)
-2. Serial capture (#22)
-3. **Blargg `cpu_instrs` passes**
-4. Cycle counts and interrupts (#16)
-5. Bus refactor (#17) and cartridge loading, no-MBC (#18)
+1. ✅ CPU opcodes (#16)
+2. ✅ Serial capture (#22)
+3. ✅ **Blargg `cpu_instrs` passes** (all individual ROMs except `02-interrupts`, which needs the timer)
+4. ✅ Cycle counts and interrupts (#16)
+5. **Next:** bus refactor (#17) and cartridge loading, no-MBC (#18)
 6. Timers (#19), then **Blargg `instr_timing` passes**
 7. PPU (#20)
 8. Frontend and joypad (#21), then **`dmg-acid2` renders and Tetris is playable**
@@ -96,20 +100,21 @@ Each step makes the next one testable, so you're never writing a lot of code you
 
 ## Milestones
 
-| Milestone | What it proves |
-|---|---|
-| Blargg `cpu_instrs` (output through serial) | Every CPU instruction is correct |
-| Blargg `instr_timing` | Cycle counts and timers are correct |
-| [`dmg-acid2`](https://github.com/mattcurrie/dmg-acid2) | The PPU renders background, window and sprites correctly |
-| Tetris (32 KB, no MBC) | The whole system works together on a simple game |
-| Pokémon Blue boots to the title screen | MBC3 banking, interrupts and PPU basics work |
-| Pokémon Blue: overworld, menus, a battle, then save, quit and load | Everything Pokémon needs is in place |
-| Pokémon Blue with music and cries | The APU works, and the emulator is complete |
+| Milestone | What it proves | Status |
+|---|---|---|
+| Blargg `cpu_instrs` (output through serial) | Every CPU instruction is correct | 10/11 individual ROMs pass; `02-interrupts` waits on #19 |
+| Blargg `instr_timing` | Cycle counts and timers are correct | Not yet |
+| [`dmg-acid2`](https://github.com/mattcurrie/dmg-acid2) | The PPU renders background, window and sprites correctly | Not yet |
+| Tetris (32 KB, no MBC) | The whole system works together on a simple game | Not yet |
+| Pokémon Blue boots to the title screen | MBC3 banking, interrupts and PPU basics work | Not yet |
+| Pokémon Blue: overworld, menus, a battle, then save, quit and load | Everything Pokémon needs is in place | Not yet |
+| Pokémon Blue with music and cries | The APU works, and the emulator is complete | Not yet |
 
 ## Code changes to plan for
-- **Cycle counts:** `execute()`/`step()` need to report how many cycles each instruction took.
+- ✅ **Cycle counts:** `step()` returns the T-cycles each instruction took (done in #16).
 - **Header-only code:** split implementations into `.cpp` files as the components grow, to keep build times down.
-- **Memory initialisation:** zero-initialise all memory, which `MemoryBus` doesn't do today.
+- **Memory initialisation:** zero-initialise all memory. `MemoryBus` still doesn't do this itself; `TestRomRunner` works around it by creating the CPU with `std::make_unique<CPU>()`, which value-initialises it. Fix it properly in the bus refactor (#17).
+- **Serial special case:** `MemoryBus::write_byte` checks for `SC` writes directly. Move this into its own serial component when the bus routes I/O addresses (#17).
 
 ## Resources
 - [Pan Docs](https://gbdev.io/pandocs/): the main hardware reference
