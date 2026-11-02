@@ -126,8 +126,9 @@ Limitations for now:
 ## Project layout
 
 ```
-include/    headers: CPU, registers, flags, instructions, cycle tables, memory bus, test-ROM runner
-src/        main.cpp (headless test-ROM runner entry point)
+include/    headers: GameBoy, CPU, registers, flags, instructions, cycle tables, memory bus,
+            components (cartridge, PPU, serial), test-ROM runner
+src/        component implementations, and main.cpp (headless test-ROM runner entry point)
 tests/      Catch2 unit tests and Blargg test-ROM tests
 docs/       roadmap and reference links
 roms/       test ROMs (not committed)

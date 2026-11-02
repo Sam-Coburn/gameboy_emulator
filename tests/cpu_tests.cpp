@@ -1,8 +1,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <cpu.hpp>
+#include <test_cpu.hpp>
 
 TEST_CASE("Default constructor initializes CPU successfully", "[cpu]") {
-    CPU c;
+    TestCpu c;
 
     REQUIRE(c.registers.a == 0);
     REQUIRE(c.registers.b == 0);
@@ -25,7 +26,7 @@ TEST_CASE("ADD Unit Tests", "[cpu][8-bit][add]") {
     instruct.alu8.target = Operand8::B;
 
     SECTION ("ADD w/o Overflow") {
-        CPU c1;
+        TestCpu c1;
 
         c1.registers.a = 1;
         c1.registers.b = 1;
@@ -40,7 +41,7 @@ TEST_CASE("ADD Unit Tests", "[cpu][8-bit][add]") {
     }
 
     SECTION ("ADD w/ Overflow") {
-        CPU c2;
+        TestCpu c2;
 
         c2.registers.a = 200;
         c2.registers.b = 100;
@@ -55,7 +56,7 @@ TEST_CASE("ADD Unit Tests", "[cpu][8-bit][add]") {
     }
 
     SECTION ("ADD w/ Zeroes") {
-        CPU c3;
+        TestCpu c3;
 
         c3.registers.a = 0;
         c3.registers.b = 0;
@@ -70,7 +71,7 @@ TEST_CASE("ADD Unit Tests", "[cpu][8-bit][add]") {
     }
 
     SECTION ("ADD w/ Half Carry") {
-        CPU c4;
+        TestCpu c4;
 
         c4.registers.a = 15;
         c4.registers.b = 1;
@@ -91,7 +92,7 @@ TEST_CASE("ADC Unit Tests", "[cpu][8-bit][adc]") {
     instruct.alu8.target = Operand8::B;
 
     SECTION ("ADC w/o Overflow - No Carry") {
-        CPU c1;
+        TestCpu c1;
 
         c1.registers.a = 1;
         c1.registers.b = 1;
@@ -107,7 +108,7 @@ TEST_CASE("ADC Unit Tests", "[cpu][8-bit][adc]") {
     }
 
     SECTION ("ADC w/o Overflow - Carry") {
-        CPU c2;
+        TestCpu c2;
 
         c2.registers.a = 1;
         c2.registers.b = 1;
@@ -123,7 +124,7 @@ TEST_CASE("ADC Unit Tests", "[cpu][8-bit][adc]") {
     }
 
     SECTION ("ADC Near Overflow - No Carry") {
-        CPU c3;
+        TestCpu c3;
 
         c3.registers.a = 254;
         c3.registers.b = 1;
@@ -139,7 +140,7 @@ TEST_CASE("ADC Unit Tests", "[cpu][8-bit][adc]") {
     }
 
     SECTION ("ADC Near Overflow - Carry") {
-        CPU c4;
+        TestCpu c4;
 
         c4.registers.a = 254;
         c4.registers.b = 1;
@@ -161,7 +162,7 @@ TEST_CASE("SUB Unit Tests", "[cpu][8-bit][sub]") {
     instruct.alu8.target = Operand8::B;
 
     SECTION ("SUB w/o Overflow") {
-        CPU c1;
+        TestCpu c1;
 
         c1.registers.a = 2;
         c1.registers.b = 1;
@@ -176,7 +177,7 @@ TEST_CASE("SUB Unit Tests", "[cpu][8-bit][sub]") {
     }
 
     SECTION ("SUB w Underflow") {
-        CPU c2;
+        TestCpu c2;
 
         c2.registers.a = 1;
         c2.registers.b = 2;
@@ -191,7 +192,7 @@ TEST_CASE("SUB Unit Tests", "[cpu][8-bit][sub]") {
     }
 
     SECTION ("SUB to 0") {
-        CPU c3;
+        TestCpu c3;
         c3.registers.a = 1;
         c3.registers.b = 1;
 
@@ -211,7 +212,7 @@ TEST_CASE("SBC Unit Tests", "[cpu][8-bit][sbc]") {
     instruct.alu8.target = Operand8::B;
 
     SECTION ("SBC w/o Overflow - No Carry") {
-        CPU c1;
+        TestCpu c1;
 
         c1.registers.a = 2;
         c1.registers.b = 1;
@@ -227,7 +228,7 @@ TEST_CASE("SBC Unit Tests", "[cpu][8-bit][sbc]") {
     }
 
     SECTION ("SBC w/o Overflow - w/ Carry") {
-        CPU c2;
+        TestCpu c2;
 
         c2.registers.a = 2;
         c2.registers.b = 1;
@@ -249,7 +250,7 @@ TEST_CASE("AND Unit Tests", "[cpu][8-bit][and]") {
     instruct.alu8.target = Operand8::B;
 
     SECTION ("AND - No Zero") {
-        CPU c1;
+        TestCpu c1;
 
         c1.registers.a = 1;
         c1.registers.b = 1;
@@ -264,7 +265,7 @@ TEST_CASE("AND Unit Tests", "[cpu][8-bit][and]") {
     }
 
     SECTION ("AND - w/ Zero") {
-        CPU c2;
+        TestCpu c2;
 
         c2.registers.a = 100;
         c2.registers.b = 0;
@@ -285,7 +286,7 @@ TEST_CASE("OR Unit Tests", "[cpu][8-bit][or]") {
     instruct.alu8.target = Operand8::B;
 
     SECTION ("OR - No Zero") {
-        CPU c1;
+        TestCpu c1;
 
         c1.registers.a = 1;
         c1.registers.b = 1;
@@ -300,7 +301,7 @@ TEST_CASE("OR Unit Tests", "[cpu][8-bit][or]") {
     }
 
     SECTION ("OR - Zero") {
-        CPU c2;
+        TestCpu c2;
 
         c2.registers.a = 0;
         c2.registers.b = 0;
@@ -321,7 +322,7 @@ TEST_CASE("XOR Unit Tests", "[cpu][8-bit][xor]") {
     instruct.alu8.target = Operand8::B;
 
     SECTION ("XOR 1") {
-        CPU c1;
+        TestCpu c1;
 
         c1.registers.a = 1;
         c1.registers.b = 2;
@@ -336,7 +337,7 @@ TEST_CASE("XOR Unit Tests", "[cpu][8-bit][xor]") {
     }
 
     SECTION ("XOR 2") {
-        CPU c2;
+        TestCpu c2;
 
         c2.registers.a = 0;
         c2.registers.b = 0;
@@ -357,7 +358,7 @@ TEST_CASE("CP Unit Tests", "[cpu][8-bit][cp]") {
     instruct.alu8.target = Operand8::B;
 
     SECTION ("CP w/o Overflow") {
-        CPU c1;
+        TestCpu c1;
 
         c1.registers.a = 2;
         c1.registers.b = 1;
@@ -372,7 +373,7 @@ TEST_CASE("CP Unit Tests", "[cpu][8-bit][cp]") {
     }
 
     SECTION ("CP w Underflow") {
-        CPU c2;
+        TestCpu c2;
 
         c2.registers.a = 1;
         c2.registers.b = 2;
@@ -387,7 +388,7 @@ TEST_CASE("CP Unit Tests", "[cpu][8-bit][cp]") {
     }
 
     SECTION ("CP to 0") {
-        CPU c3;
+        TestCpu c3;
         c3.registers.a = 1;
         c3.registers.b = 1;
 
@@ -408,7 +409,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC Register A") {
         instruct.alu8.target = Operand8::A;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 1;
 
@@ -424,7 +425,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC Register B") {
         instruct.alu8.target = Operand8::B;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 1;
 
@@ -440,7 +441,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC Register C") {
         instruct.alu8.target = Operand8::C;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 1;
 
@@ -456,7 +457,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC Register D") {
         instruct.alu8.target = Operand8::D;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 1;
 
@@ -472,7 +473,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC Register E") {
         instruct.alu8.target = Operand8::E;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 1;
 
@@ -488,7 +489,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC Register H") {
         instruct.alu8.target = Operand8::H;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 1;
 
@@ -504,7 +505,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC Register L") {
         instruct.alu8.target = Operand8::L;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 1;
 
@@ -520,7 +521,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC - Overflow - Carry Set to False") {
         instruct.alu8.target = Operand8::B;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 255;
         c.registers.f.carry = false;
@@ -537,7 +538,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC - Overflow - Carry Set to True") {
         instruct.alu8.target = Operand8::B;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 255;
         c.registers.f.carry = true;
@@ -554,7 +555,7 @@ TEST_CASE("INC Unit Tests", "[cpu][8-bit][inc]") {
     SECTION ("INC - Half Carry") {
         instruct.alu8.target = Operand8::B;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 15;
 
@@ -575,7 +576,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC Register A") {
         instruct.alu8.target = Operand8::A;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 2;
 
@@ -591,7 +592,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC Register B") {
         instruct.alu8.target = Operand8::B;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 2;
 
@@ -607,7 +608,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC Register C") {
         instruct.alu8.target = Operand8::C;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 2;
 
@@ -623,7 +624,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC Register D") {
         instruct.alu8.target = Operand8::D;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 2;
 
@@ -639,7 +640,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC Register E") {
         instruct.alu8.target = Operand8::E;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 2;
 
@@ -655,7 +656,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC Register H") {
         instruct.alu8.target = Operand8::H;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 2;
 
@@ -671,7 +672,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC Register L") {
         instruct.alu8.target = Operand8::L;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 2;
 
@@ -687,7 +688,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC - Decrementing 0") {
         instruct.alu8.target = Operand8::B;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0;
 
@@ -703,7 +704,7 @@ TEST_CASE("DEC Unit Tests", "[cpu][8-bit][dec]") {
     SECTION ("DEC - Decrementing 1") {
         instruct.alu8.target = Operand8::B;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 1;
 
@@ -722,7 +723,7 @@ TEST_CASE("ADD HL_PTR and NUM", "[cpu][8-bit][add][hl_ptr][num]") {
     instruct.type = InstructionType::ADD;
 
     SECTION("ADD HL_PTR w/o Overflow") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 1;
         c.registers.set_hl(0xC000);
@@ -740,11 +741,11 @@ TEST_CASE("ADD HL_PTR and NUM", "[cpu][8-bit][add][hl_ptr][num]") {
     }
 
     SECTION("ADD NUM w/o Overflow") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 1;
         instruct.alu8.target = Operand8::NUM;
-        c.bus.write_byte(c.pc + 1, 1);
+        c.poke(c.pc + 1, 1);
 
         c.execute(instruct);
 
@@ -761,7 +762,7 @@ TEST_CASE("ADC HL_PTR and NUM", "[cpu][8-bit][adc][hl_ptr][num]") {
     instruct.type = InstructionType::ADC;
 
     SECTION("ADC HL_PTR - No Carry") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 1;
         c.registers.f.carry = false;
@@ -780,12 +781,12 @@ TEST_CASE("ADC HL_PTR and NUM", "[cpu][8-bit][adc][hl_ptr][num]") {
     }
 
     SECTION("ADC NUM - No Carry") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 1;
         c.registers.f.carry = false;
         instruct.alu8.target = Operand8::NUM;
-        c.bus.write_byte(c.pc + 1, 1);
+        c.poke(c.pc + 1, 1);
 
         c.execute(instruct);
 
@@ -802,7 +803,7 @@ TEST_CASE("SUB HL_PTR and NUM", "[cpu][8-bit][sub][hl_ptr][num]") {
     instruct.type = InstructionType::SUB;
 
     SECTION("SUB HL_PTR w/o Underflow") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 2;
         c.registers.set_hl(0xC200);
@@ -820,11 +821,11 @@ TEST_CASE("SUB HL_PTR and NUM", "[cpu][8-bit][sub][hl_ptr][num]") {
     }
 
     SECTION("SUB NUM w/o Underflow") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 2;
         instruct.alu8.target = Operand8::NUM;
-        c.bus.write_byte(c.pc + 1, 1);
+        c.poke(c.pc + 1, 1);
 
         c.execute(instruct);
 
@@ -841,7 +842,7 @@ TEST_CASE("SBC HL_PTR and NUM", "[cpu][8-bit][sbc][hl_ptr][num]") {
     instruct.type = InstructionType::SBC;
 
     SECTION("SBC HL_PTR - No Carry") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 2;
         c.registers.f.carry = false;
@@ -860,12 +861,12 @@ TEST_CASE("SBC HL_PTR and NUM", "[cpu][8-bit][sbc][hl_ptr][num]") {
     }
 
     SECTION("SBC NUM - No Carry") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 2;
         c.registers.f.carry = false;
         instruct.alu8.target = Operand8::NUM;
-        c.bus.write_byte(c.pc + 1, 1);
+        c.poke(c.pc + 1, 1);
 
         c.execute(instruct);
 
@@ -882,7 +883,7 @@ TEST_CASE("AND HL_PTR and NUM", "[cpu][8-bit][and][hl_ptr][num]") {
     instruct.type = InstructionType::AND;
 
     SECTION("AND HL_PTR - No Zero") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 1;
         c.registers.set_hl(0xC400);
@@ -900,11 +901,11 @@ TEST_CASE("AND HL_PTR and NUM", "[cpu][8-bit][and][hl_ptr][num]") {
     }
 
     SECTION("AND NUM - Zero") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 100;
         instruct.alu8.target = Operand8::NUM;
-        c.bus.write_byte(c.pc + 1, 0);
+        c.poke(c.pc + 1, 0);
 
         c.execute(instruct);
 
@@ -921,7 +922,7 @@ TEST_CASE("OR HL_PTR and NUM", "[cpu][8-bit][or][hl_ptr][num]") {
     instruct.type = InstructionType::OR;
 
     SECTION("OR HL_PTR - No Zero") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 1;
         c.registers.set_hl(0xC500);
@@ -939,11 +940,11 @@ TEST_CASE("OR HL_PTR and NUM", "[cpu][8-bit][or][hl_ptr][num]") {
     }
 
     SECTION("OR NUM - Zero") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0;
         instruct.alu8.target = Operand8::NUM;
-        c.bus.write_byte(c.pc + 1, 0);
+        c.poke(c.pc + 1, 0);
 
         c.execute(instruct);
 
@@ -960,7 +961,7 @@ TEST_CASE("XOR HL_PTR and NUM", "[cpu][8-bit][xor][hl_ptr][num]") {
     instruct.type = InstructionType::XOR;
 
     SECTION("XOR HL_PTR") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 1;
         c.registers.set_hl(0xC600);
@@ -978,11 +979,11 @@ TEST_CASE("XOR HL_PTR and NUM", "[cpu][8-bit][xor][hl_ptr][num]") {
     }
 
     SECTION("XOR NUM") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0;
         instruct.alu8.target = Operand8::NUM;
-        c.bus.write_byte(c.pc + 1, 0);
+        c.poke(c.pc + 1, 0);
 
         c.execute(instruct);
 
@@ -999,7 +1000,7 @@ TEST_CASE("CP HL_PTR and NUM", "[cpu][8-bit][cp][hl_ptr][num]") {
     instruct.type = InstructionType::CP;
 
     SECTION("CP HL_PTR - w/o Overflow") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 2;
         c.registers.set_hl(0xC700);
@@ -1017,11 +1018,11 @@ TEST_CASE("CP HL_PTR and NUM", "[cpu][8-bit][cp][hl_ptr][num]") {
     }
 
     SECTION("CP NUM - w/o Overflow") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 2;
         instruct.alu8.target = Operand8::NUM;
-        c.bus.write_byte(c.pc + 1, 1);
+        c.poke(c.pc + 1, 1);
 
         c.execute(instruct);
 
@@ -1038,7 +1039,7 @@ TEST_CASE("SWAP HL_PTR Unit Tests", "[cpu][misc][swap][hl_ptr]") {
     instruct.type = InstructionType::SWAP;
     instruct.alu8.target = Operand8::HL_PTR;
 
-    CPU c;
+    TestCpu c;
     uint16_t addr = 0xC900;
     c.registers.set_hl(addr);
     c.bus.write_byte(addr, 0b10100001);
@@ -1061,7 +1062,7 @@ TEST_CASE("BIT/SET/RES HL_PTR Unit Tests", "[cpu][bit_opcode][hl_ptr]") {
     instruct.bitop.bit_index = 3;
 
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xCA00;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0b00001000);
@@ -1079,7 +1080,7 @@ TEST_CASE("BIT/SET/RES HL_PTR Unit Tests", "[cpu][bit_opcode][hl_ptr]") {
     instruct.bitop.bit_index = 3;
 
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xCB00;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0x00);
@@ -1094,7 +1095,7 @@ TEST_CASE("BIT/SET/RES HL_PTR Unit Tests", "[cpu][bit_opcode][hl_ptr]") {
     instruct.bitop.bit_index = 3;
 
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xCC00;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0xFF);
@@ -1112,7 +1113,7 @@ TEST_CASE("Rotate/Shift HL_PTR Unit Tests", "[cpu][rotate][hl_ptr]") {
     instruct.type = InstructionType::RLC;
     instruct.alu8.target = Operand8::HL_PTR;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xCD00;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0b00001001);
@@ -1130,7 +1131,7 @@ TEST_CASE("Rotate/Shift HL_PTR Unit Tests", "[cpu][rotate][hl_ptr]") {
     // RL HL_PTR
     instruct.type = InstructionType::RL;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xCE00;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0b00001001);
@@ -1145,7 +1146,7 @@ TEST_CASE("Rotate/Shift HL_PTR Unit Tests", "[cpu][rotate][hl_ptr]") {
     // RRC HL_PTR
     instruct.type = InstructionType::RRC;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xCF00;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0b00001001);
@@ -1160,7 +1161,7 @@ TEST_CASE("Rotate/Shift HL_PTR Unit Tests", "[cpu][rotate][hl_ptr]") {
     // RR HL_PTR
     instruct.type = InstructionType::RR;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xD000;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0b00001001);
@@ -1175,7 +1176,7 @@ TEST_CASE("Rotate/Shift HL_PTR Unit Tests", "[cpu][rotate][hl_ptr]") {
     // SLA HL_PTR
     instruct.type = InstructionType::SLA;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xD100;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0b10101010);
@@ -1190,7 +1191,7 @@ TEST_CASE("Rotate/Shift HL_PTR Unit Tests", "[cpu][rotate][hl_ptr]") {
     // SRA HL_PTR
     instruct.type = InstructionType::SRA;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xD200;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0b00001001);
@@ -1205,7 +1206,7 @@ TEST_CASE("Rotate/Shift HL_PTR Unit Tests", "[cpu][rotate][hl_ptr]") {
     // SRL HL_PTR
     instruct.type = InstructionType::SRL;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xD300;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0b10000000);
@@ -1225,7 +1226,7 @@ TEST_CASE("INC/DEC HL_PTR Unit Tests", "[cpu][8-bit][inc][dec][hl_ptr]") {
     instruct.type = InstructionType::INC;
     instruct.alu8.target = Operand8::HL_PTR;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xD400;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 1);
@@ -1239,7 +1240,7 @@ TEST_CASE("INC/DEC HL_PTR Unit Tests", "[cpu][8-bit][inc][dec][hl_ptr]") {
 
     // INC HL_PTR - Overflow preserves carry
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xD500;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 255);
@@ -1256,7 +1257,7 @@ TEST_CASE("INC/DEC HL_PTR Unit Tests", "[cpu][8-bit][inc][dec][hl_ptr]") {
     // DEC HL_PTR - underflow
     instruct.type = InstructionType::DEC;
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xD600;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 0);
@@ -1271,7 +1272,7 @@ TEST_CASE("INC/DEC HL_PTR Unit Tests", "[cpu][8-bit][inc][dec][hl_ptr]") {
 
     // DEC HL_PTR - to zero
     {
-        CPU c;
+        TestCpu c;
         uint16_t addr = 0xD700;
         c.registers.set_hl(addr);
         c.bus.write_byte(addr, 1);
@@ -1293,7 +1294,7 @@ TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     SECTION ("SWAP Register A") {
         instruct.alu8.target = Operand8::A;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b10100001;
 
@@ -1309,7 +1310,7 @@ TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     SECTION ("SWAP Register B") {
         instruct.alu8.target = Operand8::B;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0b10100001;
 
@@ -1325,7 +1326,7 @@ TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     SECTION ("SWAP Register C") {
         instruct.alu8.target = Operand8::C;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 0b10100001;
 
@@ -1341,7 +1342,7 @@ TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     SECTION ("SWAP Register D") {
         instruct.alu8.target = Operand8::D;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 0b10100001;
 
@@ -1357,7 +1358,7 @@ TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     SECTION ("SWAP Register E") {
         instruct.alu8.target = Operand8::E;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 0b10100001;
 
@@ -1373,7 +1374,7 @@ TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     SECTION ("SWAP Register H") {
         instruct.alu8.target = Operand8::H;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 0b10100001;
 
@@ -1389,7 +1390,7 @@ TEST_CASE("SWAP Unit Tests", "[cpu][misc][swap]") {
     SECTION ("SWAP Register L") {
         instruct.alu8.target = Operand8::L;
 
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 0b10100001;
 
@@ -1408,7 +1409,7 @@ TEST_CASE("SCF Unit Tests", "[cpu][misc][scf]") {
     instruct.type = InstructionType::SCF;
 
     SECTION ("Carry Flag is False") {
-        CPU c;
+        TestCpu c;
 
         c.registers.f.carry = false;
 
@@ -1422,7 +1423,7 @@ TEST_CASE("SCF Unit Tests", "[cpu][misc][scf]") {
     }
 
     SECTION ("Carry Flag is True") {
-        CPU c;
+        TestCpu c;
 
         c.registers.f.carry = true;
 
@@ -1436,7 +1437,7 @@ TEST_CASE("SCF Unit Tests", "[cpu][misc][scf]") {
     }
 
     SECTION ("Zero Flag is True") {
-        CPU c;
+        TestCpu c;
 
         c.registers.f.carry = false;
         c.registers.f.zero = true;
@@ -1456,7 +1457,7 @@ TEST_CASE("CCF Unit Tests", "[cpu][misc][ccf]") {
     instruct.type = InstructionType::CCF;
 
     SECTION ("Carry Flag is False") {
-        CPU c;
+        TestCpu c;
 
         c.registers.f.carry = false;
 
@@ -1470,7 +1471,7 @@ TEST_CASE("CCF Unit Tests", "[cpu][misc][ccf]") {
     }
 
     SECTION ("Carry Flag is True") {
-        CPU c;
+        TestCpu c;
 
         c.registers.f.carry = true;
 
@@ -1484,7 +1485,7 @@ TEST_CASE("CCF Unit Tests", "[cpu][misc][ccf]") {
     }
 
     SECTION ("Zero Flag is True") {
-        CPU c;
+        TestCpu c;
 
         c.registers.f.carry = true;
         c.registers.f.zero = true;
@@ -1504,7 +1505,7 @@ TEST_CASE("CPL Unit Tests", "[cpu][misc][cpl]") {
     instruct.type = InstructionType::CPL;
 
     SECTION ("CPL 1") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b11111111;
 
@@ -1518,7 +1519,7 @@ TEST_CASE("CPL Unit Tests", "[cpu][misc][cpl]") {
     }
 
     SECTION ("CPL 2") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b01010101;
 
@@ -1532,7 +1533,7 @@ TEST_CASE("CPL Unit Tests", "[cpu][misc][cpl]") {
     }
 
     SECTION ("CPL 3 - Zero Flag Set") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0;
         c.registers.f.zero = true;
@@ -1547,7 +1548,7 @@ TEST_CASE("CPL Unit Tests", "[cpu][misc][cpl]") {
     }
 
     SECTION ("CPL 4 - Carry Flag Set") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0;
         c.registers.f.carry = true;
@@ -1562,7 +1563,7 @@ TEST_CASE("CPL Unit Tests", "[cpu][misc][cpl]") {
     }
 
     SECTION ("CPL 5 - Zero and Carry Flag Set") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0;
         c.registers.f.zero = true;
@@ -1583,7 +1584,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     instruct.type = InstructionType::BIT;
 
     SECTION ("BIT 1") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 3;
 
@@ -1598,7 +1599,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 2") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 2;
 
@@ -1613,7 +1614,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 3") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 4;
 
@@ -1628,7 +1629,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 4") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::B;
         instruct.bitop.bit_index = 3;
 
@@ -1643,7 +1644,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 5") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::C;
         instruct.bitop.bit_index = 3;
 
@@ -1658,7 +1659,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 6") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::D;
         instruct.bitop.bit_index = 3;
 
@@ -1673,7 +1674,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 7") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::E;
         instruct.bitop.bit_index = 3;
 
@@ -1688,7 +1689,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 8") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::H;
         instruct.bitop.bit_index = 3;
 
@@ -1703,7 +1704,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 9") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::L;
         instruct.bitop.bit_index = 3;
 
@@ -1718,7 +1719,7 @@ TEST_CASE("BIT Unit Tests", "[cpu][bit_opcode][bit]") {
     }
 
     SECTION ("BIT 10 - Carry set to True") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 3;
 
@@ -1739,7 +1740,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     instruct.type = InstructionType::SET;
 
     SECTION ("SET 1") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 3;
 
@@ -1751,7 +1752,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 
     SECTION ("SET 2") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 7;
 
@@ -1763,7 +1764,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 
     SECTION ("SET 3") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 0;
 
@@ -1775,7 +1776,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 
     SECTION ("SET 4") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::B;
         instruct.bitop.bit_index = 3;
 
@@ -1787,7 +1788,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 
     SECTION ("SET 5") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::C;
         instruct.bitop.bit_index = 3;
 
@@ -1799,7 +1800,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 
     SECTION ("SET 6") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::D;
         instruct.bitop.bit_index = 3;
 
@@ -1811,7 +1812,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 
     SECTION ("SET 7") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::E;
         instruct.bitop.bit_index = 3;
 
@@ -1823,7 +1824,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 
     SECTION ("SET 8") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::H;
         instruct.bitop.bit_index = 3;
 
@@ -1835,7 +1836,7 @@ TEST_CASE("SET Unit Tests", "[cpu][bit_opcode][set]") {
     }
 
     SECTION ("SET 9") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::L;
         instruct.bitop.bit_index = 3;
 
@@ -1852,7 +1853,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     instruct.type = InstructionType::RES;
 
     SECTION ("RES 1") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 3;
 
@@ -1864,7 +1865,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     }
 
     SECTION ("RES 2") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 7;
 
@@ -1876,7 +1877,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     }
 
     SECTION ("RES 3") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::A;
         instruct.bitop.bit_index = 0;
 
@@ -1888,7 +1889,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     }
 
     SECTION ("RES 4") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::B;
         instruct.bitop.bit_index = 0;
 
@@ -1900,7 +1901,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     }
 
     SECTION ("RES 5") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::C;
         instruct.bitop.bit_index = 0;
 
@@ -1912,7 +1913,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     }
 
     SECTION ("RES 6") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::D;
         instruct.bitop.bit_index = 0;
 
@@ -1924,7 +1925,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     }
 
     SECTION ("RES 7") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::E;
         instruct.bitop.bit_index = 0;
 
@@ -1936,7 +1937,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     }
 
     SECTION ("RES 8") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::H;
         instruct.bitop.bit_index = 0;
 
@@ -1948,7 +1949,7 @@ TEST_CASE("RES Unit Tests", "[cpu][bit_opcode][reset]") {
     }
 
     SECTION ("RES 9") {
-        CPU c;
+        TestCpu c;
         instruct.alu8.target = Operand8::L;
         instruct.bitop.bit_index = 0;
 
@@ -1966,7 +1967,7 @@ TEST_CASE("ADDHL Unit Tests", "[cpu][16-bit][addhl]") {
 
 
     SECTION ("ADDHL w/o Overflow") {
-        CPU c;
+        TestCpu c;
         instruct.alu16.target = Operand16::BC;
 
         c.registers.set_hl(1);
@@ -1982,7 +1983,7 @@ TEST_CASE("ADDHL Unit Tests", "[cpu][16-bit][addhl]") {
     }
 
     SECTION ("ADDHL w Overflow") {
-        CPU c;
+        TestCpu c;
         instruct.alu16.target = Operand16::BC;
 
         c.registers.set_hl(65535);
@@ -1998,7 +1999,7 @@ TEST_CASE("ADDHL Unit Tests", "[cpu][16-bit][addhl]") {
     }
 
     SECTION ("ADDHL w Half Carry") {
-        CPU c;
+        TestCpu c;
         instruct.alu16.target = Operand16::BC;
 
         c.registers.set_hl(4095);
@@ -2014,7 +2015,7 @@ TEST_CASE("ADDHL Unit Tests", "[cpu][16-bit][addhl]") {
     }
 
     SECTION ("ADDHL - DE") {
-        CPU c;
+        TestCpu c;
         instruct.alu16.target = Operand16::DE;
 
         c.registers.set_hl(1);
@@ -2030,7 +2031,7 @@ TEST_CASE("ADDHL Unit Tests", "[cpu][16-bit][addhl]") {
     }
 
     SECTION ("ADDHL - HL") {
-        CPU c;
+        TestCpu c;
         instruct.alu16.target = Operand16::HL;
 
         c.registers.set_hl(1);
@@ -2045,7 +2046,7 @@ TEST_CASE("ADDHL Unit Tests", "[cpu][16-bit][addhl]") {
     }
 
     SECTION ("ADDHL - SP") {
-        CPU c;
+        TestCpu c;
         instruct.alu16.target = Operand16::SP;
 
         c.registers.set_hl(1);
@@ -2066,7 +2067,7 @@ TEST_CASE("RLCA Unit Tests", "[cpu][rotate][rlca]") {
 
 
     SECTION ("RLCA 1") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2081,7 +2082,7 @@ TEST_CASE("RLCA Unit Tests", "[cpu][rotate][rlca]") {
     }
 
     SECTION ("RLCA 2") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b10001001;
         c.registers.f.carry = 1;
@@ -2101,7 +2102,7 @@ TEST_CASE("RLA Unit Tests", "[cpu][rotate][rla]") {
     instruct.type = InstructionType::RLA;
 
     SECTION ("RLA 1") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2122,7 +2123,7 @@ TEST_CASE("RRCA Unit Tests", "[cpu][rotate][rrca]") {
 
 
     SECTION ("RRCA 1") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2137,7 +2138,7 @@ TEST_CASE("RRCA Unit Tests", "[cpu][rotate][rrca]") {
     }
 
     SECTION ("RRCA 2") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 0;
@@ -2152,7 +2153,7 @@ TEST_CASE("RRCA Unit Tests", "[cpu][rotate][rrca]") {
     }
 
     SECTION ("RRCA 3") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001000;
         c.registers.f.carry = 0;
@@ -2173,7 +2174,7 @@ TEST_CASE("RRA Unit Tests", "[cpu][rotate][rra]") {
 
 
     SECTION ("RRA") {
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2194,7 +2195,7 @@ TEST_CASE("RLC Unit Tests", "[cpu][rotate][rlc]") {
 
     SECTION ("RLC 1") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2210,7 +2211,7 @@ TEST_CASE("RLC Unit Tests", "[cpu][rotate][rlc]") {
 
     SECTION ("RLC 2") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b10001001;
         c.registers.f.carry = 1;
@@ -2226,7 +2227,7 @@ TEST_CASE("RLC Unit Tests", "[cpu][rotate][rlc]") {
 
     SECTION ("RLC 3") {
         instruct.alu8.target = Operand8::B;
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0b00001001;
         c.registers.f.carry = 1;
@@ -2242,7 +2243,7 @@ TEST_CASE("RLC Unit Tests", "[cpu][rotate][rlc]") {
 
     SECTION ("RLC 4") {
         instruct.alu8.target = Operand8::C;
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 0b00001001;
         c.registers.f.carry = 1;
@@ -2258,7 +2259,7 @@ TEST_CASE("RLC Unit Tests", "[cpu][rotate][rlc]") {
 
     SECTION ("RLC 5") {
         instruct.alu8.target = Operand8::D;
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 0b00001001;
         c.registers.f.carry = 1;
@@ -2274,7 +2275,7 @@ TEST_CASE("RLC Unit Tests", "[cpu][rotate][rlc]") {
 
     SECTION ("RLC 6") {
         instruct.alu8.target = Operand8::E;
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 0b00001001;
         c.registers.f.carry = 1;
@@ -2290,7 +2291,7 @@ TEST_CASE("RLC Unit Tests", "[cpu][rotate][rlc]") {
 
     SECTION ("RLC 7") {
         instruct.alu8.target = Operand8::H;
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 0b00001001;
         c.registers.f.carry = 1;
@@ -2306,7 +2307,7 @@ TEST_CASE("RLC Unit Tests", "[cpu][rotate][rlc]") {
 
     SECTION ("RLC 8") {
         instruct.alu8.target = Operand8::L;
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 0b00001001;
         c.registers.f.carry = 1;
@@ -2327,7 +2328,7 @@ TEST_CASE("RL Unit Tests", "[cpu][rotate][rl]") {
 
     SECTION ("RL 1") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2343,7 +2344,7 @@ TEST_CASE("RL Unit Tests", "[cpu][rotate][rl]") {
 
     SECTION ("RL 2") {
         instruct.alu8.target = Operand8::B;
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0b00001001;
         c.registers.f.carry = 1;
@@ -2359,7 +2360,7 @@ TEST_CASE("RL Unit Tests", "[cpu][rotate][rl]") {
 
     SECTION ("RL 3") {
         instruct.alu8.target = Operand8::C;
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 0b00001001;
         c.registers.f.carry = 1;
@@ -2375,7 +2376,7 @@ TEST_CASE("RL Unit Tests", "[cpu][rotate][rl]") {
 
     SECTION ("RL 4") {
         instruct.alu8.target = Operand8::D;
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 0b00001001;
         c.registers.f.carry = 1;
@@ -2391,7 +2392,7 @@ TEST_CASE("RL Unit Tests", "[cpu][rotate][rl]") {
 
     SECTION ("RL 5") {
         instruct.alu8.target = Operand8::E;
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 0b00001001;
         c.registers.f.carry = 1;
@@ -2407,7 +2408,7 @@ TEST_CASE("RL Unit Tests", "[cpu][rotate][rl]") {
 
     SECTION ("RL 6") {
         instruct.alu8.target = Operand8::H;
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 0b00001001;
         c.registers.f.carry = 1;
@@ -2423,7 +2424,7 @@ TEST_CASE("RL Unit Tests", "[cpu][rotate][rl]") {
 
     SECTION ("RL 7") {
         instruct.alu8.target = Operand8::L;
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 0b00001001;
         c.registers.f.carry = 1;
@@ -2445,7 +2446,7 @@ TEST_CASE("RRC Unit Tests", "[cpu][rotate][rrc]") {
 
     SECTION ("RRC 1") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2461,7 +2462,7 @@ TEST_CASE("RRC Unit Tests", "[cpu][rotate][rrc]") {
 
     SECTION ("RRC 2") {
         instruct.alu8.target = Operand8::B;
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0b00001001;
         c.registers.f.carry = 1;
@@ -2477,7 +2478,7 @@ TEST_CASE("RRC Unit Tests", "[cpu][rotate][rrc]") {
 
     SECTION ("RRC 3") {
         instruct.alu8.target = Operand8::C;
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 0b00001001;
         c.registers.f.carry = 1;
@@ -2493,7 +2494,7 @@ TEST_CASE("RRC Unit Tests", "[cpu][rotate][rrc]") {
 
     SECTION ("RRC 4") {
         instruct.alu8.target = Operand8::D;
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 0b00001001;
         c.registers.f.carry = 1;
@@ -2509,7 +2510,7 @@ TEST_CASE("RRC Unit Tests", "[cpu][rotate][rrc]") {
 
     SECTION ("RRC 5") {
         instruct.alu8.target = Operand8::E;
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 0b00001001;
         c.registers.f.carry = 1;
@@ -2525,7 +2526,7 @@ TEST_CASE("RRC Unit Tests", "[cpu][rotate][rrc]") {
 
     SECTION ("RRC 6") {
         instruct.alu8.target = Operand8::H;
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 0b00001001;
         c.registers.f.carry = 1;
@@ -2541,7 +2542,7 @@ TEST_CASE("RRC Unit Tests", "[cpu][rotate][rrc]") {
 
     SECTION ("RRC 7") {
         instruct.alu8.target = Operand8::L;
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 0b00001001;
         c.registers.f.carry = 1;
@@ -2563,7 +2564,7 @@ TEST_CASE("RR Unit Tests", "[cpu][rotate][rr]") {
 
     SECTION ("RR 1") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2579,7 +2580,7 @@ TEST_CASE("RR Unit Tests", "[cpu][rotate][rr]") {
 
     SECTION ("RR 2") {
         instruct.alu8.target = Operand8::B;
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0b00001001;
         c.registers.f.carry = 1;
@@ -2595,7 +2596,7 @@ TEST_CASE("RR Unit Tests", "[cpu][rotate][rr]") {
 
     SECTION ("RR 3") {
         instruct.alu8.target = Operand8::C;
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 0b00001001;
         c.registers.f.carry = 1;
@@ -2611,7 +2612,7 @@ TEST_CASE("RR Unit Tests", "[cpu][rotate][rr]") {
 
     SECTION ("RR 4") {
         instruct.alu8.target = Operand8::D;
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 0b00001001;
         c.registers.f.carry = 1;
@@ -2627,7 +2628,7 @@ TEST_CASE("RR Unit Tests", "[cpu][rotate][rr]") {
 
     SECTION ("RR 5") {
         instruct.alu8.target = Operand8::E;
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 0b00001001;
         c.registers.f.carry = 1;
@@ -2643,7 +2644,7 @@ TEST_CASE("RR Unit Tests", "[cpu][rotate][rr]") {
 
     SECTION ("RR 6") {
         instruct.alu8.target = Operand8::H;
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 0b00001001;
         c.registers.f.carry = 1;
@@ -2659,7 +2660,7 @@ TEST_CASE("RR Unit Tests", "[cpu][rotate][rr]") {
 
     SECTION ("RR 7") {
         instruct.alu8.target = Operand8::L;
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 0b00001001;
         c.registers.f.carry = 1;
@@ -2681,7 +2682,7 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
 
     SECTION ("SLA 1") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 1;
@@ -2697,7 +2698,7 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
 
     SECTION ("SLA 2") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b10101010;
         c.registers.f.carry = 0;
@@ -2713,7 +2714,7 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
 
     SECTION ("SLA 3") {
         instruct.alu8.target = Operand8::B;
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0b10101010;
         c.registers.f.carry = 0;
@@ -2729,7 +2730,7 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
 
     SECTION ("SLA 4") {
         instruct.alu8.target = Operand8::C;
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 0b10101010;
         c.registers.f.carry = 0;
@@ -2745,7 +2746,7 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
 
     SECTION ("SLA 5") {
         instruct.alu8.target = Operand8::D;
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 0b10101010;
         c.registers.f.carry = 0;
@@ -2761,7 +2762,7 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
 
     SECTION ("SLA 6") {
         instruct.alu8.target = Operand8::E;
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 0b10101010;
         c.registers.f.carry = 0;
@@ -2777,7 +2778,7 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
 
     SECTION ("SLA 7") {
         instruct.alu8.target = Operand8::H;
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 0b10101010;
         c.registers.f.carry = 0;
@@ -2793,7 +2794,7 @@ TEST_CASE("SLA Unit Tests", "[cpu][rotate][sla]") {
 
     SECTION ("SLA 8") {
         instruct.alu8.target = Operand8::L;
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 0b10101010;
         c.registers.f.carry = 0;
@@ -2815,7 +2816,7 @@ TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
 
     SECTION ("SRA 1") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 0;
@@ -2831,7 +2832,7 @@ TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
 
     SECTION ("SRA 2") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b10000000;
         c.registers.f.carry = 1;
@@ -2847,7 +2848,7 @@ TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
 
     SECTION ("SRA 3") {
         instruct.alu8.target = Operand8::B;
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0b00001001;
         c.registers.f.carry = 0;
@@ -2863,7 +2864,7 @@ TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
 
     SECTION ("SRA 4") {
         instruct.alu8.target = Operand8::C;
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 0b00001001;
         c.registers.f.carry = 0;
@@ -2879,7 +2880,7 @@ TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
 
     SECTION ("SRA 5") {
         instruct.alu8.target = Operand8::D;
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 0b00001001;
         c.registers.f.carry = 0;
@@ -2895,7 +2896,7 @@ TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
 
     SECTION ("SRA 6") {
         instruct.alu8.target = Operand8::E;
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 0b00001001;
         c.registers.f.carry = 0;
@@ -2911,7 +2912,7 @@ TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
 
     SECTION ("SRA 7") {
         instruct.alu8.target = Operand8::H;
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 0b00001001;
         c.registers.f.carry = 0;
@@ -2927,7 +2928,7 @@ TEST_CASE("SRA Unit Tests", "[cpu][rotate][sra]") {
 
     SECTION ("SRA 8") {
         instruct.alu8.target = Operand8::L;
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 0b00001001;
         c.registers.f.carry = 0;
@@ -2949,7 +2950,7 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
     SECTION ("SRL 1") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b00001001;
         c.registers.f.carry = 0;
@@ -2965,7 +2966,7 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
     SECTION ("SRL 2") {
         instruct.alu8.target = Operand8::A;
-        CPU c;
+        TestCpu c;
 
         c.registers.a = 0b10000000;
         c.registers.f.carry = 1;
@@ -2981,7 +2982,7 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
     SECTION ("SRL 3") {
         instruct.alu8.target = Operand8::B;
-        CPU c;
+        TestCpu c;
 
         c.registers.b = 0b10000000;
         c.registers.f.carry = 1;
@@ -2997,7 +2998,7 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
     SECTION ("SRL 4") {
         instruct.alu8.target = Operand8::C;
-        CPU c;
+        TestCpu c;
 
         c.registers.c = 0b10000000;
         c.registers.f.carry = 1;
@@ -3013,7 +3014,7 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
     SECTION ("SRL 5") {
         instruct.alu8.target = Operand8::D;
-        CPU c;
+        TestCpu c;
 
         c.registers.d = 0b10000000;
         c.registers.f.carry = 1;
@@ -3031,7 +3032,7 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
     SECTION ("SRL 6") {
         instruct.alu8.target = Operand8::E;
-        CPU c;
+        TestCpu c;
 
         c.registers.e = 0b10000000;
         c.registers.f.carry = 1;
@@ -3047,7 +3048,7 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
     SECTION ("SRL 7") {
         instruct.alu8.target = Operand8::H;
-        CPU c;
+        TestCpu c;
 
         c.registers.h = 0b10000000;
         c.registers.f.carry = 1;
@@ -3063,7 +3064,7 @@ TEST_CASE("SRL Unit Tests", "[cpu][rotate][srl]") {
 
     SECTION ("SRL 8") {
         instruct.alu8.target = Operand8::L;
-        CPU c;
+        TestCpu c;
 
         c.registers.l = 0b10000000;
         c.registers.f.carry = 1;
@@ -3083,10 +3084,10 @@ TEST_CASE("JP Unit Tests", "[cpu][jump][jp]") {
     instruct.type = InstructionType::JP;
 
     SECTION("JP Always jumps to absolute address") {
-        CPU c;
+        TestCpu c;
         uint16_t target = 0xC000;
-        c.bus.write_byte(c.pc + 1, (uint8_t)(target & 0xFF));
-        c.bus.write_byte(c.pc + 2, (uint8_t)(target >> 8));
+        c.poke(c.pc + 1, (uint8_t)(target & 0xFF));
+        c.poke(c.pc + 2, (uint8_t)(target >> 8));
 
         instruct.jump.condition = JumpTest::Always;
 
@@ -3098,10 +3099,10 @@ TEST_CASE("JP Unit Tests", "[cpu][jump][jp]") {
     SECTION("JP NotZero taken / not taken") {
         // Taken when Z flag is false
         {
-            CPU c;
+            TestCpu c;
             uint16_t target = 0xC100;
-            c.bus.write_byte(c.pc + 1, (uint8_t)(target & 0xFF));
-            c.bus.write_byte(c.pc + 2, (uint8_t)(target >> 8));
+            c.poke(c.pc + 1, (uint8_t)(target & 0xFF));
+            c.poke(c.pc + 2, (uint8_t)(target >> 8));
             c.registers.f.zero = false;
 
             instruct.jump.condition = JumpTest::NotZero;
@@ -3113,10 +3114,10 @@ TEST_CASE("JP Unit Tests", "[cpu][jump][jp]") {
 
         // Not taken when Z flag is true
         {
-            CPU c;
+            TestCpu c;
             uint16_t target = 0xC200;
-            c.bus.write_byte(c.pc + 1, (uint8_t)(target & 0xFF));
-            c.bus.write_byte(c.pc + 2, (uint8_t)(target >> 8));
+            c.poke(c.pc + 1, (uint8_t)(target & 0xFF));
+            c.poke(c.pc + 2, (uint8_t)(target >> 8));
             c.registers.f.zero = true;
 
             instruct.jump.condition = JumpTest::NotZero;
@@ -3134,9 +3135,9 @@ TEST_CASE("JR Unit Tests", "[cpu][jump][jr]") {
     instruct.type = InstructionType::JR;
 
     SECTION("JR Always forward offset") {
-        CPU c;
+        TestCpu c;
         int8_t offset = 5;
-        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+        c.poke(c.pc + 1, (uint8_t)offset);
 
         instruct.jump.condition = JumpTest::Always;
         uint16_t start_pc = c.pc;
@@ -3147,9 +3148,9 @@ TEST_CASE("JR Unit Tests", "[cpu][jump][jr]") {
     }
 
     SECTION("JR Always backward offset") {
-        CPU c;
+        TestCpu c;
         int8_t offset = -2;
-        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+        c.poke(c.pc + 1, (uint8_t)offset);
 
         instruct.jump.condition = JumpTest::Always;
         uint16_t start_pc = c.pc;
@@ -3160,9 +3161,9 @@ TEST_CASE("JR Unit Tests", "[cpu][jump][jr]") {
     }
 
     SECTION("JR NotZero not taken") {
-        CPU c;
+        TestCpu c;
         int8_t offset = 3;
-        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+        c.poke(c.pc + 1, (uint8_t)offset);
         c.registers.f.zero = true;
 
         instruct.jump.condition = JumpTest::NotZero;
@@ -3179,7 +3180,7 @@ TEST_CASE("JP_HL Unit Tests", "[cpu][jump][jp_hl]") {
     instruct.type = InstructionType::JP_HL;
 
     SECTION("JP_HL sets pc to HL") {
-        CPU c;
+        TestCpu c;
         uint16_t target = 0xC123;
         c.registers.set_hl(target);
 
@@ -3194,7 +3195,7 @@ TEST_CASE("LD_8 Unit Tests", "[cpu][load][ld_8]") {
     instruct.type = InstructionType::LD_8;
 
     SECTION("LD_8 B into A") {
-        CPU c;
+        TestCpu c;
         c.registers.b = 0x42;
         instruct.load8.source = LoadSource::B;
         instruct.load8.target = LoadTarget::A;
@@ -3207,7 +3208,7 @@ TEST_CASE("LD_8 Unit Tests", "[cpu][load][ld_8]") {
     }
 
     SECTION("LD_8 HL_PTR into C") {
-        CPU c;
+        TestCpu c;
         c.registers.set_hl(0xC000);
         c.bus.write_byte(0xC000, 0x99);
         instruct.load8.source = LoadSource::HL_PTR;
@@ -3221,7 +3222,7 @@ TEST_CASE("LD_8 Unit Tests", "[cpu][load][ld_8]") {
     }
 
     SECTION("LD_8 E into HL_PTR") {
-        CPU c;
+        TestCpu c;
         c.registers.e = 0x7A;
         c.registers.set_hl(0xC010);
         instruct.load8.source = LoadSource::E;
@@ -3241,8 +3242,8 @@ TEST_CASE("LD_N Unit Tests", "[cpu][load][ld_n]") {
     instruct.load8.source = LoadSource::NUM;
 
     SECTION("LD_N into A") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0x5C);
+        TestCpu c;
+        c.poke(c.pc + 1, 0x5C);
         instruct.load8.target = LoadTarget::A;
         uint16_t start_pc = c.pc;
 
@@ -3253,8 +3254,8 @@ TEST_CASE("LD_N Unit Tests", "[cpu][load][ld_n]") {
     }
 
     SECTION("LD_N into L") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0x11);
+        TestCpu c;
+        c.poke(c.pc + 1, 0x11);
         instruct.load8.target = LoadTarget::L;
         uint16_t start_pc = c.pc;
 
@@ -3265,9 +3266,9 @@ TEST_CASE("LD_N Unit Tests", "[cpu][load][ld_n]") {
     }
 
     SECTION("LD_N into HL_PTR") {
-        CPU c;
+        TestCpu c;
         c.registers.set_hl(0xC020);
-        c.bus.write_byte(c.pc + 1, 0xAB);
+        c.poke(c.pc + 1, 0xAB);
         instruct.load8.target = LoadTarget::HL_PTR;
         uint16_t start_pc = c.pc;
 
@@ -3283,9 +3284,9 @@ TEST_CASE("LD_16 Unit Tests", "[cpu][load][ld_16]") {
     instruct.type = InstructionType::LD_16;
 
     SECTION("LD_16 into BC is little-endian") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0x34);
-        c.bus.write_byte(c.pc + 2, 0x12);
+        TestCpu c;
+        c.poke(c.pc + 1, 0x34);
+        c.poke(c.pc + 2, 0x12);
         instruct.load16.target = Operand16::BC;
         uint16_t start_pc = c.pc;
 
@@ -3298,9 +3299,9 @@ TEST_CASE("LD_16 Unit Tests", "[cpu][load][ld_16]") {
     }
 
     SECTION("LD_16 into HL") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0xEF);
-        c.bus.write_byte(c.pc + 2, 0xBE);
+        TestCpu c;
+        c.poke(c.pc + 1, 0xEF);
+        c.poke(c.pc + 2, 0xBE);
         instruct.load16.target = Operand16::HL;
         uint16_t start_pc = c.pc;
 
@@ -3311,9 +3312,9 @@ TEST_CASE("LD_16 Unit Tests", "[cpu][load][ld_16]") {
     }
 
     SECTION("LD_16 into SP") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0xFE);
-        c.bus.write_byte(c.pc + 2, 0xDF);
+        TestCpu c;
+        c.poke(c.pc + 1, 0xFE);
+        c.poke(c.pc + 2, 0xDF);
         instruct.load16.target = Operand16::SP;
         uint16_t start_pc = c.pc;
 
@@ -3330,7 +3331,7 @@ TEST_CASE("LD_8 r,A Unit Tests", "[cpu][load][ld_8]") {
     instruct.load8.source = LoadSource::A;
 
     SECTION("LD_8 A into H") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x3C;
         instruct.load8.target = LoadTarget::H;
         uint16_t start_pc = c.pc;
@@ -3342,7 +3343,7 @@ TEST_CASE("LD_8 r,A Unit Tests", "[cpu][load][ld_8]") {
     }
 
     SECTION("LD_8 A into HL_PTR") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x5D;
         c.registers.set_hl(0xC030);
         instruct.load8.target = LoadTarget::HL_PTR;
@@ -3358,7 +3359,7 @@ TEST_CASE("LD_A_IND Unit Tests", "[cpu][load][ld_a_ind]") {
     instruct.type = InstructionType::LD_A_IND;
 
     SECTION("LD A,(BC)") {
-        CPU c;
+        TestCpu c;
         c.registers.set_bc(0xC100);
         c.bus.write_byte(0xC100, 0x21);
         instruct.load_ind.address = IndirectAddress::BC;
@@ -3371,7 +3372,7 @@ TEST_CASE("LD_A_IND Unit Tests", "[cpu][load][ld_a_ind]") {
     }
 
     SECTION("LD A,(DE)") {
-        CPU c;
+        TestCpu c;
         c.registers.set_de(0xC200);
         c.bus.write_byte(0xC200, 0x43);
         instruct.load_ind.address = IndirectAddress::DE;
@@ -3384,9 +3385,9 @@ TEST_CASE("LD_A_IND Unit Tests", "[cpu][load][ld_a_ind]") {
     }
 
     SECTION("LD A,(nn)") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0x34);
-        c.bus.write_byte(c.pc + 2, 0xC3);
+        TestCpu c;
+        c.poke(c.pc + 1, 0x34);
+        c.poke(c.pc + 2, 0xC3);
         c.bus.write_byte(0xC334, 0x65);
         instruct.load_ind.address = IndirectAddress::NN;
         uint16_t start_pc = c.pc;
@@ -3398,7 +3399,7 @@ TEST_CASE("LD_A_IND Unit Tests", "[cpu][load][ld_a_ind]") {
     }
 
     SECTION("LD A,(FF00+C)") {
-        CPU c;
+        TestCpu c;
         c.registers.c = 0x80;
         c.bus.write_byte(0xFF80, 0x87);
         instruct.load_ind.address = IndirectAddress::FF00_C;
@@ -3411,8 +3412,8 @@ TEST_CASE("LD_A_IND Unit Tests", "[cpu][load][ld_a_ind]") {
     }
 
     SECTION("LDH A,(FF00+n)") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0x44);
+        TestCpu c;
+        c.poke(c.pc + 1, 0x44);
         c.bus.write_byte(0xFF44, 0x90);
         instruct.load_ind.address = IndirectAddress::FF00_N;
         uint16_t start_pc = c.pc;
@@ -3424,7 +3425,7 @@ TEST_CASE("LD_A_IND Unit Tests", "[cpu][load][ld_a_ind]") {
     }
 
     SECTION("LD A,(HL+)") {
-        CPU c;
+        TestCpu c;
         c.registers.set_hl(0xC400);
         c.bus.write_byte(0xC400, 0xA1);
         instruct.load_ind.address = IndirectAddress::HL_INC;
@@ -3438,7 +3439,7 @@ TEST_CASE("LD_A_IND Unit Tests", "[cpu][load][ld_a_ind]") {
     }
 
     SECTION("LD A,(HL-)") {
-        CPU c;
+        TestCpu c;
         c.registers.set_hl(0xC500);
         c.bus.write_byte(0xC500, 0xB2);
         instruct.load_ind.address = IndirectAddress::HL_DEC;
@@ -3457,7 +3458,7 @@ TEST_CASE("LD_IND_A Unit Tests", "[cpu][load][ld_ind_a]") {
     instruct.type = InstructionType::LD_IND_A;
 
     SECTION("LD (BC),A") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x11;
         c.registers.set_bc(0xC100);
         instruct.load_ind.address = IndirectAddress::BC;
@@ -3470,7 +3471,7 @@ TEST_CASE("LD_IND_A Unit Tests", "[cpu][load][ld_ind_a]") {
     }
 
     SECTION("LD (DE),A") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x22;
         c.registers.set_de(0xC200);
         instruct.load_ind.address = IndirectAddress::DE;
@@ -3483,10 +3484,10 @@ TEST_CASE("LD_IND_A Unit Tests", "[cpu][load][ld_ind_a]") {
     }
 
     SECTION("LD (nn),A") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x33;
-        c.bus.write_byte(c.pc + 1, 0x00);
-        c.bus.write_byte(c.pc + 2, 0xD0);
+        c.poke(c.pc + 1, 0x00);
+        c.poke(c.pc + 2, 0xD0);
         instruct.load_ind.address = IndirectAddress::NN;
         uint16_t start_pc = c.pc;
 
@@ -3497,7 +3498,7 @@ TEST_CASE("LD_IND_A Unit Tests", "[cpu][load][ld_ind_a]") {
     }
 
     SECTION("LD (FF00+C),A") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x44;
         c.registers.c = 0x81;
         instruct.load_ind.address = IndirectAddress::FF00_C;
@@ -3510,9 +3511,9 @@ TEST_CASE("LD_IND_A Unit Tests", "[cpu][load][ld_ind_a]") {
     }
 
     SECTION("LDH (FF00+n),A") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x55;
-        c.bus.write_byte(c.pc + 1, 0x82);
+        c.poke(c.pc + 1, 0x82);
         instruct.load_ind.address = IndirectAddress::FF00_N;
         uint16_t start_pc = c.pc;
 
@@ -3523,7 +3524,7 @@ TEST_CASE("LD_IND_A Unit Tests", "[cpu][load][ld_ind_a]") {
     }
 
     SECTION("LD (HL+),A") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x66;
         c.registers.set_hl(0xC0FF);
         instruct.load_ind.address = IndirectAddress::HL_INC;
@@ -3537,7 +3538,7 @@ TEST_CASE("LD_IND_A Unit Tests", "[cpu][load][ld_ind_a]") {
     }
 
     SECTION("LD (HL-),A") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x77;
         c.registers.set_hl(0xC600);
         instruct.load_ind.address = IndirectAddress::HL_DEC;
@@ -3556,7 +3557,7 @@ TEST_CASE("LD_SP_HL Unit Tests", "[cpu][load][ld_sp_hl]") {
     instruct.type = InstructionType::LD_SP_HL;
 
     SECTION("LD SP,HL") {
-        CPU c;
+        TestCpu c;
         c.registers.set_hl(0xD123);
         uint16_t start_pc = c.pc;
 
@@ -3572,9 +3573,9 @@ TEST_CASE("LD_HL_SP Unit Tests", "[cpu][load][ld_hl_sp]") {
     instruct.type = InstructionType::LD_HL_SP;
 
     SECTION("LD HL,SP+e positive offset w/o carries") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xC000;
-        c.bus.write_byte(c.pc + 1, 0x05);
+        c.poke(c.pc + 1, 0x05);
         c.registers.f.zero = true;
         c.registers.f.subtract = true;
         uint16_t start_pc = c.pc;
@@ -3591,9 +3592,9 @@ TEST_CASE("LD_HL_SP Unit Tests", "[cpu][load][ld_hl_sp]") {
     }
 
     SECTION("LD HL,SP+e w/ half carry and carry") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xC0FF;
-        c.bus.write_byte(c.pc + 1, 0x01);
+        c.poke(c.pc + 1, 0x01);
 
         c.execute(instruct);
 
@@ -3603,10 +3604,10 @@ TEST_CASE("LD_HL_SP Unit Tests", "[cpu][load][ld_hl_sp]") {
     }
 
     SECTION("LD HL,SP+e negative offset") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xC010;
         int8_t offset = -2;
-        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+        c.poke(c.pc + 1, (uint8_t)offset);
 
         c.execute(instruct);
 
@@ -3622,10 +3623,10 @@ TEST_CASE("LD_NN_SP Unit Tests", "[cpu][load][ld_nn_sp]") {
     instruct.type = InstructionType::LD_NN_SP;
 
     SECTION("LD (nn),SP stores SP little-endian") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xBEEF;
-        c.bus.write_byte(c.pc + 1, 0x00);
-        c.bus.write_byte(c.pc + 2, 0xC8);
+        c.poke(c.pc + 1, 0x00);
+        c.poke(c.pc + 2, 0xC8);
         uint16_t start_pc = c.pc;
 
         c.execute(instruct);
@@ -3641,7 +3642,7 @@ TEST_CASE("PUSH Unit Tests", "[cpu][stack][push]") {
     instruct.type = InstructionType::PUSH;
 
     SECTION("PUSH BC") {
-        CPU c;
+        TestCpu c;
         c.registers.set_bc(0x1234);
         uint16_t start_sp = c.sp;
         uint16_t start_pc = c.pc;
@@ -3656,7 +3657,7 @@ TEST_CASE("PUSH Unit Tests", "[cpu][stack][push]") {
     }
 
     SECTION("PUSH AF") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0xAB;
         c.registers.f.zero = true;
         c.registers.f.carry = true;
@@ -3674,7 +3675,7 @@ TEST_CASE("POP Unit Tests", "[cpu][stack][pop]") {
     instruct.type = InstructionType::POP;
 
     SECTION("POP DE") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xDFFC;
         c.bus.write_byte(0xDFFC, 0x78);
         c.bus.write_byte(0xDFFD, 0x56);
@@ -3689,7 +3690,7 @@ TEST_CASE("POP Unit Tests", "[cpu][stack][pop]") {
     }
 
     SECTION("POP AF masks lower nibble of F") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xDFFC;
         c.bus.write_byte(0xDFFC, 0xFF);
         c.bus.write_byte(0xDFFD, 0x12);
@@ -3702,7 +3703,7 @@ TEST_CASE("POP Unit Tests", "[cpu][stack][pop]") {
     }
 
     SECTION("PUSH then POP round trip") {
-        CPU c;
+        TestCpu c;
         Instruction push;
         push.type = InstructionType::PUSH;
         push.stack.target = StackTarget::HL;
@@ -3723,9 +3724,9 @@ TEST_CASE("CALL Unit Tests", "[cpu][call][call]") {
     instruct.type = InstructionType::CALL;
 
     SECTION("CALL Always pushes return address and jumps") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0x34);
-        c.bus.write_byte(c.pc + 2, 0x12);
+        TestCpu c;
+        c.poke(c.pc + 1, 0x34);
+        c.poke(c.pc + 2, 0x12);
         instruct.jump.condition = JumpTest::Always;
         uint16_t start_pc = c.pc;
         uint16_t start_sp = c.sp;
@@ -3738,9 +3739,9 @@ TEST_CASE("CALL Unit Tests", "[cpu][call][call]") {
     }
 
     SECTION("CALL NotZero taken") {
-        CPU c;
-        c.bus.write_byte(c.pc + 1, 0x00);
-        c.bus.write_byte(c.pc + 2, 0x40);
+        TestCpu c;
+        c.poke(c.pc + 1, 0x00);
+        c.poke(c.pc + 2, 0x40);
         c.registers.f.zero = false;
         instruct.jump.condition = JumpTest::NotZero;
 
@@ -3750,7 +3751,7 @@ TEST_CASE("CALL Unit Tests", "[cpu][call][call]") {
     }
 
     SECTION("CALL Carry not taken") {
-        CPU c;
+        TestCpu c;
         c.registers.f.carry = false;
         instruct.jump.condition = JumpTest::Carry;
         uint16_t start_pc = c.pc;
@@ -3768,7 +3769,7 @@ TEST_CASE("RET Unit Tests", "[cpu][call][ret]") {
     instruct.type = InstructionType::RET;
 
     SECTION("RET Always pops return address") {
-        CPU c;
+        TestCpu c;
         c.push(0x2345);
         uint16_t pushed_sp = c.sp;
         instruct.jump.condition = JumpTest::Always;
@@ -3780,7 +3781,7 @@ TEST_CASE("RET Unit Tests", "[cpu][call][ret]") {
     }
 
     SECTION("RET Zero not taken") {
-        CPU c;
+        TestCpu c;
         c.push(0x2345);
         uint16_t pushed_sp = c.sp;
         c.registers.f.zero = false;
@@ -3794,12 +3795,12 @@ TEST_CASE("RET Unit Tests", "[cpu][call][ret]") {
     }
 
     SECTION("CALL then RET returns to instruction after CALL") {
-        CPU c;
+        TestCpu c;
         Instruction call;
         call.type = InstructionType::CALL;
         call.jump.condition = JumpTest::Always;
-        c.bus.write_byte(c.pc + 1, 0x00);
-        c.bus.write_byte(c.pc + 2, 0x50);
+        c.poke(c.pc + 1, 0x00);
+        c.poke(c.pc + 2, 0x50);
         uint16_t start_pc = c.pc;
         uint16_t start_sp = c.sp;
         instruct.jump.condition = JumpTest::Always;
@@ -3817,7 +3818,7 @@ TEST_CASE("RETI Unit Tests", "[cpu][call][reti]") {
     instruct.type = InstructionType::RETI;
 
     SECTION("RETI pops return address") {
-        CPU c;
+        TestCpu c;
         c.push(0x0150);
         uint16_t pushed_sp = c.sp;
 
@@ -3833,7 +3834,7 @@ TEST_CASE("RST Unit Tests", "[cpu][call][rst]") {
     instruct.type = InstructionType::RST;
 
     SECTION("RST 0x38 pushes return address and jumps") {
-        CPU c;
+        TestCpu c;
         instruct.rst.address = 0x38;
         uint16_t start_pc = c.pc;
         uint16_t start_sp = c.sp;
@@ -3851,7 +3852,7 @@ TEST_CASE("INC16 Unit Tests", "[cpu][16-bit][inc16]") {
     instruct.type = InstructionType::INC16;
 
     SECTION("INC BC carries into high byte and leaves flags alone") {
-        CPU c;
+        TestCpu c;
         c.registers.set_bc(0x12FF);
         c.registers.f.zero = true;
         c.registers.f.carry = true;
@@ -3867,7 +3868,7 @@ TEST_CASE("INC16 Unit Tests", "[cpu][16-bit][inc16]") {
     }
 
     SECTION("INC HL wraps around") {
-        CPU c;
+        TestCpu c;
         c.registers.set_hl(0xFFFF);
         instruct.alu16.target = Operand16::HL;
 
@@ -3878,7 +3879,7 @@ TEST_CASE("INC16 Unit Tests", "[cpu][16-bit][inc16]") {
     }
 
     SECTION("INC SP") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xC000;
         instruct.alu16.target = Operand16::SP;
 
@@ -3893,7 +3894,7 @@ TEST_CASE("DEC16 Unit Tests", "[cpu][16-bit][dec16]") {
     instruct.type = InstructionType::DEC16;
 
     SECTION("DEC DE borrows from high byte") {
-        CPU c;
+        TestCpu c;
         c.registers.set_de(0x1200);
         instruct.alu16.target = Operand16::DE;
         uint16_t start_pc = c.pc;
@@ -3905,7 +3906,7 @@ TEST_CASE("DEC16 Unit Tests", "[cpu][16-bit][dec16]") {
     }
 
     SECTION("DEC BC wraps around and leaves flags alone") {
-        CPU c;
+        TestCpu c;
         c.registers.set_bc(0x0000);
         instruct.alu16.target = Operand16::BC;
 
@@ -3917,7 +3918,7 @@ TEST_CASE("DEC16 Unit Tests", "[cpu][16-bit][dec16]") {
     }
 
     SECTION("DEC SP") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xC000;
         instruct.alu16.target = Operand16::SP;
 
@@ -3932,9 +3933,9 @@ TEST_CASE("ADDSP Unit Tests", "[cpu][16-bit][addsp]") {
     instruct.type = InstructionType::ADDSP;
 
     SECTION("ADD SP,e positive offset w/ half carry and carry") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xC0FF;
-        c.bus.write_byte(c.pc + 1, 0x01);
+        c.poke(c.pc + 1, 0x01);
         c.registers.f.zero = true;
         c.registers.f.subtract = true;
         uint16_t start_pc = c.pc;
@@ -3950,10 +3951,10 @@ TEST_CASE("ADDSP Unit Tests", "[cpu][16-bit][addsp]") {
     }
 
     SECTION("ADD SP,e negative offset") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xC000;
         int8_t offset = -1;
-        c.bus.write_byte(c.pc + 1, (uint8_t)offset);
+        c.poke(c.pc + 1, (uint8_t)offset);
 
         c.execute(instruct);
 
@@ -3969,7 +3970,7 @@ TEST_CASE("DAA Unit Tests", "[cpu][misc][daa]") {
     instruct.type = InstructionType::DAA;
 
     SECTION("DAA after addition w/o carry (15 + 27 = 42)") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x3C; // 0x15 + 0x27 in binary
         uint16_t start_pc = c.pc;
 
@@ -3983,7 +3984,7 @@ TEST_CASE("DAA Unit Tests", "[cpu][misc][daa]") {
     }
 
     SECTION("DAA after addition w/ decimal carry (99 + 1 = 100)") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x9A; // 0x99 + 0x01 in binary
 
         c.execute(instruct);
@@ -3994,7 +3995,7 @@ TEST_CASE("DAA Unit Tests", "[cpu][misc][daa]") {
     }
 
     SECTION("DAA after addition w/ half carry (09 + 08 = 17)") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x11; // 0x09 + 0x08 in binary, carried out of the low nibble
         c.registers.f.half_carry = true;
 
@@ -4005,7 +4006,7 @@ TEST_CASE("DAA Unit Tests", "[cpu][misc][daa]") {
     }
 
     SECTION("DAA after subtraction w/ half borrow (42 - 15 = 27)") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0x2D; // 0x42 - 0x15 in binary
         c.registers.f.subtract = true;
         c.registers.f.half_carry = true;
@@ -4018,7 +4019,7 @@ TEST_CASE("DAA Unit Tests", "[cpu][misc][daa]") {
     }
 
     SECTION("DAA after subtraction w/ borrow (10 - 20 = 90, borrow)") {
-        CPU c;
+        TestCpu c;
         c.registers.a = 0xF0; // 0x10 - 0x20 in binary
         c.registers.f.subtract = true;
         c.registers.f.carry = true;
@@ -4032,7 +4033,7 @@ TEST_CASE("DAA Unit Tests", "[cpu][misc][daa]") {
 
 TEST_CASE("NOP and STOP Unit Tests", "[cpu][misc][nop]") {
     SECTION("NOP only advances pc") {
-        CPU c;
+        TestCpu c;
         Instruction instruct;
         instruct.type = InstructionType::NOP;
         c.registers.a = 0x12;
@@ -4047,7 +4048,7 @@ TEST_CASE("NOP and STOP Unit Tests", "[cpu][misc][nop]") {
     }
 
     SECTION("STOP is 2 bytes wide") {
-        CPU c;
+        TestCpu c;
         Instruction instruct;
         instruct.type = InstructionType::STOP;
         uint16_t start_pc = c.pc;
@@ -4060,24 +4061,24 @@ TEST_CASE("NOP and STOP Unit Tests", "[cpu][misc][nop]") {
 
 TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
     // Writes the instruction bytes at pc, runs one step and returns the T-cycles it took
-    auto run = [](CPU& c, std::initializer_list<uint8_t> bytes) -> uint8_t {
+    auto run = [](TestCpu& c, std::initializer_list<uint8_t> bytes) -> uint8_t {
         uint16_t addr = c.pc;
         for (uint8_t byte : bytes) {
-            c.bus.write_byte(addr, byte);
+            c.poke(addr, byte);
             addr = addr + 1;
         }
         return c.step();
     };
 
     SECTION("Register-only instructions take 4 (opcode fetch only)") {
-        CPU c;
+        TestCpu c;
         REQUIRE(run(c, {0x00}) == 4);       // NOP
         REQUIRE(run(c, {0x41}) == 4);       // LD B,C
         REQUIRE(run(c, {0x80}) == 4);       // ADD A,B
     }
 
     SECTION("Memory accesses add 4 each") {
-        CPU c;
+        TestCpu c;
         c.registers.set_hl(0xC000);
         REQUIRE(run(c, {0x86}) == 8);             // ADD A,(HL): fetch + read
         REQUIRE(run(c, {0xC6, 0x01}) == 8);       // ADD A,n: fetch + read n
@@ -4087,13 +4088,13 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
     }
 
     SECTION("Internal steps add cycles without memory accesses") {
-        CPU c;
+        TestCpu c;
         REQUIRE(run(c, {0x09}) == 8);  // ADD HL,BC
         REQUIRE(run(c, {0x03}) == 8);  // INC BC
     }
 
     SECTION("Stack and 16-bit memory instructions") {
-        CPU c;
+        TestCpu c;
         c.sp = 0xDFF0;
         REQUIRE(run(c, {0xC5}) == 16);              // PUSH BC
         REQUIRE(run(c, {0xC1}) == 12);              // POP BC
@@ -4101,7 +4102,7 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
     }
 
     SECTION("JR cc taken vs not taken") {
-        CPU c;
+        TestCpu c;
         c.registers.f.zero = false;
         REQUIRE(run(c, {0x20, 0x00}) == 12);  // JR NZ taken
         c.registers.f.zero = true;
@@ -4109,7 +4110,7 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
     }
 
     SECTION("JP cc taken vs not taken") {
-        CPU c;
+        TestCpu c;
         c.registers.f.carry = true;
         REQUIRE(run(c, {0xDA, 0x00, 0xC0}) == 16);  // JP C taken
         c.pc = 0x0100;
@@ -4118,7 +4119,7 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
     }
 
     SECTION("CALL cc taken vs not taken") {
-        CPU c;
+        TestCpu c;
         c.registers.f.zero = true;
         REQUIRE(run(c, {0xCC, 0x00, 0x02}) == 24);  // CALL Z taken
         c.pc = 0x0100;
@@ -4127,7 +4128,7 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
     }
 
     SECTION("RET cc taken vs not taken") {
-        CPU c;
+        TestCpu c;
         c.push(0x0100);
         c.registers.f.carry = false;
         REQUIRE(run(c, {0xD0}) == 20);  // RET NC taken
@@ -4136,7 +4137,7 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
     }
 
     SECTION("Unconditional jumps, calls and returns") {
-        CPU c;
+        TestCpu c;
         REQUIRE(run(c, {0x18, 0x00}) == 12);        // JR e
         REQUIRE(run(c, {0xC3, 0x00, 0x02}) == 16);  // JP nn
         REQUIRE(run(c, {0xCD, 0x00, 0x03}) == 24);  // CALL nn
@@ -4147,7 +4148,7 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
     }
 
     SECTION("CB-prefixed instructions include the prefix fetch") {
-        CPU c;
+        TestCpu c;
         c.registers.set_hl(0xC000);
         REQUIRE(run(c, {0xCB, 0x30}) == 8);   // SWAP B
         REQUIRE(run(c, {0xCB, 0x46}) == 12);  // BIT 0,(HL): read only
@@ -4173,7 +4174,7 @@ TEST_CASE("step() T-cycle Unit Tests", "[cpu][cycles]") {
 
 TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
     SECTION("V-Blank interrupt is serviced") {
-        CPU c;
+        TestCpu c;
         c.ime = true;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
@@ -4190,7 +4191,7 @@ TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
     }
 
     SECTION("Servicing doesn't overwrite the top of the stack") {
-        CPU c;
+        TestCpu c;
         c.push(0xBEEF);
         c.ime = true;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x04);
@@ -4205,7 +4206,7 @@ TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
     }
 
     SECTION("Lowest bit has priority and others stay requested") {
-        CPU c;
+        TestCpu c;
         c.ime = true;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x1F);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x14); // Timer + Joypad
@@ -4220,7 +4221,7 @@ TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
         uint16_t vectors[] = {0x40, 0x48, 0x50, 0x58, 0x60};
 
         for (int bit = 0; bit < 5; bit++) {
-            CPU c;
+            TestCpu c;
             c.ime = true;
             c.bus.write_byte(CPU::IE_ADDRESS, 1 << bit);
             c.bus.write_byte(CPU::IF_ADDRESS, 1 << bit);
@@ -4233,11 +4234,11 @@ TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
     }
 
     SECTION("Requested but not enabled in IE is not serviced") {
-        CPU c;
+        TestCpu c;
         c.ime = true;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x02);
-        c.bus.write_byte(c.pc, 0x00); // NOP
+        c.poke(c.pc, 0x00); // NOP
         uint16_t start_pc = c.pc;
 
         REQUIRE(c.step() == 4);
@@ -4245,11 +4246,11 @@ TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
     }
 
     SECTION("Pending interrupt is not serviced while IME is off") {
-        CPU c;
+        TestCpu c;
         c.ime = false;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
-        c.bus.write_byte(c.pc, 0x00); // NOP
+        c.poke(c.pc, 0x00); // NOP
         uint16_t start_pc = c.pc;
 
         REQUIRE(c.step() == 4);
@@ -4258,11 +4259,11 @@ TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
     }
 
     SECTION("Delayed EI enable turns IME on after the next instruction") {
-        CPU c;
+        TestCpu c;
         c.ei_delayed = true;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x00);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
-        c.bus.write_byte(c.pc, 0x00); // NOP
+        c.poke(c.pc, 0x00); // NOP
 
         c.step();
 
@@ -4273,7 +4274,7 @@ TEST_CASE("Interrupt Unit Tests", "[cpu][interrupts]") {
 
 TEST_CASE("HALT state Unit Tests", "[cpu][interrupts][halt]") {
     SECTION("Halted with nothing pending takes 4 cycles and doesn't fetch") {
-        CPU c;
+        TestCpu c;
         c.halted = true;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
@@ -4285,12 +4286,12 @@ TEST_CASE("HALT state Unit Tests", "[cpu][interrupts][halt]") {
     }
 
     SECTION("Pending interrupt wakes CPU without servicing when IME is off") {
-        CPU c;
+        TestCpu c;
         c.halted = true;
         c.ime = false;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
-        c.bus.write_byte(c.pc, 0x00); // NOP
+        c.poke(c.pc, 0x00); // NOP
         uint16_t start_pc = c.pc;
 
         REQUIRE(c.step() == 4);
@@ -4300,7 +4301,7 @@ TEST_CASE("HALT state Unit Tests", "[cpu][interrupts][halt]") {
     }
 
     SECTION("Pending interrupt wakes CPU and is serviced when IME is on") {
-        CPU c;
+        TestCpu c;
         c.halted = true;
         c.ime = true;
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
@@ -4316,16 +4317,16 @@ TEST_CASE("HALT state Unit Tests", "[cpu][interrupts][halt]") {
 
 TEST_CASE("Interrupt instruction end-to-end Unit Tests", "[cpu][interrupts][instructions]") {
     // Writes the instruction bytes at pc so the next step() calls run them
-    auto load = [](CPU& c, std::initializer_list<uint8_t> bytes) {
+    auto load = [](TestCpu& c, std::initializer_list<uint8_t> bytes) {
         uint16_t addr = c.pc;
         for (uint8_t byte : bytes) {
-            c.bus.write_byte(addr, byte);
+            c.poke(addr, byte);
             addr = addr + 1;
         }
     };
 
     SECTION("EI enables interrupts only after the next instruction") {
-        CPU c;
+        TestCpu c;
         load(c, {0xFB, 0x00, 0x00}); // EI, NOP, NOP
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x01); // V-Blank already pending
@@ -4344,7 +4345,7 @@ TEST_CASE("Interrupt instruction end-to-end Unit Tests", "[cpu][interrupts][inst
     }
 
     SECTION("EI directly followed by DI leaves interrupts disabled") {
-        CPU c;
+        TestCpu c;
         load(c, {0xFB, 0xF3, 0x00}); // EI, DI, NOP
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
@@ -4360,7 +4361,7 @@ TEST_CASE("Interrupt instruction end-to-end Unit Tests", "[cpu][interrupts][inst
     }
 
     SECTION("DI disables interrupts immediately") {
-        CPU c;
+        TestCpu c;
         c.ime = true;
         load(c, {0xF3}); // DI
         c.bus.write_byte(CPU::IE_ADDRESS, 0x00);
@@ -4371,7 +4372,7 @@ TEST_CASE("Interrupt instruction end-to-end Unit Tests", "[cpu][interrupts][inst
     }
 
     SECTION("EI then HALT sleeps until the interrupt, then services it") {
-        CPU c;
+        TestCpu c;
         load(c, {0xFB, 0x76, 0x00}); // EI, HALT, NOP
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
@@ -4395,7 +4396,7 @@ TEST_CASE("Interrupt instruction end-to-end Unit Tests", "[cpu][interrupts][inst
     }
 
     SECTION("HALT with IME off wakes and continues without servicing") {
-        CPU c;
+        TestCpu c;
         load(c, {0x76, 0x00}); // HALT, NOP
         c.bus.write_byte(CPU::IE_ADDRESS, 0x04);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x00);
@@ -4414,9 +4415,9 @@ TEST_CASE("Interrupt instruction end-to-end Unit Tests", "[cpu][interrupts][inst
     }
 
     SECTION("Interrupt handler returns with RETI and re-enables interrupts") {
-        CPU c;
+        TestCpu c;
         c.ime = true;
-        c.bus.write_byte(0x40, 0xD9); // V-Blank handler: RETI
+        c.poke(0x40, 0xD9); // V-Blank handler: RETI
         c.bus.write_byte(CPU::IE_ADDRESS, 0x01);
         c.bus.write_byte(CPU::IF_ADDRESS, 0x01);
         uint16_t start_pc = c.pc;
