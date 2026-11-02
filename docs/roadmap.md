@@ -27,14 +27,15 @@ The emulator is an interpreter that models the Game Boy's state, and the rules f
   - **Serial (#22):** `SB`/`SC` with a "no cable connected" stub. Internal-clock transfers capture the byte, set `SB` to `0xFF` and request the serial interrupt.
   - **Headless test-ROM runner:** `build/gameboy <rom>` runs a ROM of 32 KB or less and prints its serial output. Blargg `cpu_instrs` tests also run as Catch2 tests tagged `[testrom]`.
 - **Blargg `cpu_instrs`:** 10 of the 11 individual ROMs pass. `02-interrupts` fails until the timer (#19) exists, because it tests the timer interrupt. The combined `cpu_instrs.gb` is 64 KB and can't load until MBC1 banking (#18).
-- **Not started:** memory map, cartridge, timers, PPU, frontend, audio. Memory is still a flat 64 KB array, with `SC` writes special-cased for the serial port.
+- **Memory bus (#17):** `MemoryBus` routes every address to its owner, with echo RAM mirroring WRAM. `GameBoy` owns the `MemoryBus` and the `CPU`, and the CPU holds a reference to the bus. The bus owns the components (cartridge, PPU memory, serial) plus WRAM, HRAM, `IF` and `IE`. Components never reference the bus: they return the interrupt bits they request, and the bus ORs them into `IF`. The machine starts in the post-boot state.
+- **Not started:** cartridge banking, timers, PPU rendering, frontend, audio.
 
 ## Phases
 
 | # | Phase | Issue | Depends on | Status |
 |---|---|---|---|---|
 | 1 | Finish the CPU: remaining opcodes, cycle counts, interrupts | [#16](https://github.com/Sam-Coburn/gameboy_emulator/issues/16) | (#22 for test ROMs) | ✅ Done |
-| 2 | Memory bus address decoding and post-boot state | [#17](https://github.com/Sam-Coburn/gameboy_emulator/issues/17) | — | Not started |
+| 2 | Memory bus address decoding and post-boot state | [#17](https://github.com/Sam-Coburn/gameboy_emulator/issues/17) | — | ✅ Done |
 | 3 | Cartridge loading and MBC3 bank switching, battery saves | [#18](https://github.com/Sam-Coburn/gameboy_emulator/issues/18) | #17 | Not started |
 | 4 | Timer and divider registers | [#19](https://github.com/Sam-Coburn/gameboy_emulator/issues/19) | #16, #17 | Not started |
 | 5 | PPU (graphics) | [#20](https://github.com/Sam-Coburn/gameboy_emulator/issues/20) | #16, #17 | Not started |
@@ -90,13 +91,14 @@ Each step makes the next one testable, so you're never writing a lot of code you
 2. ✅ Serial capture (#22)
 3. ✅ **Blargg `cpu_instrs` passes** (all individual ROMs except `02-interrupts`, which needs the timer)
 4. ✅ Cycle counts and interrupts (#16)
-5. **Next:** bus refactor (#17) and cartridge loading, no-MBC (#18)
-6. Timers (#19), then **Blargg `instr_timing` passes**
-7. PPU (#20)
-8. Frontend and joypad (#21), then **`dmg-acid2` renders and Tetris is playable**
-9. MBC3 and saves (#18)
-10. **Pokémon Blue**
-11. APU (#23)
+5. ✅ Bus refactor (#17)
+6. **Next:** cartridge loading, no-MBC (#18)
+7. Timers (#19), then **Blargg `instr_timing` passes**
+8. PPU (#20)
+9. Frontend and joypad (#21), then **`dmg-acid2` renders and Tetris is playable**
+10. MBC3 and saves (#18)
+11. **Pokémon Blue**
+12. APU (#23)
 
 ## Milestones
 
@@ -112,9 +114,9 @@ Each step makes the next one testable, so you're never writing a lot of code you
 
 ## Code changes to plan for
 - ✅ **Cycle counts:** `step()` returns the T-cycles each instruction took (done in #16).
-- **Header-only code:** split implementations into `.cpp` files as the components grow, to keep build times down.
-- **Memory initialisation:** zero-initialise all memory. `MemoryBus` still doesn't do this itself; `TestRomRunner` works around it by creating the CPU with `std::make_unique<CPU>()`, which value-initialises it. Fix it properly in the bus refactor (#17).
-- **Serial special case:** `MemoryBus::write_byte` checks for `SC` writes directly. Move this into its own serial component when the bus routes I/O addresses (#17).
+- **Header-only code:** the new components and the bus are split into `.cpp` files in a `gameboy_core` library. `cpu.hpp` is still header-only and can move to `cpu.cpp` later.
+- ✅ **Memory initialisation:** every RAM array zero-initialises itself (#17).
+- ✅ **Serial special case:** moved into its own `Serial` component (#17).
 
 ## Resources
 - [Pan Docs](https://gbdev.io/pandocs/): the main hardware reference

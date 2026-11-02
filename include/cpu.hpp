@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cycles.hpp>
 #include <instruction.hpp>
 #include <memorybus.hpp>
@@ -14,7 +16,10 @@
 class CPU {
     public:
         Registers registers;
-        MemoryBus bus;
+
+        // The CPU uses the bus but doesn't own it: whoever creates the CPU (GameBoy, or a test)
+        // owns the bus and must keep it alive for as long as the CPU exists
+        MemoryBus& bus;
 
         uint16_t pc = 0x100;
         uint16_t sp = 0xFFFE;
@@ -27,8 +32,22 @@ class CPU {
         bool ei_delayed = false; // Set by EI: turn IME on after the next instruction
         bool halted = false; // Set by HALT: CPU is asleep until an interrupt is pending
 
-        static constexpr uint16_t IE_ADDRESS = 0xFFFF; // Interrupt Enable register
-        static constexpr uint16_t IF_ADDRESS = 0xFF0F; // Interrupt Flag register
+        static constexpr uint16_t IE_ADDRESS = MemoryBus::IE_ADDRESS; // Interrupt Enable register
+        static constexpr uint16_t IF_ADDRESS = MemoryBus::IF_ADDRESS; // Interrupt Flag register
+
+        explicit CPU(MemoryBus& bus) : bus(bus) {}
+
+        // Sets the registers to the values the DMG boot ROM leaves behind (Pan Docs, Power Up
+        // Sequence). On real hardware H and C depend on the header checksum; 0x01B0 assumes
+        // a valid, nonzero one, which every licensed game has
+        void apply_post_boot_state() {
+            registers.set_af(0x01B0);
+            registers.set_bc(0x0013);
+            registers.set_de(0x00D8);
+            registers.set_hl(0x014D);
+            sp = 0xFFFE;
+            pc = 0x0100;
+        }
 
         // Executes the instruction at pc and returns the number of T-cycles it took
         uint8_t step() {
